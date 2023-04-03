@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -36,7 +37,13 @@ public class TagDaoImpl implements TagDao {
                 ps.setString(1, tag.getName());
                 return ps;
             }, keyHolder);
-            tag.setId((Long) keyHolder.getKeys().get("id"));
+
+            try {
+                BigInteger key = (BigInteger) keyHolder.getKeys().get("GENERATED_KEY");
+                tag.setId(key.longValue());
+            } catch (Exception e) {
+                tag.setId((Long) keyHolder.getKeys().get("id"));
+            }
             return tag;
         } catch (DuplicateKeyException e) {
             throw new IllegalArgumentException("Tag with name '" + tag.getName() + "' already exists");
@@ -83,9 +90,9 @@ public class TagDaoImpl implements TagDao {
         }
     }
 
-    public void delete(long id) throws DbException {
+    public boolean delete(long id) throws DbException {
         try {
-            jdbcTemplate.update(TagSqlQueries.DELETE_TAG_BY_ID, id);
+            return (jdbcTemplate.update(TagSqlQueries.DELETE_TAG_BY_ID, id) > 0);
         } catch (Exception e) {
             throw new DbException("Error while deleting a Tag with id = " + id + ": " + Arrays.toString(e.getStackTrace()));
         }

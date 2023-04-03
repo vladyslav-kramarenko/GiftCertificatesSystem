@@ -15,5 +15,5 @@ public interface TagDao {
 
     List<Tag> getAll() throws DbException;
 
-    void delete(long id) throws DbException;
+    boolean delete(long id) throws DbException;
 }
