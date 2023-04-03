@@ -10,10 +10,10 @@ import java.util.Optional;
 public interface TagDao {
     Tag create(Tag tag)throws DbException;
 
-    Optional<Tag> getById(long id);
-    Optional<Tag> getByName(String name);
+    Optional<Tag> getById(long id) throws DbException;
+    Optional<Tag> getByName(String name) throws DbException;
 
-    List<Tag> getAll();
+    List<Tag> getAll() throws DbException;
 
-    void delete(long id);
+    void delete(long id) throws DbException;
 }

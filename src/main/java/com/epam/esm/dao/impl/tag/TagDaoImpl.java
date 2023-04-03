@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,37 +39,55 @@ public class TagDaoImpl implements TagDao {
             tag.setId((Long) keyHolder.getKeys().get("id"));
             return tag;
         } catch (DuplicateKeyException e) {
-            throw new DbException("Tag with name '" + tag.getName() + "' already exists");
+            throw new IllegalArgumentException("Tag with name '" + tag.getName() + "' already exists");
+        } catch (Exception e) {
+            throw new DbException("Error while creating a Tag" + Arrays.toString(e.getStackTrace()));
         }
     }
 
-    public Optional<Tag> getById(long id) {
-        List<Tag> tags = jdbcTemplate.query(
-                TagSqlQueries.GET_TAG_BY_ID,
-                ps -> ps.setLong(1, id),
-                new TagRowMapper()
-        );
-        return tags.stream().findFirst();
+    public Optional<Tag> getById(long id) throws DbException {
+        try {
+            List<Tag> tags = jdbcTemplate.query(
+                    TagSqlQueries.GET_TAG_BY_ID,
+                    ps -> ps.setLong(1, id),
+                    new TagRowMapper()
+            );
+            return !tags.isEmpty() ? tags.stream().findFirst() : Optional.empty();
+        } catch (Exception e) {
+            throw new DbException("Error while get Tag with id = " + id + ": " + Arrays.toString(e.getStackTrace()));
+        }
     }
 
     @Override
-    public Optional<Tag> getByName(String name) {
-        List<Tag> tags = jdbcTemplate.query(
-                TagSqlQueries.GET_TAG_BY_NAME,
-                ps -> ps.setString(1, name),
-                new TagRowMapper()
-        );
-        return tags.stream().findFirst();
+    public Optional<Tag> getByName(String name) throws DbException {
+        try {
+            List<Tag> tags = jdbcTemplate.query(
+                    TagSqlQueries.GET_TAG_BY_NAME,
+                    ps -> ps.setString(1, name),
+                    new TagRowMapper()
+            );
+            return !tags.isEmpty() ? tags.stream().findFirst() : Optional.empty();
+        } catch (Exception e) {
+            throw new DbException("Error while get Tag with name = " + name + ": " + Arrays.toString(e.getStackTrace()));
+        }
     }
 
-    public List<Tag> getAll() {
-        return jdbcTemplate.query(
-                TagSqlQueries.GET_ALL_TAGS,
-                new TagRowMapper()
-        );
+    public List<Tag> getAll() throws DbException {
+        try {
+            return jdbcTemplate.query(
+                    TagSqlQueries.GET_ALL_TAGS,
+                    new TagRowMapper()
+            );
+        } catch (Exception e) {
+            throw new DbException("Error while getting all Tags: " + Arrays.toString(e.getStackTrace()));
+        }
     }
 
-    public void delete(long id) {
-        jdbcTemplate.update(TagSqlQueries.DELETE_TAG_BY_ID, id);
+    public void delete(long id) throws DbException {
+        try {
+            jdbcTemplate.update(TagSqlQueries.DELETE_TAG_BY_ID, id);
+        } catch (Exception e) {
+            throw new DbException("Error while deleting a Tag with id = " + id + ": " + Arrays.toString(e.getStackTrace()));
+        }
     }
 }

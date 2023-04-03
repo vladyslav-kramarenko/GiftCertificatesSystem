@@ -101,7 +101,7 @@ public class TagDaoTest {
         tagDao.create(tag);
 
         // Attempt to create the same tag again
-        assertThrows(DbException.class, () -> tagDao.create(tag));
+        assertThrows(IllegalArgumentException.class, () -> tagDao.create(tag));
 
         tagDao.delete(tag.getId());
     }
