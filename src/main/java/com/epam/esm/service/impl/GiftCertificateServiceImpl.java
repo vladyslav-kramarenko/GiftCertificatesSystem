@@ -3,6 +3,7 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.exception.ServiceException;
+import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.epam.esm.util.Constants.*;
 import static com.epam.esm.util.Utilities.validateId;
@@ -135,7 +137,18 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         }
     }
 
-    public List<GiftCertificate> getGiftCertificates() throws ServiceException {
+    public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter filter, int page, int size) throws ServiceException {
+        try {
+            return filter.filter(giftCertificateDao.getAll().stream())
+                    .skip((long) page * size)
+                    .limit(size)
+                    .collect(Collectors.toList());
+        } catch (DbException e) {
+            throw new ServiceException("Error while searching for gift certificates");
+        }
+    }
+
+    public List<GiftCertificate> getAllGiftCertificates() throws ServiceException {
         try {
             return giftCertificateDao.getAll();
         } catch (DbException e) {

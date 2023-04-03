@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.exception.ServiceException;
+import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
 
 import java.util.List;
@@ -15,5 +16,5 @@ public interface GiftCertificateService {
 
     boolean deleteGiftCertificate(Long id) throws ServiceException;
 
-    List<GiftCertificate> getGiftCertificates() throws ServiceException;
+    List<GiftCertificate> getGiftCertificates(GiftCertificateFilter filter, int page, int size) throws ServiceException;
 }

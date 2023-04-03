@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.exception.ServiceException;
+import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.service.impl.GiftCertificateServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.epam.esm.util.Constants.*;
 
 @RestController
 @RequestMapping("/certificates")
@@ -78,9 +81,17 @@ public class GiftCertificateController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getGiftCertificates() {
+    public ResponseEntity<?> getGiftCertificates(
+            @RequestParam(name = "tagName", required = false) String tagName,
+            @RequestParam(name = "page", defaultValue = DEFAULT_PAGE) int page,
+            @RequestParam(name = "size", defaultValue = DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(name = "sort", defaultValue = DEFAULT_SORT) String[] sortParams
+    ) {
         try {
-            List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates();
+            GiftCertificateFilter giftCertificateFilter = GiftCertificateFilter.builder()
+                    .withTagName(tagName)
+                    .build();
+            List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size);
             return ResponseEntity.ok(certificates);
         } catch (ServiceException se) {
             return ResponseEntity.internalServerError().body(se.getMessage());
