@@ -1,5 +1,6 @@
 package com.epam.esm.model;
 
+import org.springframework.context.annotation.Lazy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ public class GiftCertificate {
     private Integer duration;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
+    @Lazy
     private List<Tag> tags;
 
     public GiftCertificate() {
