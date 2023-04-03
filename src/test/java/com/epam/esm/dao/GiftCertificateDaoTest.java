@@ -56,7 +56,7 @@ class GiftCertificateDaoTest {
     }
 
     @AfterEach
-    public void setDown() {
+    public void setDown() throws DbException {
         if (tag1.getId() != null) tagDao.delete(tag1.getId());
         if (tag2.getId() != null) tagDao.delete(tag2.getId());
         if (giftCertificate1.getId() != null) giftCertificateDao.delete(giftCertificate1.getId());
