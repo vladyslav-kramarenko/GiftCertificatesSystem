@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import static com.epam.esm.util.Constants.*;
 import static com.epam.esm.util.GiftCertificateUtils.*;
 import static com.epam.esm.util.SortUtilities.createSort;
+import static com.epam.esm.util.TagUtils.validateTags;
 import static com.epam.esm.util.Utilities.validateId;
 
 @Service
@@ -28,7 +29,8 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     }
 
     @Override
-    public Optional<GiftCertificate> getGiftCertificateById(Long id) throws IllegalArgumentException, ServiceException {
+    public Optional<GiftCertificate> getGiftCertificateById(Long id)
+            throws IllegalArgumentException, ServiceException {
         try {
             validateId(id);
             return giftCertificateDao.getById(id);
@@ -38,7 +40,8 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     }
 
     @Override
-    public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate) throws IllegalArgumentException, ServiceException {
+    public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate)
+            throws IllegalArgumentException, ServiceException {
         validateForNull(giftCertificate.getDescription(), "description");
         validateForNull(giftCertificate.getName(), "name");
         validateForNull(giftCertificate.getPrice(), "price");
@@ -48,6 +51,8 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         validateGiftCertificateName(giftCertificate.getName());
         validateGiftCertificatePrice(giftCertificate.getPrice());
         validateGiftCertificateDuration(giftCertificate.getDuration());
+
+        validateTags(giftCertificate.getTags());
 
         try {
             return giftCertificateDao.create(giftCertificate);

@@ -15,6 +15,7 @@ import java.util.Optional;
 import static com.epam.esm.util.Constants.ALLOWED_SORT_DIRECTIONS;
 import static com.epam.esm.util.Constants.ALLOWED_TAG_SORT_FIELDS;
 import static com.epam.esm.util.SortUtilities.createSort;
+import static com.epam.esm.util.TagUtils.validateTag;
 import static com.epam.esm.util.Utilities.validateId;
 
 @Service
@@ -45,13 +46,6 @@ public class TagServiceImpl implements TagService {
             throw new ServiceException("Error while creating a tag");
         }
     }
-
-    private void validateTag(Tag tag) {
-        if (tag.getName() == null || tag.getName().isEmpty()) {
-            throw new IllegalArgumentException("Tag name cannot be empty");
-        }
-    }
-
 
     @Override
     public boolean deleteTag(Long id) throws ServiceException {
