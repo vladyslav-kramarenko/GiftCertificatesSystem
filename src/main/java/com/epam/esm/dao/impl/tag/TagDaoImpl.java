@@ -5,6 +5,7 @@ import com.epam.esm.exception.DbException;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -17,6 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.dao.impl.tag.TagSqlQueries.GET_ALL_TAGS;
+import static com.epam.esm.util.Utilities.getOrderByClause;
+
 @Repository
 public class TagDaoImpl implements TagDao {
     private final JdbcTemplate jdbcTemplate;
@@ -26,6 +30,7 @@ public class TagDaoImpl implements TagDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
     public Tag create(Tag tag) throws DbException {
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -52,6 +57,7 @@ public class TagDaoImpl implements TagDao {
         }
     }
 
+    @Override
     public Optional<Tag> getById(long id) throws DbException {
         try {
             List<Tag> tags = jdbcTemplate.query(
@@ -79,10 +85,11 @@ public class TagDaoImpl implements TagDao {
         }
     }
 
+    @Override
     public List<Tag> getAll() throws DbException {
         try {
             return jdbcTemplate.query(
-                    TagSqlQueries.GET_ALL_TAGS,
+                    GET_ALL_TAGS,
                     new TagRowMapper()
             );
         } catch (Exception e) {
@@ -90,6 +97,20 @@ public class TagDaoImpl implements TagDao {
         }
     }
 
+    @Override
+    public List<Tag> getAll(Sort sort) throws DbException {
+        String sql = getOrderByClause(GET_ALL_TAGS, sort);
+        try {
+            return jdbcTemplate.query(
+                    sql,
+                    new TagRowMapper()
+            );
+        } catch (Exception e) {
+            throw new DbException("Error while getting all Tags: " + Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    @Override
     public boolean delete(long id) throws DbException {
         try {
             return (jdbcTemplate.update(TagSqlQueries.DELETE_TAG_BY_ID, id) > 0);

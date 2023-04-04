@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.util.Constants.DEFAULT_SORT;
+
 @RestController
 @RequestMapping("/tags")
 public class TagController {
@@ -26,9 +28,10 @@ public class TagController {
 
     @GetMapping(value = "")
     @ResponseBody
-    public ResponseEntity<?> getTags() {
+    public ResponseEntity<?> getTags(
+            @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams) {
         try {
-            List<Tag> tags = tagService.getTags();
+            List<Tag> tags = tagService.getTags(sortParams);
             if (tags.size() > 0) return ResponseEntity.ok(tags);
             return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {

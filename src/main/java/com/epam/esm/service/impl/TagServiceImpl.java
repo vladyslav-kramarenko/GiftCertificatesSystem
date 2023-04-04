@@ -6,11 +6,15 @@ import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.Tag;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.util.Constants.ALLOWED_SORT_DIRECTIONS;
+import static com.epam.esm.util.Constants.ALLOWED_TAG_SORT_FIELDS;
+import static com.epam.esm.util.SortUtilities.createSort;
 import static com.epam.esm.util.Utilities.validateId;
 
 @Service
@@ -55,9 +59,10 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Tag> getTags() throws ServiceException {
+    public List<Tag> getTags(String[] sortParams) throws ServiceException {
+        Sort sort = createSort(sortParams, ALLOWED_TAG_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS).get();
         try {
-            return tagDao.getAll();
+            return tagDao.getAll(sort);
         } catch (DbException e) {
             throw new ServiceException("Error while getting all tags");
         }

@@ -13,5 +13,5 @@ public interface TagService {
 
     boolean deleteTag(Long id) throws ServiceException;
 
-    List<Tag> getTags() throws ServiceException;
+    List<Tag> getTags(String[] sortParams) throws ServiceException;
 }
