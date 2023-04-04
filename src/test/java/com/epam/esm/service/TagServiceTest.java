@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 import static com.epam.esm.util.Constants.MAX_TAG_NAME_LENGTH;
 import static com.epam.esm.util.testUtils.generateStringBySize;
-import static com.epam.esm.util.testUtils.generateTag;
+import static com.epam.esm.util.testUtils.generateTagWithId;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TagServiceTest {
@@ -102,8 +102,8 @@ public class TagServiceTest {
     public void testGetTags_ValidSortParams_ReturnsSortedTags() throws ServiceException, DbException {
         List<Tag> tags = new ArrayList<>();
 
-        tags.add(generateTag(1L));
-        tags.add(generateTag(2L));
+        tags.add(generateTagWithId(1L));
+        tags.add(generateTagWithId(2L));
 
         Sort sort = Sort.by("name").ascending();
         Mockito.when(tagDao.getAll(sort)).thenReturn(tags);
@@ -125,8 +125,8 @@ public class TagServiceTest {
     public void testGetTags_NullSortParams_ReturnsUnsortedTags() throws ServiceException, DbException {
         List<Tag> tags = new ArrayList<>();
 
-        tags.add(generateTag(1L));
-        tags.add(generateTag(2L));
+        tags.add(generateTagWithId(1L));
+        tags.add(generateTagWithId(2L));
 
         Mockito.when(tagDao.getAll(null)).thenReturn(tags);
 
