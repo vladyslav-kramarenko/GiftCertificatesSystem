@@ -18,15 +18,26 @@ import static com.epam.esm.util.SortUtilities.createSort;
 import static com.epam.esm.util.TagUtils.validateTag;
 import static com.epam.esm.util.Utilities.validateId;
 
+/**
+ * Implementation of the {@link TagService} interface that provides the business logic for working with tags.
+ */
 @Service
 public class TagServiceImpl implements TagService {
     private final TagDao tagDao;
 
+    /**
+     * Constructor that initializes the {@link TagDao} instance.
+     *
+     * @param tagDao - the DAO instance used to interact with the database
+     */
     @Autowired
     public TagServiceImpl(TagDao tagDao) {
         this.tagDao = tagDao;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<Tag> getTagById(Long id) throws ServiceException {
         validateId(id);
@@ -37,6 +48,9 @@ public class TagServiceImpl implements TagService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Tag createTag(Tag tag) throws ServiceException {
         validateTag(tag);
@@ -47,6 +61,9 @@ public class TagServiceImpl implements TagService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean deleteTag(Long id) throws ServiceException {
         validateId(id);
@@ -57,6 +74,9 @@ public class TagServiceImpl implements TagService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Tag> getTags(String[] sortParams) throws ServiceException {
         Optional<Sort> sort = createSort(sortParams, ALLOWED_TAG_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
