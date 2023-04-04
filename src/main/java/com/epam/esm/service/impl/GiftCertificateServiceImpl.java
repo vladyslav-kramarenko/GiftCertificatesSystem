@@ -19,15 +19,34 @@ import static com.epam.esm.util.SortUtilities.createSort;
 import static com.epam.esm.util.TagUtils.validateTags;
 import static com.epam.esm.util.Utilities.validateId;
 
+/**
+ * Implementation of {@link com.epam.esm.service.GiftCertificateService} interface. Provides methods for
+ * <p>
+ * creating, retrieving, updating and deleting gift certificates from the database.
+ */
 @Service
 public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCertificateService {
     private final GiftCertificateDao giftCertificateDao;
 
+    /**
+     * Constructs a new instance of {@code GiftCertificateServiceImpl} with the given gift certificate DAO
+     *
+     * @param giftCertificateDao a {@link com.epam.esm.dao.GiftCertificateDao} object
+     */
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateDao giftCertificateDao) {
         this.giftCertificateDao = giftCertificateDao;
     }
 
+    /**
+     * Retrieves a gift certificate by its ID.
+     *
+     * @param id a gift certificate ID
+     * @return an {@link java.util.Optional} containing the retrieved gift certificate or empty if the gift
+     * certificate does not exist
+     * @throws IllegalArgumentException if the provided ID is invalid
+     * @throws ServiceException         if an error occurred while retrieving the gift certificate from the database
+     */
     @Override
     public Optional<GiftCertificate> getGiftCertificateById(Long id)
             throws IllegalArgumentException, ServiceException {
@@ -39,6 +58,14 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         }
     }
 
+    /**
+     * Creates a new gift certificate in the database.
+     *
+     * @param giftCertificate a {@link com.epam.esm.model.GiftCertificate} object to create
+     * @return the created gift certificate
+     * @throws IllegalArgumentException if any of the fields of the provided gift certificate are invalid
+     * @throws ServiceException         if an error occurred while creating the gift certificate in the database
+     */
     @Override
     public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate)
             throws IllegalArgumentException, ServiceException {
@@ -61,6 +88,17 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         }
     }
 
+    /**
+     * Updates an existing gift certificate in the database.
+     *
+     * @param id              the ID of the gift certificate to update
+     * @param giftCertificate a {@link com.epam.esm.model.GiftCertificate} object containing the new data
+     * @return an {@link java.util.Optional} containing the updated gift certificate or empty if the gift
+     * certificate does not exist
+     * @throws IllegalArgumentException if the provided ID is invalid or any of the fields of the provided gift
+     *                                  certificate are invalid
+     * @throws ServiceException         if an error occurred while updating the gift certificate in the database
+     */
     @Override
     public Optional<GiftCertificate> updateGiftCertificate(Long id, GiftCertificate giftCertificate) throws IllegalArgumentException, ServiceException {
         validateId(id);
@@ -75,6 +113,14 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         }
     }
 
+    /**
+     * Deletes a gift certificate with the specified id.
+     *
+     * @param id the id of the gift certificate to delete
+     * @return true if the gift certificate was successfully deleted, false otherwise
+     * @throws IllegalArgumentException if the specified id is null or negative
+     * @throws ServiceException         if an error occurs while deleting the gift certificate
+     */
     @Override
     public boolean deleteGiftCertificate(Long id) throws IllegalArgumentException, ServiceException {
         validateId(id);
@@ -85,6 +131,18 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         }
     }
 
+    /**
+     * Gets a list of gift certificates that match the specified filter, sorted and paginated as specified.
+     *
+     * @param giftCertificateFilter the filter to apply to the gift certificates
+     * @param page                  the page number to return (starting at 0)
+     * @param size                  the number of gift certificates to return per page
+     * @param sortParams            an array of sort parameters in the format {field},{direction}, where field is one of the allowed
+     *                              sort fields and direction is one of the allowed sort directions. If no sort parameters are
+     *                              specified, the gift certificates are returned in their natural order.
+     * @return a list of gift certificates that match the specified filter, sorted and paginated as specified
+     * @throws ServiceException if an error occurs while getting the gift certificates
+     */
     @Override
     public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter giftCertificateFilter, int page, int size, String[] sortParams) throws ServiceException {
         try {
