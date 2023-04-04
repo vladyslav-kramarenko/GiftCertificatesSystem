@@ -42,18 +42,24 @@ public class TagDaoImpl implements TagDao {
                 ps.setString(1, tag.getName());
                 return ps;
             }, keyHolder);
-
-            try {
-                BigInteger key = (BigInteger) keyHolder.getKeys().get("GENERATED_KEY");
-                tag.setId(key.longValue());
-            } catch (Exception e) {
-                tag.setId((Long) keyHolder.getKeys().get("id"));
-            }
+            tag.setId(getKey(keyHolder));
             return tag;
         } catch (DuplicateKeyException e) {
             throw new IllegalArgumentException("Tag with name '" + tag.getName() + "' already exists");
         } catch (Exception e) {
             throw new DbException("Error while creating a Tag" + Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    private long getKey(KeyHolder keyHolder) throws DbException {
+        Object keyObject = keyHolder.getKeys().getOrDefault("GENERATED_KEY", null);
+        if (keyObject != null) {
+            BigInteger key = (BigInteger) keyObject;
+            return key.longValue();
+        } else {
+            keyObject = keyHolder.getKeys().get("id");
+            if (keyObject == null) throw new DbException("Generated key for new tag not found");
+            return (long) keyObject;
         }
     }
 
@@ -87,24 +93,14 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public List<Tag> getAll() throws DbException {
-        try {
-            return jdbcTemplate.query(
-                    GET_ALL_TAGS,
-                    new TagRowMapper()
-            );
-        } catch (Exception e) {
-            throw new DbException("Error while getting all Tags: " + Arrays.toString(e.getStackTrace()));
-        }
+        return getAll(null);
     }
 
     @Override
     public List<Tag> getAll(Sort sort) throws DbException {
         String sql = getOrderByClause(GET_ALL_TAGS, sort);
         try {
-            return jdbcTemplate.query(
-                    sql,
-                    new TagRowMapper()
-            );
+            return jdbcTemplate.query(sql, new TagRowMapper());
         } catch (Exception e) {
             throw new DbException("Error while getting all Tags: " + Arrays.toString(e.getStackTrace()));
         }

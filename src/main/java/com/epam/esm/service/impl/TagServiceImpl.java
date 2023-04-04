@@ -38,15 +38,20 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Tag createTag(Tag tag) throws ServiceException {
-        if (tag.getName() == null || tag.getName().isEmpty()) {
-            throw new IllegalArgumentException("Tag name cannot be empty");
-        }
+        validateTag(tag);
         try {
             return tagDao.create(tag);
         } catch (DbException e) {
             throw new ServiceException("Error while creating a tag");
         }
     }
+
+    private void validateTag(Tag tag) {
+        if (tag.getName() == null || tag.getName().isEmpty()) {
+            throw new IllegalArgumentException("Tag name cannot be empty");
+        }
+    }
+
 
     @Override
     public boolean deleteTag(Long id) throws ServiceException {
@@ -60,9 +65,9 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getTags(String[] sortParams) throws ServiceException {
-        Sort sort = createSort(sortParams, ALLOWED_TAG_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS).get();
+        Optional<Sort> sort = createSort(sortParams, ALLOWED_TAG_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
         try {
-            return tagDao.getAll(sort);
+            return tagDao.getAll(sort.orElse(null));
         } catch (DbException e) {
             throw new ServiceException("Error while getting all tags");
         }
