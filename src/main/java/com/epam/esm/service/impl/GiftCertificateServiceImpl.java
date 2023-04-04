@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import static com.epam.esm.util.Constants.*;
 import static com.epam.esm.util.GiftCertificateUtils.*;
-import static com.epam.esm.util.Utilities.createSort;
+import static com.epam.esm.util.SortUtilities.createSort;
 import static com.epam.esm.util.Utilities.validateId;
 
 @Service
