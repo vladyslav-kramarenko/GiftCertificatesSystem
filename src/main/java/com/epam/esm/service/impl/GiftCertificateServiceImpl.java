@@ -28,7 +28,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     }
 
     @Override
-    public Optional<GiftCertificate> getGiftCertificateById(Long id) throws ServiceException {
+    public Optional<GiftCertificate> getGiftCertificateById(Long id) throws IllegalArgumentException, ServiceException {
         try {
             validateId(id);
             return giftCertificateDao.getById(id);
@@ -83,8 +83,8 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     @Override
     public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter giftCertificateFilter, int page, int size, String[] sortParams) throws ServiceException {
         try {
-            Sort sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS).get();
-            List<GiftCertificate> giftCertificates = giftCertificateDao.getAllWithSearchQuery(giftCertificateFilter.getSearchQuery(), sort);
+            Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
+            List<GiftCertificate> giftCertificates = giftCertificateDao.getAllWithSearchQuery(giftCertificateFilter.getSearchQuery(), sort.orElse(null));
             return giftCertificateFilter.filter(giftCertificates.stream())
                     .skip((long) page * size)
                     .limit(size)
