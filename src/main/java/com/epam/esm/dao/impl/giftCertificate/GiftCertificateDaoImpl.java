@@ -35,7 +35,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     public GiftCertificate create(GiftCertificate giftCertificate) throws DbException {
         createGiftCertificate(giftCertificate);
-        addTags(giftCertificate);//TODO check tags creation
+        addTags(giftCertificate);
         return getById(giftCertificate.getId()).get();
     }
 
@@ -65,14 +65,14 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         }
     }
 
-    private void addTags(GiftCertificate giftCertificate) throws DbException {//TODO check tags creation
+    private void addTags(GiftCertificate giftCertificate) throws DbException {
         List<Tag> tags = giftCertificate.getTags();
         if (tags != null) {
             for (Tag tag : tags) {
-                Optional<Tag> existingTag = tagDao.getByName(tag.getName());//.orElse(null);
+                Optional<Tag> existingTag = tagDao.getByName(tag.getName());
                 if (existingTag.isPresent()) {
                     tag.setId(existingTag.get().getId());
-                    addTag(giftCertificate, tag);
+                    addTagToCertificate(giftCertificate, tag);
                 } else {
                     createTagAndAddToCertificate(giftCertificate, tag);
                 }
@@ -80,7 +80,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         }
     }
 
-    private void addTag(GiftCertificate giftCertificate, Tag tag) {
+    private void addTagToCertificate(GiftCertificate giftCertificate, Tag tag) {
         if (!hasCertificateTag(giftCertificate, tag)) {
             jdbcTemplate.update(
                     TagSqlQueries.ADD_TAG_TO_CERTIFICATE,
@@ -97,7 +97,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                 giftCertificate.getId(),
                 tag.getId()
         );
-        return counts.size() > 0 && counts.get(0) == 0;
+        return counts.size() > 0 && counts.get(0) != 0;
     }
 
     private void createTagAndAddToCertificate(GiftCertificate giftCertificate, Tag tag) throws DbException {
@@ -156,7 +156,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         );
 
         // Add new tags for the certificate
-        addTags(giftCertificate);//TODO check tags creation
+        addTags(giftCertificate);
         return giftCertificate;
     }
 
