@@ -18,6 +18,9 @@ public class TagUtils {
      * @throws IllegalArgumentException if the tag is not valid
      */
     public static void validateTag(Tag tag) throws IllegalArgumentException {
+        if (tag == null) {
+            throw new IllegalArgumentException("Tag cannot be empty");
+        }
         if (tag.getName() == null || tag.getName().isEmpty()) {
             throw new IllegalArgumentException("Tag name cannot be empty");
         }
