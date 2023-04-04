@@ -83,7 +83,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     @Override
     public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter giftCertificateFilter, int page, int size, String[] sortParams) throws ServiceException {
         try {
-            Sort sort = createSort(sortParams, ALLOWED_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
+            Sort sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS).get();
             List<GiftCertificate> giftCertificates = giftCertificateDao.getAllWithSearchQuery(giftCertificateFilter.getSearchQuery(), sort);
             return giftCertificateFilter.filter(giftCertificates.stream())
                     .skip((long) page * size)
