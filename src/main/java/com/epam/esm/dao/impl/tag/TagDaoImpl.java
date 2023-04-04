@@ -11,7 +11,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.epam.esm.dao.impl.tag.TagSqlQueries.GET_ALL_TAGS;
+import static com.epam.esm.util.Utilities.getKey;
 import static com.epam.esm.util.Utilities.getOrderByClause;
 
 @Repository
@@ -48,18 +48,6 @@ public class TagDaoImpl implements TagDao {
             throw new IllegalArgumentException("Tag with name '" + tag.getName() + "' already exists");
         } catch (Exception e) {
             throw new DbException("Error while creating a Tag" + Arrays.toString(e.getStackTrace()));
-        }
-    }
-
-    private long getKey(KeyHolder keyHolder) throws DbException {
-        Object keyObject = keyHolder.getKeys().getOrDefault("GENERATED_KEY", null);
-        if (keyObject != null) {
-            BigInteger key = (BigInteger) keyObject;
-            return key.longValue();
-        } else {
-            keyObject = keyHolder.getKeys().get("id");
-            if (keyObject == null) throw new DbException("Generated key for new tag not found");
-            return (long) keyObject;
         }
     }
 

@@ -13,12 +13,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
 import java.sql.*;
 import java.util.*;
 
 import static com.epam.esm.dao.impl.giftCertificate.GiftCertificateSqlQueries.*;
 import static com.epam.esm.dao.impl.tag.TagSqlQueries.*;
+import static com.epam.esm.util.Utilities.getKey;
 import static com.epam.esm.util.Utilities.getOrderByClause;
 
 @Repository
@@ -36,8 +36,13 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     public GiftCertificate create(GiftCertificate giftCertificate) throws DbException {
         createGiftCertificate(giftCertificate);
         addTags(giftCertificate);
-        return getById(giftCertificate.getId()).get();
+        Optional<GiftCertificate> createdGiftCertificate = getById(giftCertificate.getId());
+        if (createdGiftCertificate.isEmpty())
+            throw new DbException("can't find created gift certificate by id: " + giftCertificate.getId());
+        return createdGiftCertificate.get();
     }
+
+
 
     private void createGiftCertificate(GiftCertificate giftCertificate) throws DbException {
         try {
@@ -53,13 +58,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                 ps.setInt(4, giftCertificate.getDuration());
                 return ps;
             }, keyHolder);
-            try {
-                BigInteger generatedId = (BigInteger) keyHolder.getKeys().get("GENERATED_KEY");
-                giftCertificate.setId(generatedId.longValue());
-            } catch (Exception e) {
-                giftCertificate.setId((long) keyHolder.getKeys().get("id"));
-            }
-
+            giftCertificate.setId(getKey(keyHolder));
         } catch (Exception e) {
             throw new DbException("Error while creating new gift certificate: " + Arrays.toString(e.getStackTrace()));
         }
@@ -122,9 +121,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     public List<GiftCertificate> getAll() {
-        GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
-        jdbcTemplate.query(GET_ALL_CERTIFICATES_WITH_TAGS, handler);
-        return handler.getCertificates();
+        return getAll(null);
     }
 
     public List<GiftCertificate> getAll(Sort sort) {
