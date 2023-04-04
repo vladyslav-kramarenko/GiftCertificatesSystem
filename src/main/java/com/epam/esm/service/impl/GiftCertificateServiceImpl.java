@@ -6,14 +6,16 @@ import com.epam.esm.exception.ServiceException;
 import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.util.Constants.*;
+import static com.epam.esm.util.GiftCertificateUtils.*;
+import static com.epam.esm.util.Utilities.createSort;
 import static com.epam.esm.util.Utilities.validateId;
 
 @Service
@@ -25,6 +27,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         this.giftCertificateDao = giftCertificateDao;
     }
 
+    @Override
     public Optional<GiftCertificate> getGiftCertificateById(Long id) throws ServiceException {
         try {
             validateId(id);
@@ -53,68 +56,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         }
     }
 
-    private void validateForNull(Object parameter, String parameterName) throws IllegalArgumentException {
-        if (parameter == null)
-            throw new IllegalArgumentException("Gift Certificate " + parameterName + " cannot be empty");
-    }
-
-    private void validateGiftCertificateDescription(String description) {
-        if (description.length() == 0) {
-            throw new IllegalArgumentException("Gift Certificate description cannot be empty");
-        }
-        if (description.length() > MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH) {
-            throw new IllegalArgumentException(
-                    "Gift Certificate description should be less than " +
-                            MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH +
-                            " symbols");
-        }
-    }
-
-    private void validateGiftCertificateName(String name) {
-        if (name.length() == 0) {
-            throw new IllegalArgumentException("Gift Certificate name cannot be empty");
-        }
-        if (name.length() > MAX_GIFT_CERTIFICATE_NAME_LENGTH) {
-            throw new IllegalArgumentException("Gift Certificate name should be less than " +
-                    MAX_GIFT_CERTIFICATE_NAME_LENGTH +
-                    " symbols");
-        }
-    }
-
-    private void validateGiftCertificatePrice(BigDecimal price) {
-        if (price.doubleValue() < 0) {
-            throw new IllegalArgumentException("Gift Certificate price cannot be negative");
-        }
-    }
-
-    private void validateGiftCertificateDuration(Integer duration) {
-        if (duration < 0) {
-            throw new IllegalArgumentException("Gift Certificate duration cannot be negative");
-        }
-    }
-
-    private void updateCertificate(GiftCertificate giftCertificateToUpdate, GiftCertificate giftCertificateWithNewData) {
-        if (giftCertificateWithNewData.getDescription() != null) {
-            validateGiftCertificateDescription(giftCertificateWithNewData.getDescription());
-            giftCertificateToUpdate.setDescription(giftCertificateWithNewData.getDescription());
-        }
-        if (giftCertificateWithNewData.getName() != null) {
-            validateGiftCertificateName(giftCertificateWithNewData.getName());
-            giftCertificateToUpdate.setName(giftCertificateWithNewData.getDescription());
-        }
-        if (giftCertificateWithNewData.getDuration() != null) {
-            validateGiftCertificateDuration(giftCertificateWithNewData.getDuration());
-            giftCertificateToUpdate.setDuration(giftCertificateWithNewData.getDuration());
-        }
-        if (giftCertificateWithNewData.getPrice() != null) {
-            validateGiftCertificatePrice(giftCertificateWithNewData.getPrice());
-            giftCertificateToUpdate.setPrice(giftCertificateWithNewData.getPrice());
-        }
-        if (giftCertificateWithNewData.getTags() != null) {
-            giftCertificateToUpdate.setTags(giftCertificateWithNewData.getTags());
-        }
-    }
-
+    @Override
     public Optional<GiftCertificate> updateGiftCertificate(Long id, GiftCertificate giftCertificate) throws IllegalArgumentException, ServiceException {
         validateId(id);
         try {
@@ -128,6 +70,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         }
     }
 
+    @Override
     public boolean deleteGiftCertificate(Long id) throws IllegalArgumentException, ServiceException {
         validateId(id);
         try {
@@ -137,20 +80,15 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         }
     }
 
-    public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter filter, int page, int size) throws ServiceException {
+    @Override
+    public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter giftCertificateFilter, int page, int size, String[] sortParams) throws ServiceException {
         try {
-            return filter.filter(giftCertificateDao.getAll().stream())
+            Sort sort = createSort(sortParams, ALLOWED_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
+            List<GiftCertificate> giftCertificates = giftCertificateDao.getAllWithSearchQuery(giftCertificateFilter.getSearchQuery(), sort);
+            return giftCertificateFilter.filter(giftCertificates.stream())
                     .skip((long) page * size)
                     .limit(size)
                     .collect(Collectors.toList());
-        } catch (DbException e) {
-            throw new ServiceException("Error while searching for gift certificates");
-        }
-    }
-
-    public List<GiftCertificate> getAllGiftCertificates() throws ServiceException {
-        try {
-            return giftCertificateDao.getAll();
         } catch (DbException e) {
             throw new ServiceException("Error while searching for gift certificates");
         }

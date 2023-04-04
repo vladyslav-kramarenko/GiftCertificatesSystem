@@ -82,17 +82,21 @@ public class GiftCertificateController {
 
     @GetMapping
     public ResponseEntity<?> getGiftCertificates(
-            @RequestParam(name = "tagName", required = false) String tagName,
-            @RequestParam(name = "page", defaultValue = DEFAULT_PAGE) int page,
-            @RequestParam(name = "size", defaultValue = DEFAULT_PAGE_SIZE) int size,
-            @RequestParam(name = "sort", defaultValue = DEFAULT_SORT) String[] sortParams
+            @RequestParam(name = "search", required = false) String searchQuery,
+            @RequestParam(name = "tag", required = false) String tagName,
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams
     ) {
         try {
             GiftCertificateFilter giftCertificateFilter = GiftCertificateFilter.builder()
                     .withTagName(tagName)
+                    .withSearchQuery(searchQuery)
                     .build();
-            List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size);
+            List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size, sortParams);
             return ResponseEntity.ok(certificates);
+        } catch (IllegalArgumentException se) {
+            return ResponseEntity.badRequest().body(se.getMessage());
         } catch (ServiceException se) {
             return ResponseEntity.internalServerError().body(se.getMessage());
         }

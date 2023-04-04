@@ -14,6 +14,14 @@ public final class GiftCertificateSqlQueries {
                     "FROM gift_certificate gc " +
                     "LEFT JOIN gift_certificate_has_tag gct ON gc.id = gct.gift_certificate_id " +
                     "LEFT JOIN tag t ON gct.tag_id = t.id";
+
+    public static final String GET_ALL_CERTIFICATES_WITH_TAGS_AND_NAME_OR_DESCRIPTION_SEARCH =
+            "SELECT gc.id, gc.name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, t.id as tag_id, t.name as tag_name " +
+                    "FROM gift_certificate gc " +
+                    "LEFT JOIN gift_certificate_has_tag gct ON gc.id = gct.gift_certificate_id " +
+                    "LEFT JOIN tag t ON gct.tag_id = t.id " +
+                    "WHERE gc.name LIKE ? OR gc.description LIKE ?";
+
     public static final String DELETE_CERTIFICATE_BY_ID = "DELETE FROM gift_certificate WHERE id = ?";
     public static final String UPDATE_CERTIFICATE = "UPDATE gift_certificate SET name = ?, description = ?, price = ?, duration = ? WHERE id = ?";
 }

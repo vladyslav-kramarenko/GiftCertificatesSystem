@@ -7,6 +7,7 @@ import com.epam.esm.exception.DbException;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -18,6 +19,7 @@ import java.util.*;
 
 import static com.epam.esm.dao.impl.giftCertificate.GiftCertificateSqlQueries.*;
 import static com.epam.esm.dao.impl.tag.TagSqlQueries.*;
+import static com.epam.esm.util.Utilities.getOrderByClause;
 
 @Repository
 public class GiftCertificateDaoImpl implements GiftCertificateDao {
@@ -122,6 +124,25 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     public List<GiftCertificate> getAll() {
         GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
         jdbcTemplate.query(GET_ALL_CERTIFICATES_WITH_TAGS, handler);
+        return handler.getCertificates();
+    }
+
+    public List<GiftCertificate> getAll(Sort sort) {
+        String sql = getOrderByClause(GET_ALL_CERTIFICATES_WITH_TAGS, sort);
+        GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
+        jdbcTemplate.query(sql, handler);
+        return handler.getCertificates();
+    }
+
+    public List<GiftCertificate> getAllWithSearchQuery(String searchQuery, Sort sort) {
+        if (searchQuery == null || searchQuery.isEmpty()) return getAll(sort);
+        String sql = getOrderByClause(GET_ALL_CERTIFICATES_WITH_TAGS_AND_NAME_OR_DESCRIPTION_SEARCH, sort);
+        String wildcardSearchQuery = "%" + searchQuery + "%";
+        GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
+        jdbcTemplate.query(
+                sql,
+                new String[]{wildcardSearchQuery, wildcardSearchQuery},
+                handler);
         return handler.getCertificates();
     }
 

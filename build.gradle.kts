@@ -22,6 +22,8 @@ dependencies {
     implementation("org.springframework:spring-tx:6.0.7")
     implementation("org.springframework:spring-context:6.0.7")
 
+    implementation("org.springframework.data:spring-data-commons:3.0.4")
+
     implementation ("ch.qos.logback:logback-core:1.4.6")
     implementation ("ch.qos.logback:logback-classic:1.4.6")
 

@@ -16,5 +16,5 @@ public interface GiftCertificateService {
 
     boolean deleteGiftCertificate(Long id) throws ServiceException;
 
-    List<GiftCertificate> getGiftCertificates(GiftCertificateFilter filter, int page, int size) throws ServiceException;
+    List<GiftCertificate> getGiftCertificates(GiftCertificateFilter filter, int page, int size,String[] sortParams) throws ServiceException;
 }
