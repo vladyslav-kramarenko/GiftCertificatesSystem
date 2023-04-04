@@ -8,13 +8,19 @@ import java.util.stream.Stream;
 
 public class GiftCertificateFilter {
     String tagName;
+    String searchQuery;
 
     public static GiftCertificateFilterBuilder builder() {
         return new GiftCertificateFilterBuilder();
     }
 
+    public String getSearchQuery() {
+        return searchQuery;
+    }
+
     public static class GiftCertificateFilterBuilder {
         String tagName;
+        String searchQuery;
 
         public GiftCertificateFilterBuilder withTagName(String tagName) {
             if (tagName != null && tagName.length() > Constants.MAX_TAG_NAME_LENGTH) {
@@ -24,6 +30,10 @@ public class GiftCertificateFilter {
             return this;
         }
 
+        public GiftCertificateFilterBuilder withSearchQuery(String searchQuery) {
+            this.searchQuery = searchQuery;
+            return this;
+        }
 
         public GiftCertificateFilter build() {
             return new GiftCertificateFilter(this);
@@ -32,6 +42,7 @@ public class GiftCertificateFilter {
 
     private GiftCertificateFilter(GiftCertificateFilterBuilder builder) {
         this.tagName = builder.tagName;
+        this.searchQuery = builder.searchQuery;
     }
 
     public Stream<GiftCertificate> filter(Stream<GiftCertificate> input) {
