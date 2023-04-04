@@ -1,10 +1,12 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.exception.ErrorResponse;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.service.impl.GiftCertificateServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,12 +34,13 @@ public class GiftCertificateController {
     public ResponseEntity<?> getGiftCertificateById(@PathVariable Long id) {
         try {
             Optional<GiftCertificate> certificate = giftCertificateService.getGiftCertificateById(id);
-            if (certificate.isEmpty()) return ResponseEntity.notFound().build();
+            if (certificate.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", "40401"));
             return ResponseEntity.ok(certificate.get());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ServiceException se) {
-            return ResponseEntity.internalServerError().body(se.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
         }
     }
 
@@ -47,9 +50,9 @@ public class GiftCertificateController {
             GiftCertificate createdCertificate = giftCertificateService.createGiftCertificate(certificate);
             return ResponseEntity.ok(createdCertificate);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ServiceException se) {
-            return ResponseEntity.internalServerError().body(se.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
         }
     }
 
@@ -62,9 +65,9 @@ public class GiftCertificateController {
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ServiceException se) {
-            return ResponseEntity.internalServerError().body(se.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
         }
     }
 
@@ -72,11 +75,14 @@ public class GiftCertificateController {
     public ResponseEntity<?> deleteGiftCertificate(@PathVariable Long id) {
         try {
             boolean isDeleted = giftCertificateService.deleteGiftCertificate(id);
-            return isDeleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+            return isDeleted ?
+                    ResponseEntity.noContent().build() :
+                    ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", "40401"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ServiceException se) {
-            return ResponseEntity.internalServerError().body(se.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
         }
     }
 
@@ -95,10 +101,10 @@ public class GiftCertificateController {
                     .build();
             List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size, sortParams);
             return ResponseEntity.ok(certificates);
-        } catch (IllegalArgumentException se) {
-            return ResponseEntity.badRequest().body(se.getMessage());
-        } catch (ServiceException se) {
-            return ResponseEntity.internalServerError().body(se.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
         }
     }
 }
