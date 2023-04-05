@@ -135,7 +135,10 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
         jdbcTemplate.query(
                 sql,
-                new String[]{wildcardSearchQuery, wildcardSearchQuery},
+                ps -> {
+                    ps.setString(1, wildcardSearchQuery);
+                    ps.setString(2, wildcardSearchQuery);
+                },
                 handler);
         return handler.getCertificates();
     }
