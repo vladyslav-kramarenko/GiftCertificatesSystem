@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 import static com.epam.esm.util.Constants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH;
 import static com.epam.esm.util.Constants.MAX_GIFT_CERTIFICATE_NAME_LENGTH;
+import static com.epam.esm.util.TagUtils.validateTags;
 
 /**
  * Utility class for GiftCertificate object validation and update.
@@ -99,7 +100,7 @@ public class GiftCertificateUtils {
         }
         if (giftCertificateWithNewData.getName() != null) {
             validateGiftCertificateName(giftCertificateWithNewData.getName());
-            giftCertificateToUpdate.setName(giftCertificateWithNewData.getDescription());
+            giftCertificateToUpdate.setName(giftCertificateWithNewData.getName());
         }
         if (giftCertificateWithNewData.getDuration() != null) {
             validateGiftCertificateDuration(giftCertificateWithNewData.getDuration());
@@ -110,6 +111,7 @@ public class GiftCertificateUtils {
             giftCertificateToUpdate.setPrice(giftCertificateWithNewData.getPrice());
         }
         if (giftCertificateWithNewData.getTags() != null) {
+            validateTags(giftCertificateWithNewData.getTags());
             giftCertificateToUpdate.setTags(giftCertificateWithNewData.getTags());
         }
     }
