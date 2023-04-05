@@ -35,4 +35,11 @@ public class testUtils {
         giftCertificate.setTags(tags);
         return giftCertificate;
     }
+
+    public static GiftCertificate generateGiftCertificateWithIdAndName(long id) {
+        GiftCertificate giftCertificate = new GiftCertificate();
+        giftCertificate.setId(id);
+        giftCertificate.setName("Gift Certificate " + id);
+        return giftCertificate;
+    }
 }
