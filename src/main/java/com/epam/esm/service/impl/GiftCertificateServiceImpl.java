@@ -5,10 +5,13 @@ import com.epam.esm.exception.DbException;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ import static com.epam.esm.util.Utilities.validateId;
  */
 @Service
 public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCertificateService {
+    private static final Logger logger = LoggerFactory.getLogger(GiftCertificateServiceImpl.class);
     private final GiftCertificateDao giftCertificateDao;
 
     /**
@@ -54,7 +58,9 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
             validateId(id);
             return giftCertificateDao.getById(id);
         } catch (DbException e) {
-            throw new ServiceException("Error while searching a gift certificate with id =" + id + "; " + e.getMessage());
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            throw new ServiceException("Error while searching a gift certificate with id =" + id + "; ");
         }
     }
 
@@ -84,6 +90,8 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         try {
             return giftCertificateDao.create(giftCertificate);
         } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while creating a gift certificate");
         }
     }
@@ -109,6 +117,8 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
             updateCertificate(oldGiftCertificate, giftCertificate);
             return Optional.of(giftCertificateDao.update(oldGiftCertificate));
         } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while updating a gift certificate");
         }
     }
@@ -127,6 +137,8 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         try {
             return giftCertificateDao.delete(id);
         } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while deleting a gift certificate");
         }
     }
@@ -153,6 +165,8 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
                     .limit(size)
                     .collect(Collectors.toList());
         } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while searching for gift certificates");
         }
     }

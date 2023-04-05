@@ -32,7 +32,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     public GiftCertificate create(GiftCertificate giftCertificate) throws DbException {
         createGiftCertificate(giftCertificate);
         addTags(giftCertificate);
@@ -41,8 +40,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
             throw new DbException("can't find created gift certificate by id: " + giftCertificate.getId());
         return createdGiftCertificate.get();
     }
-
-
 
     private void createGiftCertificate(GiftCertificate giftCertificate) throws DbException {
         try {
