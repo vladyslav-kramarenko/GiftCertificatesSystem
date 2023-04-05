@@ -1,6 +1,8 @@
 package com.epam.esm.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.context.annotation.Lazy;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +13,9 @@ public class GiftCertificate {
     private String description;
     private BigDecimal price;
     private Integer duration;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime createDate;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime lastUpdateDate;
     @Lazy
     private List<Tag> tags;
