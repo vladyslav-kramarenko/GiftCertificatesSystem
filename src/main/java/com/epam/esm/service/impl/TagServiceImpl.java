@@ -5,10 +5,13 @@ import com.epam.esm.exception.DbException;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.model.Tag;
 import com.epam.esm.service.TagService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +26,8 @@ import static com.epam.esm.util.Utilities.validateId;
  */
 @Service
 public class TagServiceImpl implements TagService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TagServiceImpl.class);
     private final TagDao tagDao;
 
     /**
@@ -44,6 +49,8 @@ public class TagServiceImpl implements TagService {
         try {
             return tagDao.getById(id);
         } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while get tag with id = " + id);
         }
     }
@@ -57,6 +64,8 @@ public class TagServiceImpl implements TagService {
         try {
             return tagDao.create(tag);
         } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while creating a tag");
         }
     }
@@ -70,6 +79,8 @@ public class TagServiceImpl implements TagService {
         try {
             return tagDao.delete(id);
         } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while deleting tag with id = " + id);
         }
     }
@@ -83,6 +94,8 @@ public class TagServiceImpl implements TagService {
         try {
             return tagDao.getAll(sort.orElse(null));
         } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while getting all tags");
         }
     }
