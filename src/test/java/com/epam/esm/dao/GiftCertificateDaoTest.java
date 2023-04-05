@@ -1,5 +1,6 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.config.TestConfig;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
@@ -75,7 +76,9 @@ class GiftCertificateDaoTest {
         // create gift certificate
         giftCertificateDao.create(giftCertificate1);
         assertNotNull(giftCertificate1.getId());
-        GiftCertificate createdGiftCertificate = giftCertificateDao.getById(giftCertificate1.getId()).get();
+        Optional<GiftCertificate> createdOptionalGiftCertificate = giftCertificateDao.getById(giftCertificate1.getId());
+        assertTrue(createdOptionalGiftCertificate.isPresent());
+        GiftCertificate createdGiftCertificate = createdOptionalGiftCertificate.get();
 
 //        createdGiftCertificate = giftCertificateDao.getById(createdId).get();
         assertEquals(giftCertificate1.getName(), createdGiftCertificate.getName());
@@ -161,7 +164,8 @@ class GiftCertificateDaoTest {
         giftCertificateDao.update(giftCertificate1);
 
         // check that the new tag was added to the gift certificate and created in the database
-        giftCertificateDao.getById(giftCertificate1.getId()).get();
+        Optional<GiftCertificate>optionalGiftCertificate=giftCertificateDao.getById(giftCertificate1.getId());
+        assertTrue(optionalGiftCertificate.isPresent());
         assertEquals(1, giftCertificate1.getTags().size());
         assertNotNull(giftCertificate1.getTags().get(0).getId());
         assertEquals(tag1.getName(), giftCertificate1.getTags().get(0).getName());

@@ -1,5 +1,7 @@
-package com.epam.esm.dao;
+package com.epam.esm.config;
 
+import com.epam.esm.dao.GiftCertificateDao;
+import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.impl.giftCertificate.GiftCertificateDaoImpl;
 import com.epam.esm.dao.impl.tag.TagDaoImpl;
 import org.springframework.context.annotation.Bean;

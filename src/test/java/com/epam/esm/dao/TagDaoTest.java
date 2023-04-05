@@ -1,5 +1,6 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.config.TestConfig;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.model.Tag;
 import org.junit.jupiter.api.Test;
@@ -105,5 +106,4 @@ public class TagDaoTest {
 
         tagDao.delete(tag.getId());
     }
-
 }
