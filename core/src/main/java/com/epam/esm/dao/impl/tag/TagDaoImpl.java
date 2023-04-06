@@ -1,6 +1,6 @@
 package com.epam.esm.dao.impl.tag;
 
-import com.epam.esm.dao.AbstractDao;
+import com.epam.esm.dao.impl.AbstractDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.model.Tag;

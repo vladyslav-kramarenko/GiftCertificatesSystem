@@ -1,6 +1,7 @@
-package com.epam.esm.dao;
+package com.epam.esm.dao.impl;
 
 import com.epam.esm.exception.DbException;
+import com.epam.esm.model.GiftCertificate;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,7 +23,6 @@ public abstract class AbstractDao<T, ID> {
     }
 
     public abstract T create(T obj) throws DbException;
-
     public Optional<T> getById(ID id) throws DbException {
         try {
             String sql = getSelectByIdSql();
