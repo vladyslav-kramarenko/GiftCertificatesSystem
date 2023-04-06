@@ -18,8 +18,7 @@ import java.util.*;
 
 import static com.epam.esm.dao.impl.giftCertificate.GiftCertificateSqlQueries.*;
 import static com.epam.esm.dao.impl.tag.TagSqlQueries.*;
-import static com.epam.esm.util.Utilities.getKey;
-import static com.epam.esm.util.Utilities.getOrderByClause;
+import static com.epam.esm.util.Utilities.*;
 
 @Repository
 public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> implements GiftCertificateDao {
@@ -90,28 +89,13 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         return DELETE_CERTIFICATE_BY_ID;
     }
 
-    public List<GiftCertificate> getAllWithSearchQuery(String searchQuery, Sort sort) throws DbException {//TODO change to search with saved procedure in sql
-        if (searchQuery == null || searchQuery.isEmpty()) return getAll(sort);
-        String sql = getOrderByClause(GET_ALL_CERTIFICATES_WITH_TAGS_AND_NAME_OR_DESCRIPTION_SEARCH, sort);
-        String wildcardSearchQuery = "%" + searchQuery + "%";
-        GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
-        getJdbcTemplate().query(
-                sql,
-                ps -> {
-                    ps.setString(1, wildcardSearchQuery);
-                    ps.setString(2, wildcardSearchQuery);
-                },
-                handler);
-        return handler.getCertificates();
-    }
-
-
     public void deleteAllTagsForCertificateById(Long giftCertificateId) {
         getJdbcTemplate().update(
                 DELETE_CERTIFICATE_TAGS_BY_CERTIFICATE_ID,
                 giftCertificateId
         );
     }
+
 
     @Override
     public GiftCertificate update(GiftCertificate giftCertificate) throws DbException {
@@ -124,10 +108,10 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
                     giftCertificate.getDuration(),
                     giftCertificate.getId()
             );
+            return getById(giftCertificate.getId()).get();
         } catch (Exception e) {
             throw new DbException("Got error while trying to update certificate: " + Arrays.toString(e.getStackTrace()));
         }
-        return getById(giftCertificate.getId()).get();
     }
 
     @Override
@@ -136,6 +120,20 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         getJdbcTemplate().query(
                 SELECT_CERTIFICATES_BY_TAG_ID,
                 ps -> ps.setLong(1, tagId),
+                handler);
+        return handler.getCertificates();
+    }
+
+    @Override
+    public List<GiftCertificate> getAllWithSearchQuery(String searchTerm, Sort sort) {
+        String sql = "{CALL search_gift_certificates_sort(?, ?)}";
+        GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
+        getJdbcTemplate().query(
+                sql,
+                ps -> {
+                    ps.setString(1, searchTerm == null ? "" : searchTerm);
+                    ps.setString(2, concatSort(sort, "id asc"));
+                },
                 handler);
         return handler.getCertificates();
     }

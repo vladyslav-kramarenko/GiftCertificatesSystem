@@ -195,15 +195,20 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter giftCertificateFilter, int page, int size, String[] sortParams) throws ServiceException {
         try {
             Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
-            List<GiftCertificate> giftCertificates = giftCertificateDao.getAllWithSearchQuery(giftCertificateFilter.getSearchQuery(), sort.orElse(null));
+
+            List<GiftCertificate> giftCertificates =
+                    giftCertificateDao.getAllWithSearchQuery(
+                            giftCertificateFilter.getSearchQuery(), sort.orElse(null)
+                    );
+
             return giftCertificateFilter.filter(giftCertificates.stream())
                     .skip((long) page * size)
                     .limit(size)
                     .collect(Collectors.toList());
-        } catch (DbException e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while searching for gift certificates");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(Arrays.toString(e.getStackTrace()));
+            throw new ServiceException(e.getMessage());
         }
     }
 }

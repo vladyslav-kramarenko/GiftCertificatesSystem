@@ -31,18 +31,17 @@ public class Utilities {
      */
     public static String getOrderByClause(String sql, Sort sort) {
         if (sort == null || sort.isEmpty()) return sql;
-        StringBuilder sb = new StringBuilder(sql);
-        sb.append(" ");
-        sb.append("ORDER BY ");
+        return sql + " ORDER BY " + concatSort(sort, "");
+    }
 
+    public static String concatSort(Sort sort, String defaultSort) {
+        if (sort == null || sort.isEmpty()) return defaultSort;
+        StringBuilder sb = new StringBuilder();
         for (Sort.Order order : sort) {
             sb.append(order.getProperty()).append(" ")
                     .append(order.getDirection().name().toUpperCase()).append(", ");
         }
-
-        // Remove the trailing comma and space
         sb.delete(sb.length() - 2, sb.length());
-        System.out.println(sb);
         return sb.toString();
     }
 
