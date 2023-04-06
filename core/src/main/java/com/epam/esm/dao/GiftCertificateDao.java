@@ -2,6 +2,7 @@ package com.epam.esm.dao;
 
 import com.epam.esm.exception.DbException;
 import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Tag;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -45,6 +46,8 @@ public interface GiftCertificateDao {
      * @throws DbException if an error occurs while accessing the database
      */
     List<GiftCertificate> getAll(Sort sort) throws DbException;
+
+    void addTagToCertificate(GiftCertificate giftCertificate, Tag tag);
 
     /**
      * Retrieves all GiftCertificates from the database that match the specified search query, sorted as specified by the Sort object.
