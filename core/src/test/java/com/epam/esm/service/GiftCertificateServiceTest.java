@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dao.GiftCertificateDao;
+import com.epam.esm.dao.TagDao;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.filter.GiftCertificateFilter;
@@ -33,7 +34,8 @@ public class GiftCertificateServiceTest {
     @BeforeEach
     public void setUp() {
         giftCertificateDao = mock(GiftCertificateDao.class);
-        giftCertificateService = new GiftCertificateServiceImpl(giftCertificateDao);
+        TagDao tagDao = mock(TagDao.class);
+        giftCertificateService = new GiftCertificateServiceImpl(giftCertificateDao, tagDao);
     }
 
     @Test

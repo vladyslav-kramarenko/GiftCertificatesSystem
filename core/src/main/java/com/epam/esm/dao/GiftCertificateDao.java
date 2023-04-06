@@ -78,4 +78,6 @@ public interface GiftCertificateDao {
     boolean delete(Long id) throws DbException;
 
     List<GiftCertificate> getCertificatesByTagId(Long tagId);
+
+    void deleteAllTagsForCertificateById(Long id);
 }

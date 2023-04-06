@@ -1,10 +1,12 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.GiftCertificateDao;
+import com.epam.esm.dao.TagDao;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,7 @@ import static com.epam.esm.util.Utilities.validateId;
 public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCertificateService {
     private static final Logger logger = LoggerFactory.getLogger(GiftCertificateServiceImpl.class);
     private final GiftCertificateDao giftCertificateDao;
+    private final TagDao tagDao;
 
     /**
      * Constructs a new instance of {@code GiftCertificateServiceImpl} with the given gift certificate DAO
@@ -38,8 +41,9 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
      * @param giftCertificateDao a {@link com.epam.esm.dao.GiftCertificateDao} object
      */
     @Autowired
-    public GiftCertificateServiceImpl(GiftCertificateDao giftCertificateDao) {
+    public GiftCertificateServiceImpl(GiftCertificateDao giftCertificateDao, TagDao tagDao) {
         this.giftCertificateDao = giftCertificateDao;
+        this.tagDao = tagDao;
     }
 
     /**
@@ -80,19 +84,43 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         validateForNull(giftCertificate.getPrice(), "price");
         validateForNull(giftCertificate.getDuration(), "duration");
 
-        validateGiftCertificateDescription(giftCertificate.getDescription());
-        validateGiftCertificateName(giftCertificate.getName());
-        validateGiftCertificatePrice(giftCertificate.getPrice());
-        validateGiftCertificateDuration(giftCertificate.getDuration());
-
-        validateTags(giftCertificate.getTags());
+        validateGiftCertificateParams(giftCertificate);
 
         try {
-            return giftCertificateDao.create(giftCertificate);
+            giftCertificateDao.create(giftCertificate);
+            addTags(giftCertificate);
+
+            Optional<GiftCertificate> CreatedGiftCertificate = giftCertificateDao.getById(giftCertificate.getId());
+            if (CreatedGiftCertificate.isEmpty()) throw new DbException("Cannot find created gift certificate by id");
+            return CreatedGiftCertificate.get();
         } catch (DbException e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while creating a gift certificate");
+        }
+    }
+
+
+    private void validateGiftCertificateParams(GiftCertificate giftCertificate) {
+        validateGiftCertificateDescription(giftCertificate.getDescription());
+        validateGiftCertificateName(giftCertificate.getName());
+        validateGiftCertificatePrice(giftCertificate.getPrice());
+        validateGiftCertificateDuration(giftCertificate.getDuration());
+        validateTags(giftCertificate.getTags());
+    }
+
+    private void addTags(GiftCertificate giftCertificate) throws DbException {
+        List<Tag> tags = giftCertificate.getTags();
+        if (tags != null) {
+            for (Tag tag : tags) {
+                Optional<Tag> existingTag = tagDao.getByName(tag.getName());
+                if (existingTag.isPresent()) {
+                    tag.setId(existingTag.get().getId());
+                } else {
+                    tagDao.create(tag);
+                }
+                giftCertificateDao.addTagToCertificate(giftCertificate, tag);
+            }
         }
     }
 
@@ -110,12 +138,20 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     @Override
     public Optional<GiftCertificate> updateGiftCertificate(Long id, GiftCertificate giftCertificate) throws IllegalArgumentException, ServiceException {
         validateId(id);
+        validateGiftCertificateParams(giftCertificate);
+
         try {
             Optional<GiftCertificate> optionalOldGiftCertificate = giftCertificateDao.getById(id);
             if (optionalOldGiftCertificate.isEmpty()) return Optional.empty();
             GiftCertificate oldGiftCertificate = optionalOldGiftCertificate.get();
+
             updateCertificate(oldGiftCertificate, giftCertificate);
-            return Optional.of(giftCertificateDao.update(oldGiftCertificate));
+            giftCertificateDao.update(oldGiftCertificate);
+
+            giftCertificateDao.deleteAllTagsForCertificateById(oldGiftCertificate.getId());
+            addTags(oldGiftCertificate);
+
+            return giftCertificateDao.getById(id);
         } catch (DbException e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));

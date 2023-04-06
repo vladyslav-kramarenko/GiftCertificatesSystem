@@ -2,7 +2,6 @@ package com.epam.esm.dao.impl.giftCertificate;
 
 import com.epam.esm.dao.impl.AbstractDao;
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.impl.tag.TagSqlQueries;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.model.GiftCertificate;
@@ -24,25 +23,15 @@ import static com.epam.esm.util.Utilities.getOrderByClause;
 
 @Repository
 public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> implements GiftCertificateDao {
-    @Autowired
-    private TagDao tagDao;
 
     @Autowired
     public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate, new GiftCertificateRowMapper());
     }
 
+
     @Override
     public GiftCertificate create(GiftCertificate giftCertificate) throws DbException {
-        createGiftCertificate(giftCertificate);
-        addTags(giftCertificate);
-        Optional<GiftCertificate> createdGiftCertificate = getById(giftCertificate.getId());
-        if (createdGiftCertificate.isEmpty())
-            throw new DbException("can't find created gift certificate by id: " + giftCertificate.getId());
-        return createdGiftCertificate.get();
-    }
-
-    private void createGiftCertificate(GiftCertificate giftCertificate) throws DbException {
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             getJdbcTemplate().update(connection -> {
@@ -57,33 +46,22 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
                 return ps;
             }, keyHolder);
             giftCertificate.setId(getKey(keyHolder));
+            return giftCertificate;
         } catch (Exception e) {
             throw new DbException("Error while creating new gift certificate: " + Arrays.toString(e.getStackTrace()));
         }
     }
 
-    private void addTags(GiftCertificate giftCertificate) throws DbException {
-        List<Tag> tags = giftCertificate.getTags();
-        if (tags != null) {
-            for (Tag tag : tags) {
-                Optional<Tag> existingTag = tagDao.getByName(tag.getName());
-                if (existingTag.isPresent()) {
-                    tag.setId(existingTag.get().getId());
-                    addTagToCertificate(giftCertificate, tag);
-                } else {
-                    createTagAndAddToCertificate(giftCertificate, tag);
-                }
-            }
-        }
-    }
-
-    private void addTagToCertificate(GiftCertificate giftCertificate, Tag tag) {
+    @Override
+    public void addTagToCertificate(GiftCertificate giftCertificate, Tag tag) {
         if (!hasCertificateTag(giftCertificate, tag)) {
             getJdbcTemplate().update(
                     TagSqlQueries.ADD_TAG_TO_CERTIFICATE,
                     giftCertificate.getId(),
                     tag.getId()
             );
+        } else {
+            throw new IllegalArgumentException("Certificate with id " + giftCertificate.getId() + " already tag: " + tag);
         }
     }
 
@@ -95,15 +73,6 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
                 tag.getId()
         );
         return counts.size() > 0 && counts.get(0) != 0;
-    }
-
-    private void createTagAndAddToCertificate(GiftCertificate giftCertificate, Tag tag) throws DbException {
-        tagDao.create(tag);
-        getJdbcTemplate().update(
-                TagSqlQueries.ADD_TAG_TO_CERTIFICATE,
-                giftCertificate.getId(),
-                tag.getId()
-        );
     }
 
     @Override
@@ -136,21 +105,16 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         return handler.getCertificates();
     }
 
-    @Override
-    public GiftCertificate update(GiftCertificate giftCertificate) throws DbException {
-        updateMainCertificateData(giftCertificate);
-        // Delete all existing tags for the certificate
+
+    public void deleteAllTagsForCertificateById(Long giftCertificateId) {
         getJdbcTemplate().update(
                 DELETE_CERTIFICATE_TAGS_BY_CERTIFICATE_ID,
-                giftCertificate.getId()
+                giftCertificateId
         );
-
-        // Add new tags for the certificate
-        addTags(giftCertificate);
-        return giftCertificate;
     }
 
-    private void updateMainCertificateData(GiftCertificate giftCertificate) throws DbException {
+    @Override
+    public GiftCertificate update(GiftCertificate giftCertificate) throws DbException {
         try {
             getJdbcTemplate().update(
                     UPDATE_CERTIFICATE,
@@ -163,6 +127,7 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         } catch (Exception e) {
             throw new DbException("Got error while trying to update certificate: " + Arrays.toString(e.getStackTrace()));
         }
+        return getById(giftCertificate.getId()).get();
     }
 
     @Override
