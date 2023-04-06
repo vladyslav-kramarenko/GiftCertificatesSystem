@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 import static com.epam.esm.util.CoreConstants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH;
 import static com.epam.esm.util.CoreConstants.MAX_GIFT_CERTIFICATE_NAME_LENGTH;
-import static com.epam.esm.util.TagUtils.validateTags;
 
 /**
  * Utility class for GiftCertificate object validation and update.
@@ -19,13 +18,15 @@ public class GiftCertificateUtils {
      * @throws IllegalArgumentException if the name length is 0 or greater than MAX_GIFT_CERTIFICATE_NAME_LENGTH.
      */
     public static void validateGiftCertificateName(String name) throws IllegalArgumentException {
-        if (name.length() == 0) {
-            throw new IllegalArgumentException("Gift Certificate name cannot be empty");
-        }
-        if (name.length() > MAX_GIFT_CERTIFICATE_NAME_LENGTH) {
-            throw new IllegalArgumentException("Gift Certificate name should be less than " +
-                    MAX_GIFT_CERTIFICATE_NAME_LENGTH +
-                    " symbols");
+        if (name != null) {
+            if (name.length() == 0) {
+                throw new IllegalArgumentException("Gift Certificate name cannot be empty");
+            }
+            if (name.length() > MAX_GIFT_CERTIFICATE_NAME_LENGTH) {
+                throw new IllegalArgumentException("Gift Certificate name should be less than " +
+                        MAX_GIFT_CERTIFICATE_NAME_LENGTH +
+                        " symbols");
+            }
         }
     }
 
@@ -36,8 +37,10 @@ public class GiftCertificateUtils {
      * @throws IllegalArgumentException if the price is negative.
      */
     public static void validateGiftCertificatePrice(BigDecimal price) throws IllegalArgumentException {
-        if (price.doubleValue() < 0) {
-            throw new IllegalArgumentException("Gift Certificate price cannot be negative");
+        if (price != null) {
+            if (price.doubleValue() < 0) {
+                throw new IllegalArgumentException("Gift Certificate price cannot be negative");
+            }
         }
     }
 
@@ -48,8 +51,10 @@ public class GiftCertificateUtils {
      * @throws IllegalArgumentException if the duration is negative.
      */
     public static void validateGiftCertificateDuration(Integer duration) throws IllegalArgumentException {
-        if (duration < 0) {
-            throw new IllegalArgumentException("Gift Certificate duration cannot be negative");
+        if (duration != null) {
+            if (duration < 0) {
+                throw new IllegalArgumentException("Gift Certificate duration cannot be negative");
+            }
         }
     }
 
@@ -73,14 +78,16 @@ public class GiftCertificateUtils {
      *                                  or greater than MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH.
      */
     public static void validateGiftCertificateDescription(String description) throws IllegalArgumentException {
-        if (description.length() == 0) {
-            throw new IllegalArgumentException("Gift Certificate description cannot be empty");
-        }
-        if (description.length() > MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH) {
-            throw new IllegalArgumentException(
-                    "Gift Certificate description should be less than " +
-                            MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH +
-                            " symbols");
+        if (description != null) {
+            if (description.length() == 0) {
+                throw new IllegalArgumentException("Gift Certificate description cannot be empty");
+            }
+            if (description.length() > MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH) {
+                throw new IllegalArgumentException(
+                        "Gift Certificate description should be less than " +
+                                MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH +
+                                " symbols");
+            }
         }
     }
 
@@ -95,23 +102,18 @@ public class GiftCertificateUtils {
             GiftCertificate giftCertificateToUpdate,
             GiftCertificate giftCertificateWithNewData) {
         if (giftCertificateWithNewData.getDescription() != null) {
-            validateGiftCertificateDescription(giftCertificateWithNewData.getDescription());
             giftCertificateToUpdate.setDescription(giftCertificateWithNewData.getDescription());
         }
         if (giftCertificateWithNewData.getName() != null) {
-            validateGiftCertificateName(giftCertificateWithNewData.getName());
             giftCertificateToUpdate.setName(giftCertificateWithNewData.getName());
         }
         if (giftCertificateWithNewData.getDuration() != null) {
-            validateGiftCertificateDuration(giftCertificateWithNewData.getDuration());
             giftCertificateToUpdate.setDuration(giftCertificateWithNewData.getDuration());
         }
         if (giftCertificateWithNewData.getPrice() != null) {
-            validateGiftCertificatePrice(giftCertificateWithNewData.getPrice());
             giftCertificateToUpdate.setPrice(giftCertificateWithNewData.getPrice());
         }
         if (giftCertificateWithNewData.getTags() != null) {
-            validateTags(giftCertificateWithNewData.getTags());
             giftCertificateToUpdate.setTags(giftCertificateWithNewData.getTags());
         }
     }
