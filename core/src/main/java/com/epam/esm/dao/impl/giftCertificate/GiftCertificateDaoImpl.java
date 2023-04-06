@@ -180,4 +180,14 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
             throw new DbException("Got error while trying to delete certificate by id = " + id + ": " + Arrays.toString(e.getStackTrace()));
         }
     }
+
+    @Override
+    public List<GiftCertificate> getCertificatesByTagId(long tagId) {
+        GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
+        jdbcTemplate.query(
+                SELECT_CERTIFICATES_BY_TAG_ID,
+                ps -> ps.setLong(1, tagId),
+                handler);
+        return handler.getCertificates();
+    }
 }

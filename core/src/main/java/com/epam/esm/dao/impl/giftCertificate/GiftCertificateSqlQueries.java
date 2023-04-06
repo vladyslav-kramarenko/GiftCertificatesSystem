@@ -24,4 +24,9 @@ public final class GiftCertificateSqlQueries {
 
     public static final String DELETE_CERTIFICATE_BY_ID = "DELETE FROM gift_certificate WHERE id = ?";
     public static final String UPDATE_CERTIFICATE = "UPDATE gift_certificate SET name = ?, description = ?, price = ?, duration = ? WHERE id = ?";
+    public static final String SELECT_CERTIFICATES_BY_TAG_ID =
+            "SELECT c.id, c.name, c.description, c.price, c.duration, c.create_date, c.last_update_date " +
+                    "FROM certificate c " +
+                    "INNER JOIN gift_certificate_has_tag ct ON c.id = ct.gift_certificate_id " +
+                    "WHERE ct.tag_id = ?";
 }
