@@ -47,9 +47,9 @@ public class GiftCertificateFilter {
 
     public Stream<GiftCertificate> filter(Stream<GiftCertificate> input) {
         return input
-                .filter(movie -> (tagName == null ||
+                .filter(movie -> (tagName == null || (movie.getTags() != null &&
                         movie.getTags().stream()
                                 .map(Tag::getName)
-                                .anyMatch(tag -> tag.equalsIgnoreCase(tagName))));
+                                .anyMatch(tag -> tag != null && tag.equalsIgnoreCase(tagName)))));
     }
 }
