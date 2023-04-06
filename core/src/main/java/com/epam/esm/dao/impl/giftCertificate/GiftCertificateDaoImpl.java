@@ -1,5 +1,6 @@
 package com.epam.esm.dao.impl.giftCertificate;
 
+import com.epam.esm.dao.impl.AbstractDao;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.impl.tag.TagSqlQueries;
@@ -22,16 +23,16 @@ import static com.epam.esm.util.Utilities.getKey;
 import static com.epam.esm.util.Utilities.getOrderByClause;
 
 @Repository
-public class GiftCertificateDaoImpl implements GiftCertificateDao {
-    private final JdbcTemplate jdbcTemplate;
+public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> implements GiftCertificateDao {
     @Autowired
     private TagDao tagDao;
 
     @Autowired
     public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+        super(jdbcTemplate, new GiftCertificateRowMapper());
     }
 
+    @Override
     public GiftCertificate create(GiftCertificate giftCertificate) throws DbException {
         createGiftCertificate(giftCertificate);
         addTags(giftCertificate);
@@ -44,7 +45,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     private void createGiftCertificate(GiftCertificate giftCertificate) throws DbException {
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            jdbcTemplate.update(connection -> {
+            getJdbcTemplate().update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
                         CREATE_CERTIFICATE,
                         Statement.RETURN_GENERATED_KEYS
@@ -78,7 +79,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     private void addTagToCertificate(GiftCertificate giftCertificate, Tag tag) {
         if (!hasCertificateTag(giftCertificate, tag)) {
-            jdbcTemplate.update(
+            getJdbcTemplate().update(
                     TagSqlQueries.ADD_TAG_TO_CERTIFICATE,
                     giftCertificate.getId(),
                     tag.getId()
@@ -87,7 +88,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     private boolean hasCertificateTag(GiftCertificate giftCertificate, Tag tag) {
-        List<Integer> counts = jdbcTemplate.query(
+        List<Integer> counts = getJdbcTemplate().query(
                 COUNT_CERTIFICATE_TAGS_BY_CERTIFICATE_ID_AND_TAG_ID,
                 (rs, rowNum) -> rs.getInt(1),
                 giftCertificate.getId(),
@@ -98,42 +99,34 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     private void createTagAndAddToCertificate(GiftCertificate giftCertificate, Tag tag) throws DbException {
         tagDao.create(tag);
-        jdbcTemplate.update(
+        getJdbcTemplate().update(
                 TagSqlQueries.ADD_TAG_TO_CERTIFICATE,
                 giftCertificate.getId(),
                 tag.getId()
         );
     }
 
-    public Optional<GiftCertificate> getById(long id) {
-        List<GiftCertificate> certificates = jdbcTemplate.query(
-                GET_CERTIFICATE_WITH_TAGS_BY_ID,
-                ps -> ps.setLong(1, id),
-                new GiftCertificateRowMapper()
-        );
-        if (certificates.size() == 0) {
-            return Optional.empty();
-        }
-        return Optional.of(certificates.get(0));
+    @Override
+    protected String getSelectByIdSql() {
+        return GET_CERTIFICATE_WITH_TAGS_BY_ID;
     }
 
-    public List<GiftCertificate> getAll() {
-        return getAll(null);
+    @Override
+    protected String getSelectAllSql() {
+        return GET_ALL_CERTIFICATES_WITH_TAGS;
     }
 
-    public List<GiftCertificate> getAll(Sort sort) {
-        String sql = getOrderByClause(GET_ALL_CERTIFICATES_WITH_TAGS, sort);
-        GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
-        jdbcTemplate.query(sql, handler);
-        return handler.getCertificates();
+    @Override
+    protected String getDeleteByIdSql() {
+        return DELETE_CERTIFICATE_BY_ID;
     }
 
-    public List<GiftCertificate> getAllWithSearchQuery(String searchQuery, Sort sort) {//TODO change to search with saved procedure in sql
+    public List<GiftCertificate> getAllWithSearchQuery(String searchQuery, Sort sort) throws DbException {//TODO change to search with saved procedure in sql
         if (searchQuery == null || searchQuery.isEmpty()) return getAll(sort);
         String sql = getOrderByClause(GET_ALL_CERTIFICATES_WITH_TAGS_AND_NAME_OR_DESCRIPTION_SEARCH, sort);
         String wildcardSearchQuery = "%" + searchQuery + "%";
         GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
-        jdbcTemplate.query(
+        getJdbcTemplate().query(
                 sql,
                 ps -> {
                     ps.setString(1, wildcardSearchQuery);
@@ -143,11 +136,11 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         return handler.getCertificates();
     }
 
+    @Override
     public GiftCertificate update(GiftCertificate giftCertificate) throws DbException {
         updateMainCertificateData(giftCertificate);
-
         // Delete all existing tags for the certificate
-        jdbcTemplate.update(
+        getJdbcTemplate().update(
                 DELETE_CERTIFICATE_TAGS_BY_CERTIFICATE_ID,
                 giftCertificate.getId()
         );
@@ -159,7 +152,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     private void updateMainCertificateData(GiftCertificate giftCertificate) throws DbException {
         try {
-            jdbcTemplate.update(
+            getJdbcTemplate().update(
                     UPDATE_CERTIFICATE,
                     giftCertificate.getName(),
                     giftCertificate.getDescription(),
@@ -172,19 +165,10 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         }
     }
 
-    public boolean delete(long id) throws DbException {
-        try {
-            int deleteCount = jdbcTemplate.update(DELETE_CERTIFICATE_BY_ID, id);
-            return deleteCount > 0;
-        } catch (Exception e) {
-            throw new DbException("Got error while trying to delete certificate by id = " + id + ": " + Arrays.toString(e.getStackTrace()));
-        }
-    }
-
     @Override
-    public List<GiftCertificate> getCertificatesByTagId(long tagId) {
+    public List<GiftCertificate> getCertificatesByTagId(Long tagId) {
         GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
-        jdbcTemplate.query(
+        getJdbcTemplate().query(
                 SELECT_CERTIFICATES_BY_TAG_ID,
                 ps -> ps.setLong(1, tagId),
                 handler);

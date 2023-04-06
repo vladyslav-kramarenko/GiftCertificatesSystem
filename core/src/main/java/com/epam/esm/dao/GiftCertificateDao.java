@@ -27,7 +27,7 @@ public interface GiftCertificateDao {
      * @return an Optional containing the retrieved GiftCertificate object, or an empty Optional if the GiftCertificate was not found
      * @throws DbException if an error occurs while accessing the database
      */
-    Optional<GiftCertificate> getById(long id) throws DbException;
+    Optional<GiftCertificate> getById(Long id) throws DbException;
 
     /**
      * Retrieves all GiftCertificates from the database.
@@ -72,5 +72,7 @@ public interface GiftCertificateDao {
      * @return true if the GiftCertificate was deleted, false otherwise
      * @throws DbException if an error occurs while accessing the database
      */
-    boolean delete(long id) throws DbException;
+    boolean delete(Long id) throws DbException;
+
+    List<GiftCertificate> getCertificatesByTagId(Long tagId);
 }
