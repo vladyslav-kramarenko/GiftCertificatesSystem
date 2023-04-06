@@ -1,8 +1,10 @@
 package com.epam.esm.service.impl;
 
+import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.exception.ServiceException;
+import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.service.TagService;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ public class TagServiceImpl implements TagService {
 
     private static final Logger logger = LoggerFactory.getLogger(TagServiceImpl.class);
     private final TagDao tagDao;
+    private final GiftCertificateDao giftCertificateDao;
 
     /**
      * Constructor that initializes the {@link TagDao} instance.
@@ -36,8 +39,9 @@ public class TagServiceImpl implements TagService {
      * @param tagDao - the DAO instance used to interact with the database
      */
     @Autowired
-    public TagServiceImpl(TagDao tagDao) {
+    public TagServiceImpl(TagDao tagDao, GiftCertificateDao giftCertificateDao) {
         this.tagDao = tagDao;
+        this.giftCertificateDao = giftCertificateDao;
     }
 
     /**
@@ -76,12 +80,21 @@ public class TagServiceImpl implements TagService {
     @Override
     public boolean deleteTag(Long id) throws ServiceException {
         validateId(id);
+        validateIsThisOnlyTagForSomeCertificate(id);
         try {
             return tagDao.delete(id);
         } catch (DbException e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while deleting tag with id = " + id);
+        }
+    }
+
+    private void validateIsThisOnlyTagForSomeCertificate(long id) throws ServiceException {
+        List<GiftCertificate> certificatesWithTag = giftCertificateDao.getCertificatesByTagId(id);
+        boolean isThisOnlyOneTagForSomeCertificate = certificatesWithTag.stream().anyMatch(x -> x.getTags().size() == 1);
+        if (isThisOnlyOneTagForSomeCertificate) {
+            throw new ServiceException("Cannot delete the only tag of a certificate");
         }
     }
 
