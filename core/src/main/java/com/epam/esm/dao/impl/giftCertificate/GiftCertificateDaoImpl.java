@@ -6,6 +6,8 @@ import com.epam.esm.dao.impl.tag.TagSqlQueries;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,12 +24,11 @@ import static com.epam.esm.util.Utilities.*;
 
 @Repository
 public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> implements GiftCertificateDao {
-
+    private static final Logger logger = LoggerFactory.getLogger(GiftCertificateDaoImpl.class);
     @Autowired
     public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate, new GiftCertificateRowMapper());
     }
-
 
     @Override
     public GiftCertificate create(GiftCertificate giftCertificate) throws DbException {
@@ -47,6 +48,8 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
             giftCertificate.setId(getKey(keyHolder));
             return giftCertificate;
         } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new DbException("Error while creating new gift certificate: " + Arrays.toString(e.getStackTrace()));
         }
     }
@@ -110,6 +113,8 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
             );
             return getById(giftCertificate.getId()).get();
         } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
             throw new DbException("Got error while trying to update certificate: " + Arrays.toString(e.getStackTrace()));
         }
     }
@@ -125,16 +130,22 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
     }
 
     @Override
-    public List<GiftCertificate> getAllWithSearchQuery(String searchTerm, Sort sort) {
-        String sql = "{CALL search_gift_certificates_sort(?, ?)}";
-        GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
-        getJdbcTemplate().query(
-                sql,
-                ps -> {
-                    ps.setString(1, searchTerm == null ? "" : searchTerm);
-                    ps.setString(2, concatSort(sort, "id asc"));
-                },
-                handler);
-        return handler.getCertificates();
+    public List<GiftCertificate> getAllWithSearchQuery(String searchTerm, Sort sort) throws DbException {
+        try {
+            String sql = "{CALL search_gift_certificates_sort(?, ?)}";
+            GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
+            getJdbcTemplate().query(
+                    sql,
+                    ps -> {
+                        ps.setString(1, searchTerm == null ? "" : searchTerm);
+                        ps.setString(2, concatSort(sort, "id asc"));
+                    },
+                    handler);
+            return handler.getCertificates();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            throw new DbException("Got error while trying to get all certificates");
+        }
     }
 }
