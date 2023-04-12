@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:application.properties")
+@PropertySource("classpath:application-${spring.profiles.active}.properties")
 public class AppConfig {
     @Autowired
     private Environment env;
