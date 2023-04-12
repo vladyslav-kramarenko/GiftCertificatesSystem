@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -77,6 +78,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
      * @throws ServiceException         if an error occurred while creating the gift certificate in the database
      */
     @Override
+    @Transactional(rollbackFor = ServiceException.class)
     public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate)
             throws IllegalArgumentException, ServiceException {
         validateForNull(giftCertificate.getDescription(), "description");
@@ -136,6 +138,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
      * @throws ServiceException         if an error occurred while updating the gift certificate in the database
      */
     @Override
+    @Transactional(rollbackFor = ServiceException.class)
     public Optional<GiftCertificate> updateGiftCertificate(Long id, GiftCertificate giftCertificate) throws IllegalArgumentException, ServiceException {
         validateId(id);
         validateGiftCertificateParams(giftCertificate);
