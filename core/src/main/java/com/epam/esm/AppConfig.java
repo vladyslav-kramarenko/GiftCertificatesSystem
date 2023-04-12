@@ -7,12 +7,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:application.properties")
 @PropertySource("classpath:application-${spring.profiles.active}.properties")
+@EnableTransactionManagement
 public class AppConfig {
     @Autowired
     private Environment env;
