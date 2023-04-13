@@ -22,15 +22,31 @@ import static com.epam.esm.dao.impl.giftCertificate.GiftCertificateSqlQueries.*;
 import static com.epam.esm.dao.impl.tag.TagSqlQueries.*;
 import static com.epam.esm.util.Utilities.*;
 
+/**
+ * Repository class for GiftCertificate objects, implementing the GiftCertificateDao interface.
+ * Provides methods for CRUD operations on GiftCertificate instances in the database.
+ */
 @Repository
 public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> implements GiftCertificateDao {
     private static final Logger logger = LoggerFactory.getLogger(GiftCertificateDaoImpl.class);
 
+    /**
+     * Constructs a GiftCertificateDaoImpl instance with the given JdbcTemplate.
+     *
+     * @param jdbcTemplate the JdbcTemplate to be used for database operations
+     */
     @Autowired
     public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate, new GiftCertificateRowMapper());
     }
 
+    /**
+     * Creates a new GiftCertificate in the database and returns the created object.
+     *
+     * @param giftCertificate the GiftCertificate instance to be created in the database
+     * @return the created GiftCertificate instance
+     * @throws DbException if there is an error while creating the gift certificate in the database
+     */
     @Override
     public GiftCertificate create(GiftCertificate giftCertificate) throws DbException {
         try {
@@ -58,6 +74,13 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         }
     }
 
+    /**
+     * Adds a Tag to the GiftCertificate in the database.
+     *
+     * @param giftCertificate the GiftCertificate instance to which the tag will be added
+     * @param tag             the Tag instance to be added to the gift certificate
+     * @throws IllegalArgumentException if the gift certificate already has the specified tag
+     */
     @Override
     public void addTagToCertificate(GiftCertificate giftCertificate, Tag tag) {
         if (!hasCertificateTag(giftCertificate, tag)) {
@@ -71,6 +94,13 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         }
     }
 
+    /**
+     * Checks if the given GiftCertificate has the specified Tag.
+     *
+     * @param giftCertificate the GiftCertificate instance to check for the tag
+     * @param tag             the Tag instance to check for in the gift certificate
+     * @return true if the gift certificate has the specified tag, false otherwise
+     */
     private boolean hasCertificateTag(GiftCertificate giftCertificate, Tag tag) {
         List<Integer> counts = getJdbcTemplate().query(
                 COUNT_CERTIFICATE_TAGS_BY_CERTIFICATE_ID_AND_TAG_ID,
@@ -96,6 +126,11 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         return DELETE_CERTIFICATE_BY_ID;
     }
 
+    /**
+     * Deletes all tags associated with the specified GiftCertificate by its ID.
+     *
+     * @param giftCertificateId the ID of the GiftCertificate to delete the tags from
+     */
     public void deleteAllTagsForCertificateById(Long giftCertificateId) {
         getJdbcTemplate().update(
                 DELETE_CERTIFICATE_TAGS_BY_CERTIFICATE_ID,
@@ -122,6 +157,13 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         }
     }
 
+    /**
+     * Retrieves all GiftCertificate instances from the database, sorted according to the provided Sort object.
+     *
+     * @param sort the Sort object specifying the desired sorting
+     * @return a List of GiftCertificate instances sorted as specified
+     * @throws DbException if there is an error while retrieving the gift certificates from the database
+     */
     @Override
     public List<GiftCertificate> getAll(Sort sort) throws DbException {
         String sql = getOrderByClause(getSelectAllSql(), sort);
@@ -134,6 +176,12 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         }
     }
 
+    /**
+     * Retrieves all GiftCertificate instances associated with the specified Tag ID.
+     *
+     * @param tagId the ID of the Tag to retrieve the associated gift certificates for
+     * @return a List of GiftCertificate instances associated with the specified Tag ID
+     */
     @Override
     public List<GiftCertificate> getCertificatesByTagId(Long tagId) {
         GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
@@ -144,6 +192,14 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         return handler.getCertificates();
     }
 
+    /**
+     * Retrieves all GiftCertificate instances matching the specified search term and sorted according to the provided Sort object.
+     *
+     * @param searchTerm the search term to filter the gift certificates by
+     * @param sort       the Sort object specifying the desired sorting
+     * @return a List of GiftCertificate instances matching the search term and sorted as specified
+     * @throws DbException if there is an error while retrieving the gift certificates from the database
+     */
     @Override
     public List<GiftCertificate> getAllWithSearchQuery(String searchTerm, Sort sort) throws DbException {
         try {
