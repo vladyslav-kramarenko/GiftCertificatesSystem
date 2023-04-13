@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.epam.esm.util.CoreConstants.*;
 import static com.epam.esm.util.GiftCertificateUtils.*;
@@ -81,6 +80,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     @Transactional(rollbackFor = ServiceException.class)
     public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate)
             throws IllegalArgumentException, ServiceException {
+        //TODO проверить транзации
         validateForNull(giftCertificate.getDescription(), "description");
         validateForNull(giftCertificate.getName(), "name");
         validateForNull(giftCertificate.getPrice(), "price");
@@ -115,13 +115,14 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         List<Tag> tags = giftCertificate.getTags();
         if (tags != null) {
             for (Tag tag : tags) {
-                Optional<Tag> existingTag = tagDao.getByName(tag.getName());
+                Tag newTag;
+                Optional<Tag> existingTag = tagDao.getByName(tag.name());
                 if (existingTag.isPresent()) {
-                    tag.setId(existingTag.get().getId());
+                    newTag=new Tag(existingTag.get().id(),existingTag.get().name());
                 } else {
-                    tagDao.create(tag);
+                    newTag=tagDao.create(tag);
                 }
-                giftCertificateDao.addTagToCertificate(giftCertificate, tag);
+                giftCertificateDao.addTagToCertificate(giftCertificate, newTag);
             }
         }
     }
@@ -151,9 +152,10 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
             updateCertificate(oldGiftCertificate, giftCertificate);
             giftCertificateDao.update(oldGiftCertificate);
 
-            giftCertificateDao.deleteAllTagsForCertificateById(oldGiftCertificate.getId());
-            addTags(oldGiftCertificate);
-
+            if(giftCertificate.getTags()!=null) {
+                giftCertificateDao.deleteAllTagsForCertificateById(oldGiftCertificate.getId());
+                addTags(oldGiftCertificate);
+            }
             return giftCertificateDao.getById(id);
         } catch (DbException e) {
             logger.error(e.getMessage());
@@ -207,7 +209,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
             return giftCertificateFilter.filter(giftCertificates.stream())
                     .skip((long) page * size)
                     .limit(size)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println(Arrays.toString(e.getStackTrace()));

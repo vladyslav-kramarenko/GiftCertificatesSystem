@@ -25,6 +25,7 @@ import static com.epam.esm.util.Utilities.*;
 @Repository
 public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> implements GiftCertificateDao {
     private static final Logger logger = LoggerFactory.getLogger(GiftCertificateDaoImpl.class);
+
     @Autowired
     public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate, new GiftCertificateRowMapper());
@@ -46,6 +47,9 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
                 return ps;
             }, keyHolder);
             giftCertificate.setId(getKey(keyHolder));
+            GiftCertificate newGiftCertificate=getById(giftCertificate.getId()).get();
+            giftCertificate.setLastUpdateDate(newGiftCertificate.getLastUpdateDate());
+            giftCertificate.setCreateDate(newGiftCertificate.getCreateDate());
             return giftCertificate;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -60,7 +64,7 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
             getJdbcTemplate().update(
                     TagSqlQueries.ADD_TAG_TO_CERTIFICATE,
                     giftCertificate.getId(),
-                    tag.getId()
+                    tag.id()
             );
         } else {
             throw new IllegalArgumentException("Certificate with id " + giftCertificate.getId() + " already tag: " + tag);
@@ -72,7 +76,7 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
                 COUNT_CERTIFICATE_TAGS_BY_CERTIFICATE_ID_AND_TAG_ID,
                 (rs, rowNum) -> rs.getInt(1),
                 giftCertificate.getId(),
-                tag.getId()
+                tag.id()
         );
         return counts.size() > 0 && counts.get(0) != 0;
     }
@@ -99,9 +103,8 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
         );
     }
 
-
     @Override
-    public GiftCertificate update(GiftCertificate giftCertificate) throws DbException {
+    public Optional<GiftCertificate> update(GiftCertificate giftCertificate) throws DbException {
         try {
             getJdbcTemplate().update(
                     UPDATE_CERTIFICATE,
@@ -111,11 +114,21 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
                     giftCertificate.getDuration(),
                     giftCertificate.getId()
             );
-            return getById(giftCertificate.getId()).get();
+            return getById(giftCertificate.getId());
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));
             throw new DbException("Got error while trying to update certificate: " + Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    @Override
+    public List<GiftCertificate> getAll(Sort sort) throws DbException {
+        String sql = getOrderByClause(getSelectAllSql(), sort);
+        try {
+            return getJdbcTemplate().query(sql, new GiftCertificateResultSetExtractor());
+        } catch (Exception e) {
+            throw new DbException("Error while getting all entities: " + Arrays.toString(e.getStackTrace()));
         }
     }
 

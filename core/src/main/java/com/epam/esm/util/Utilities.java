@@ -60,6 +60,7 @@ public class Utilities {
                 return key.longValue();
             } else {
                 keyObject = keyHolder.getKeys().get("id");
+                if (keyObject == null) keyObject = keyHolder.getKeys().get("ID");
                 if (keyObject == null) throw new DbException("Generated key not found");
                 return (long) keyObject;
             }

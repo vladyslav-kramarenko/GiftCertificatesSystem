@@ -25,6 +25,7 @@ import static com.epam.esm.util.CoreConstants.MAX_TAG_NAME_LENGTH;
 import static com.epam.esm.util.TestUtils.generateStringBySize;
 import static com.epam.esm.util.TestUtils.generateTagWithId;
 import static org.junit.jupiter.api.Assertions.*;
+
 @ContextConfiguration(classes = {AppConfig.class})
 @ActiveProfiles("test")
 public class TagServiceTest {
@@ -44,8 +45,7 @@ public class TagServiceTest {
 
     @Test
     public void testGetTagById_ValidId_ReturnsTag() throws ServiceException, DbException {
-        Tag tag = new Tag();
-        tag.setId(VALID_ID);
+        Tag tag = new Tag(VALID_ID, "tag");
         Mockito.when(tagDao.getById(VALID_ID)).thenReturn(Optional.of(tag));
 
         Optional<Tag> result = tagService.getTagById(VALID_ID);
@@ -68,8 +68,7 @@ public class TagServiceTest {
 
     @Test
     public void testCreateTag_ValidTag_ReturnsCreatedTag() throws ServiceException, DbException {
-        Tag tag = new Tag();
-        tag.setName("Test Tag");
+        Tag tag = new Tag(1L, "Test Tag");
         Mockito.when(tagDao.create(tag)).thenReturn(tag);
 
         Tag result = tagService.createTag(tag);
@@ -118,7 +117,7 @@ public class TagServiceTest {
         Mockito.verify(tagDao).getAll(sort);
 
         sort = Sort.by("id").descending();
-        tags = tags.stream().sorted((a, b) -> (int) (b.getId() - a.getId())).toList();
+        tags = tags.stream().sorted((a, b) -> (int) (b.id() - a.id())).toList();
         Mockito.when(tagDao.getAll(sort)).thenReturn(tags);
 
         result = tagService.getTags(new String[]{"id", "desc"});
@@ -147,15 +146,20 @@ public class TagServiceTest {
 
     @Test
     public void testCreateTag_InvalidTag_ThrowsIllegalArgumentException() {
+        Tag invalidTag = new Tag(null, generateStringBySize(MAX_TAG_NAME_LENGTH + 1));
+        assertThrows(IllegalArgumentException.class, () -> tagService.createTag(invalidTag));
+    }
+
+    @Test
+    public void testCreateTag_Null_Tag_ThrowsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> tagService.createTag(null));
-
-        Tag invalidTag = new Tag();
+        Tag invalidTag = new Tag(null, null);
         assertThrows(IllegalArgumentException.class, () -> tagService.createTag(invalidTag));
+    }
 
-        invalidTag.setName("");
-        assertThrows(IllegalArgumentException.class, () -> tagService.createTag(invalidTag));
-
-        invalidTag.setName(generateStringBySize(MAX_TAG_NAME_LENGTH + 1));
+    @Test
+    public void testCreateTag_Empty_Tag_ThrowsIllegalArgumentException() {
+        Tag invalidTag = new Tag(null, "");
         assertThrows(IllegalArgumentException.class, () -> tagService.createTag(invalidTag));
     }
 }

@@ -33,9 +33,7 @@ public class GiftCertificateRowCallbackHandler implements RowCallbackHandler {
 
         long tagId = rs.getLong("tag_id");
         if (tagId > 0) {
-            Tag tag = new Tag();
-            tag.setId(tagId);
-            tag.setName(rs.getString("tag_name"));
+            Tag tag = new Tag(tagId,rs.getString("tag_name"));
             certificate.getTags().add(tag);
         }
     }

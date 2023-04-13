@@ -66,7 +66,7 @@ public interface GiftCertificateDao {
      * @return the updated GiftCertificate object
      * @throws DbException if an error occurs while accessing the database
      */
-    GiftCertificate update(GiftCertificate giftCertificate) throws DbException;
+    Optional<GiftCertificate> update(GiftCertificate giftCertificate) throws DbException;
 
     /**
      * Deletes a GiftCertificate with the specified ID from the database.

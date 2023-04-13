@@ -21,10 +21,10 @@ public class TagUtils {
         if (tag == null) {
             throw new IllegalArgumentException("Tag cannot be empty");
         }
-        if (tag.getName() == null || tag.getName().isEmpty()) {
+        if (tag.name() == null || tag.name().isEmpty()) {
             throw new IllegalArgumentException("Tag name cannot be empty");
         }
-        if (tag.getName().length() > MAX_TAG_NAME_LENGTH) {
+        if (tag.name().length() > MAX_TAG_NAME_LENGTH) {
             throw new IllegalArgumentException("Tag name cannot be bigger than " + MAX_TAG_NAME_LENGTH + " symbols");
         }
     }

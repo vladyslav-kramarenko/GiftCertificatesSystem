@@ -26,24 +26,24 @@ public class TagDaoTest {
     @Test
     void testCreateAndGetById() throws DbException {
         // given
-        Tag tag = new Tag("Test tag");
+        Tag tag = new Tag(null,"Test tag");
 
         // when
         Tag createdTag = tagDao.create(tag);
-        Optional<Tag> tagOptional = tagDao.getById(createdTag.getId());
+        Optional<Tag> tagOptional = tagDao.getById(createdTag.id());
 
         // then
         assertTrue(tagOptional.isPresent());
         assertEquals(createdTag, tagOptional.get());
 
-        tagDao.delete(tagOptional.get().getId());
+        tagDao.delete(tagOptional.get().id());
     }
 
     @Test
     void testGetByName() throws DbException {
         // given
-        Tag tag = new Tag("Test tag");
-        tagDao.create(tag);
+        Tag tag = new Tag(null,"Test tag");
+        tag=tagDao.create(tag);
 
         // when
         Optional<Tag> tagOptional = tagDao.getByName("Test tag");
@@ -51,9 +51,9 @@ public class TagDaoTest {
         // then
         assertTrue(tagOptional.isPresent());
         assertEquals(tag, tagOptional.get());
-        assertEquals(tag.getId(), tagOptional.get().getId());
+        assertEquals(tag.id(), tagOptional.get().id());
 
-        tagDao.delete(tagOptional.get().getId());
+        tagDao.delete(tagOptional.get().id());
     }
 
     @Test
@@ -62,10 +62,10 @@ public class TagDaoTest {
         List<Tag> tags = tagDao.getAll();
         int oldSize = tags.size();
 
-        Tag tag1 = new Tag("Tag 1 new");
-        Tag tag2 = new Tag("Tag 2 new");
-        tagDao.create(tag1);
-        tagDao.create(tag2);
+        Tag tag1 = new Tag(null,"Tag 1 new");
+        Tag tag2 = new Tag(null,"Tag 2 new");
+        tag1=tagDao.create(tag1);
+        tag2=tagDao.create(tag2);
 
         // when
         tags = tagDao.getAll();
@@ -75,20 +75,20 @@ public class TagDaoTest {
         assertTrue(tags.contains(tag1));
         assertTrue(tags.contains(tag2));
 
-        tagDao.delete(tag1.getId());
-        tagDao.delete(tag2.getId());
+        tagDao.delete(tag1.id());
+        tagDao.delete(tag2.id());
     }
 
     @Test
     void testDelete() throws DbException {
         // given
-        Tag tag = new Tag("Test tag");
+        Tag tag = new Tag(null,"Test tag");
         tagDao.create(tag);
         Optional<Tag> tagOptional = tagDao.getByName("Test tag");
         assertTrue(tagOptional.isPresent());
 
         // when
-        tagDao.delete(tagOptional.get().getId());
+        tagDao.delete(tagOptional.get().id());
         tagOptional = tagDao.getByName("Test tag");
 
         // then
@@ -97,8 +97,7 @@ public class TagDaoTest {
 
     @Test
     public void testCreateDuplicateTag() throws DbException {
-        Tag tag = new Tag();
-        tag.setName("Tag");
+        Tag tag = new Tag(null,"Tag");
 
         // First create a tag
         tagDao.create(tag);
@@ -106,6 +105,6 @@ public class TagDaoTest {
         // Attempt to create the same tag again
         assertThrows(IllegalArgumentException.class, () -> tagDao.create(tag));
 
-        tagDao.delete(tag.getId());
+        tagDao.delete(tag.id());
     }
 }

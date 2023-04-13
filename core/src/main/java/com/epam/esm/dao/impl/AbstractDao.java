@@ -1,7 +1,6 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.exception.DbException;
-import com.epam.esm.model.GiftCertificate;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -75,7 +74,7 @@ public abstract class AbstractDao<T, ID> {
         }
     }
 
-    public abstract T update(T obj) throws DbException;
+    public abstract Optional<T> update(T obj) throws DbException;
 
     protected JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;

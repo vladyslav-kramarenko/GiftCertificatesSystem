@@ -70,7 +70,7 @@ public class GiftCertificateServiceTest {
         giftCertificates.add(giftCertificate3);
 
         GiftCertificateFilter filter = GiftCertificateFilter.builder()
-                .withTagName(tag1.getName())
+                .withTagName(tag1.name())
                 .build();
 
         Sort sort = Sort.by("name").ascending();
@@ -157,7 +157,7 @@ public class GiftCertificateServiceTest {
         updatedGiftCertificate.setId(VALID_ID);
 
         when(giftCertificateDao.getById(VALID_ID)).thenReturn(Optional.of(existingGiftCertificate));
-        when(giftCertificateDao.update(existingGiftCertificate)).thenReturn(updatedGiftCertificate);
+        when(giftCertificateDao.update(existingGiftCertificate)).thenReturn(Optional.of(updatedGiftCertificate));
 
         Optional<GiftCertificate> actualGiftCertificate = giftCertificateService.updateGiftCertificate(VALID_ID, updatedGiftCertificate);
 

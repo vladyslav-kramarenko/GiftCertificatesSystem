@@ -49,7 +49,7 @@ public class GiftCertificateFilter {
         return input
                 .filter(movie -> (tagName == null || (movie.getTags() != null &&
                         movie.getTags().stream()
-                                .map(Tag::getName)
+                                .map(Tag::name)
                                 .anyMatch(tag -> tag != null && tag.equalsIgnoreCase(tagName)))));
     }
 }

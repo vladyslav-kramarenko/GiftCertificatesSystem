@@ -17,10 +17,7 @@ public class TestUtils {
     }
 
     public static Tag generateTagWithId(long id) {
-        Tag tag = new Tag();
-        tag.setId(id);
-        tag.setName("Tag " + id);
-        return tag;
+        return new Tag(id, "Tag " + id);
     }
 
     public static GiftCertificate generateGiftCertificateWithoutId() {

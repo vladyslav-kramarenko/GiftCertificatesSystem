@@ -25,10 +25,11 @@ public class GiftCertificateRowMapper implements RowMapper<GiftCertificate> {
         List<Tag> tags = new ArrayList<>();
 
         do {
-            Tag tag = new Tag();
-            tag.setId(rs.getLong("tag_id"));
-            tag.setName(rs.getString("tag_name"));
-            tags.add(tag);
+            long tagId = rs.getLong("tag_id");
+            if (tagId > 0) {
+                Tag tag = new Tag(tagId,rs.getString("tag_name"));
+                tags.add(tag);
+            }
         } while (rs.next() && rs.getLong("id") == certificate.getId());
 
         certificate.setTags(tags);

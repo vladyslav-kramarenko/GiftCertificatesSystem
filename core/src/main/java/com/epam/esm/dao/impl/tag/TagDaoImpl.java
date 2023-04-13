@@ -36,13 +36,13 @@ public class TagDaoImpl extends AbstractDao<Tag, Long> implements TagDao {
                         TagSqlQueries.CREATE_TAG,
                         Statement.RETURN_GENERATED_KEYS
                 );
-                ps.setString(1, tag.getName());
+                ps.setString(1, tag.name());
                 return ps;
             }, keyHolder);
-            tag.setId(getKey(keyHolder));
-            return tag;
+//            tag.setId(getKey(keyHolder));
+            return new Tag(getKey(keyHolder), tag.name());
         } catch (DuplicateKeyException e) {
-            throw new IllegalArgumentException("Tag with name '" + tag.getName() + "' already exists");
+            throw new IllegalArgumentException("Tag with name '" + tag.name() + "' already exists");
         } catch (Exception e) {
             throw new DbException("Error while creating a Tag" + Arrays.toString(e.getStackTrace()));
         }
@@ -69,7 +69,7 @@ public class TagDaoImpl extends AbstractDao<Tag, Long> implements TagDao {
     }
 
     @Override
-    public Tag update(Tag obj) throws DbException {
+    public Optional<Tag> update(Tag obj) throws DbException {
         throw new DbException("Update method for tags is not supported");
     }
 }
