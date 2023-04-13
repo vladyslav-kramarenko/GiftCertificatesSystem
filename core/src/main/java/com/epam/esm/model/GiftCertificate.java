@@ -27,7 +27,4 @@ public class GiftCertificate {
     private LocalDateTime lastUpdateDate;
     @Lazy
     private List<Tag> tags;
-
-    public GiftCertificate() {
-    }
 }
