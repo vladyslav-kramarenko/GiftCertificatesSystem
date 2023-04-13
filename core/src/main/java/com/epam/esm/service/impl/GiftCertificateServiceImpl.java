@@ -87,6 +87,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         validateForNull(giftCertificate.getDuration(), "duration");
 
         validateGiftCertificateParams(giftCertificate);
+        validateTags(giftCertificate.getTags());
 
         try {
             giftCertificateDao.create(giftCertificate);
@@ -108,7 +109,6 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
         validateGiftCertificateName(giftCertificate.getName());
         validateGiftCertificatePrice(giftCertificate.getPrice());
         validateGiftCertificateDuration(giftCertificate.getDuration());
-        validateTags(giftCertificate.getTags());
     }
 
     private void addTags(GiftCertificate giftCertificate) throws DbException {
@@ -153,6 +153,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
             giftCertificateDao.update(oldGiftCertificate);
 
             if(giftCertificate.getTags()!=null) {
+                validateTags(giftCertificate.getTags());
                 giftCertificateDao.deleteAllTagsForCertificateById(oldGiftCertificate.getId());
                 addTags(oldGiftCertificate);
             }

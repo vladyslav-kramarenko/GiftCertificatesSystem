@@ -36,6 +36,8 @@ public class TagUtils {
      * @throws IllegalArgumentException if any tag in the list is not valid
      */
     public static void validateTags(List<Tag> tags) throws IllegalArgumentException {
+        if (tags == null || tags.isEmpty())
+            throw new IllegalArgumentException("Gift Certificate should have at least one tag");
         for (Tag tag : tags) {
             validateTag(tag);
         }
