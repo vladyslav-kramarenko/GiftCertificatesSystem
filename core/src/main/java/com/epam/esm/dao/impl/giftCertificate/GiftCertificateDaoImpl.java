@@ -47,7 +47,7 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
                 return ps;
             }, keyHolder);
             giftCertificate.setId(getKey(keyHolder));
-            GiftCertificate newGiftCertificate=getById(giftCertificate.getId()).get();
+            GiftCertificate newGiftCertificate = getById(giftCertificate.getId()).get();
             giftCertificate.setLastUpdateDate(newGiftCertificate.getLastUpdateDate());
             giftCertificate.setCreateDate(newGiftCertificate.getCreateDate());
             return giftCertificate;
@@ -126,7 +126,9 @@ public class GiftCertificateDaoImpl extends AbstractDao<GiftCertificate, Long> i
     public List<GiftCertificate> getAll(Sort sort) throws DbException {
         String sql = getOrderByClause(getSelectAllSql(), sort);
         try {
-            return getJdbcTemplate().query(sql, new GiftCertificateResultSetExtractor());
+            GiftCertificateRowCallbackHandler handler = new GiftCertificateRowCallbackHandler();
+            getJdbcTemplate().query(sql, handler);
+            return handler.getCertificates();
         } catch (Exception e) {
             throw new DbException("Error while getting all entities: " + Arrays.toString(e.getStackTrace()));
         }
