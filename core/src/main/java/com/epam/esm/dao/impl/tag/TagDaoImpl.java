@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -20,6 +21,7 @@ import static com.epam.esm.dao.impl.tag.TagSqlQueries.*;
 import static com.epam.esm.util.Utilities.getKey;
 
 @Repository
+@Transactional
 public class TagDaoImpl extends AbstractDao<Tag, Long> implements TagDao {
 
     @Autowired
@@ -39,7 +41,6 @@ public class TagDaoImpl extends AbstractDao<Tag, Long> implements TagDao {
                 ps.setString(1, tag.name());
                 return ps;
             }, keyHolder);
-//            tag.setId(getKey(keyHolder));
             return new Tag(getKey(keyHolder), tag.name());
         } catch (DuplicateKeyException e) {
             throw new IllegalArgumentException("Tag with name '" + tag.name() + "' already exists");

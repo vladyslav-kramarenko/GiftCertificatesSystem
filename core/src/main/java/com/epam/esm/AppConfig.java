@@ -15,14 +15,13 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
-//@EnableTransactionManagement
-//TODO checkUp
+@EnableTransactionManagement(proxyTargetClass = true)
 @Configuration
 @PropertySource("classpath:application.properties")
-@PropertySource("classpath:application-${spring.profiles.active}.properties")
 public class AppConfig {
     @Autowired
     private Environment env;

@@ -7,6 +7,7 @@ import com.epam.esm.exception.ServiceException;
 import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
+import com.epam.esm.service.GiftCertificateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +26,12 @@ import static com.epam.esm.util.TagUtils.validateTags;
 import static com.epam.esm.util.Utilities.validateId;
 
 /**
- * Implementation of {@link com.epam.esm.service.GiftCertificateService} interface. Provides methods for
+ * Implementation of {@link GiftCertificateService} interface. Provides methods for
  * <p>
  * creating, retrieving, updating and deleting gift certificates from the database.
  */
 @Service
-public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCertificateService {
+public class GiftCertificateServiceImpl implements GiftCertificateService {
     private static final Logger logger = LoggerFactory.getLogger(GiftCertificateServiceImpl.class);
     private final GiftCertificateDao giftCertificateDao;
     private final TagDao tagDao;
@@ -80,7 +81,6 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
     @Transactional(rollbackFor = ServiceException.class)
     public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate)
             throws IllegalArgumentException, ServiceException {
-        //TODO проверить транзации
         validateForNull(giftCertificate.getDescription(), "description");
         validateForNull(giftCertificate.getName(), "name");
         validateForNull(giftCertificate.getPrice(), "price");
@@ -118,9 +118,9 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
                 Tag newTag;
                 Optional<Tag> existingTag = tagDao.getByName(tag.name());
                 if (existingTag.isPresent()) {
-                    newTag=new Tag(existingTag.get().id(),existingTag.get().name());
+                    newTag = new Tag(existingTag.get().id(), existingTag.get().name());
                 } else {
-                    newTag=tagDao.create(tag);
+                    newTag = tagDao.create(tag);
                 }
                 giftCertificateDao.addTagToCertificate(giftCertificate, newTag);
             }
@@ -152,7 +152,7 @@ public class GiftCertificateServiceImpl implements com.epam.esm.service.GiftCert
             updateCertificate(oldGiftCertificate, giftCertificate);
             giftCertificateDao.update(oldGiftCertificate);
 
-            if(giftCertificate.getTags()!=null) {
+            if (giftCertificate.getTags() != null) {
                 validateTags(giftCertificate.getTags());
                 giftCertificateDao.deleteAllTagsForCertificateById(oldGiftCertificate.getId());
                 addTags(oldGiftCertificate);
