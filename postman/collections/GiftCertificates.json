@@ -1,0 +1,326 @@
+{
+	"info": {
+		"_postman_id": "b715e9dd-7c79-4198-8169-1a3ccb6fedca",
+		"name": "GiftCertificates",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "21265866-b715e9dd-7c79-4198-8169-1a3ccb6fedca"
+	},
+	"item": [
+		{
+			"name": "Certificates",
+			"item": [
+				{
+					"name": "ALL Certificates",
+					"id": "61b46246-11b9-4201-a64e-9d22fe245f31",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/certificates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"certificates"
+							],
+							"query": [
+								{
+									"key": "tag",
+									"value": "some compl new tag",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "30",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "911",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "create_date,desc,name,desc",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Certificate by ID",
+					"id": "0b691b67-59e8-43f9-b5cf-a1ce9d55c28c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/certificates/22",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"certificates",
+								"22"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Certificate",
+					"id": "80534dfa-b6aa-4d12-857f-411a09bc8451",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"13.4.2023\",\r\n    \"description\": \"1112341new certificate description\",\r\n    \"price\": 555.59,\r\n    \"duration\": 95111,\r\n        \"tags\": [\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/certificates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"certificates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Certificate by ID",
+					"id": "90cb86d1-7119-4d15-845a-edad1862ae86",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/certificates/22",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"certificates",
+								"22"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Certificate by ID",
+					"id": "62d14be2-571b-4a98-8b8b-a6a7d046820f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/certificates/35",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"certificates",
+								"35"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "f27bcd7e-6f8d-4bb1-aa02-e41e9bafa0b6"
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "ALL Tags",
+					"id": "4a7ca4fd-a1f4-42b4-8a21-70879d2a6449",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tags?sort=name,asc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tags"
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "name,asc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Tag by id",
+					"id": "e6db65a1-bdd4-466c-b07c-79d1c0b31c8b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tags/10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tags",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Tag by id",
+					"id": "479c86d5-c977-4ff6-970c-d597e8a6b49c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tags/11",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tags",
+								"11"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Tag",
+					"id": "b3770917-0c5e-4cbf-b032-5b9ebf047bc4",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test Adventure sdfv2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/tags",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tags"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "34d51615-5b01-48c5-a8fa-d69849b38139"
+		},
+		{
+			"name": "test",
+			"id": "aa7b2f4c-9598-4cb0-95e3-cfae5b770f6c",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
