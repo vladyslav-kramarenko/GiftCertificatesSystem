@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.AppConfig;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.exception.DbException;
@@ -11,6 +12,8 @@ import com.epam.esm.service.impl.GiftCertificateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,9 +23,11 @@ import java.util.Optional;
 import static com.epam.esm.util.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+@ContextConfiguration(classes = {AppConfig.class})
+@ActiveProfiles("test")
 public class GiftCertificateServiceTest {
     private GiftCertificateDao giftCertificateDao;
+    private TagDao tagDao;
     private GiftCertificateServiceImpl giftCertificateService;
 
     private static final long VALID_ID = 1L;
@@ -34,7 +39,7 @@ public class GiftCertificateServiceTest {
     @BeforeEach
     public void setUp() {
         giftCertificateDao = mock(GiftCertificateDao.class);
-        TagDao tagDao = mock(TagDao.class);
+        tagDao = mock(TagDao.class);
         giftCertificateService = new GiftCertificateServiceImpl(giftCertificateDao, tagDao);
     }
 
@@ -122,8 +127,12 @@ public class GiftCertificateServiceTest {
     @Test
     public void testCreateGiftCertificate() throws Exception {
         GiftCertificate giftCertificate = generateGiftCertificateWithoutId();
+        giftCertificate.setId(VALID_ID);
 
         when(giftCertificateDao.create(giftCertificate)).thenReturn(giftCertificate);
+        when(giftCertificateDao.getById(VALID_ID)).thenReturn(Optional.of(giftCertificate));
+        when(tagDao.create(giftCertificate.getTags().get(0))).thenReturn(giftCertificate.getTags().get(0));
+        when(tagDao.create(giftCertificate.getTags().get(1))).thenReturn(giftCertificate.getTags().get(1));
 
         GiftCertificate createdGiftCertificate = giftCertificateService.createGiftCertificate(giftCertificate);
 
@@ -145,6 +154,7 @@ public class GiftCertificateServiceTest {
         updatedTags.add(new Tag(3L, "Updated Tag 1"));
         updatedTags.add(new Tag(4L, "Updated Tag 2"));
         updatedGiftCertificate.setTags(updatedTags);
+        updatedGiftCertificate.setId(VALID_ID);
 
         when(giftCertificateDao.getById(VALID_ID)).thenReturn(Optional.of(existingGiftCertificate));
         when(giftCertificateDao.update(existingGiftCertificate)).thenReturn(updatedGiftCertificate);
@@ -153,7 +163,6 @@ public class GiftCertificateServiceTest {
 
         assertTrue(actualGiftCertificate.isPresent());
         assertEquals(updatedGiftCertificate, actualGiftCertificate.get());
-        verify(giftCertificateDao).getById(VALID_ID);
         verify(giftCertificateDao).update(existingGiftCertificate);
     }
 

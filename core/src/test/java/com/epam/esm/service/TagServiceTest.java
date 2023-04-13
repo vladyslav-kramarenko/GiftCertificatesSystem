@@ -1,5 +1,7 @@
 package com.epam.esm.service;
 
+import com.epam.esm.AppConfig;
+import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.exception.ServiceException;
@@ -12,21 +14,24 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.epam.esm.util.CoreConstants.MAX_TAG_NAME_LENGTH;
 import static com.epam.esm.util.TestUtils.generateStringBySize;
 import static com.epam.esm.util.TestUtils.generateTagWithId;
 import static org.junit.jupiter.api.Assertions.*;
-
+@ContextConfiguration(classes = {AppConfig.class})
+@ActiveProfiles("test")
 public class TagServiceTest {
     private static final long VALID_ID = 1L;
     private static final long INVALID_ID = -1L;
-
+    @Mock
+    private GiftCertificateDao giftCertificateDao;
     @Mock
     private TagDao tagDao;
     @InjectMocks
@@ -113,7 +118,7 @@ public class TagServiceTest {
         Mockito.verify(tagDao).getAll(sort);
 
         sort = Sort.by("id").descending();
-        tags = tags.stream().sorted((a, b) -> (int) (b.getId() - a.getId())).collect(Collectors.toList());
+        tags = tags.stream().sorted((a, b) -> (int) (b.getId() - a.getId())).toList();
         Mockito.when(tagDao.getAll(sort)).thenReturn(tags);
 
         result = tagService.getTags(new String[]{"id", "desc"});

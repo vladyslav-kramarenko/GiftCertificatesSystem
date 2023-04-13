@@ -1,11 +1,12 @@
 package com.epam.esm.dao;
 
-import com.epam.esm.config.TestConfig;
+import com.epam.esm.AppConfig;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.model.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -15,12 +16,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@ContextConfiguration(classes = {AppConfig.class})
+@ActiveProfiles("test")
 public class TagDaoTest {
-
+    @Autowired
+    private GiftCertificateDao giftCertificateDao;
     @Autowired
     private TagDao tagDao;
-
     @Test
     void testCreateAndGetById() throws DbException {
         // given
