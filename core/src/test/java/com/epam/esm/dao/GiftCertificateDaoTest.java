@@ -3,11 +3,13 @@ package com.epam.esm.dao;
 import com.epam.esm.AppConfig;
 import com.epam.esm.exception.DbException;
 import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Tag;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -17,6 +19,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.epam.esm.util.SortUtilities.addSortFieldAndDirectionToSort;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -51,6 +54,59 @@ class GiftCertificateDaoTest {
     public void setDown() throws DbException {
         if (giftCertificate1.getId() != null) giftCertificateDao.delete(giftCertificate1.getId());
         if (giftCertificate2.getId() != null) giftCertificateDao.delete(giftCertificate2.getId());
+    }
+
+    @Test
+    public void testAddTagToCertificate() throws DbException {
+        Tag newTag = tagDao.create(new Tag(null, "Some New Tag"));
+
+        giftCertificateDao.create(giftCertificate1);
+        giftCertificateDao.addTagToCertificate(giftCertificate1, newTag);
+
+        GiftCertificate certificateWithTags = giftCertificateDao.getById(giftCertificate1.getId()).orElse(null);
+        assertNotNull(certificateWithTags);
+        assertTrue(certificateWithTags.getTags().contains(newTag));
+
+        tagDao.delete(newTag.id());
+    }
+
+    @Test
+    public void testDeleteAllTagsForCertificateById() throws DbException {
+        // Create two new tags and add them to the database
+        Tag newTag2 =tagDao.create(new Tag(null,"New Tag 1"));
+        Tag newTag1 =tagDao.create(new Tag(null,"New Tag 2"));
+
+        // Create a gift certificate and add the tags to it
+        giftCertificateDao.create(giftCertificate1);
+        giftCertificateDao.addTagToCertificate(giftCertificate1, newTag1);
+        giftCertificateDao.addTagToCertificate(giftCertificate1, newTag2);
+
+        // Delete all tags for the gift certificate
+        giftCertificateDao.deleteAllTagsForCertificateById(giftCertificate1.getId());
+
+        // Verify that the tags have been removed
+        List<Tag> tagsAfterDeletion = giftCertificateDao.getById(giftCertificate1.getId()).get().getTags();
+        assertTrue(tagsAfterDeletion.isEmpty());
+
+        // Clean up the tags from the database
+        tagDao.delete(newTag1.id());
+        tagDao.delete(newTag2.id());
+    }
+
+    @Test
+    public void testAddExistingTagToCertificate() throws DbException {
+        // Create new tag and add it to the database
+        Tag CreatedTag = tagDao.create(new Tag(null, "Some New Tag"));
+
+        // Add the tag to the certificate
+        giftCertificateDao.create(giftCertificate1);
+        giftCertificateDao.addTagToCertificate(giftCertificate1, CreatedTag);
+
+        // Try to add the same tag again to the certificate and expect an exception
+        assertThrows(IllegalArgumentException.class, () -> giftCertificateDao.addTagToCertificate(giftCertificate1, CreatedTag));
+
+        // Clean up the tag from the database
+        tagDao.delete(CreatedTag.id());
     }
 
     @Test
@@ -101,7 +157,7 @@ class GiftCertificateDaoTest {
         giftCertificateDao.update(giftCertificate1);
 
         // check that the new tag was added to the gift certificate and created in the database
-        Optional<GiftCertificate>optionalGiftCertificate=giftCertificateDao.getById(giftCertificate1.getId());
+        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.getById(giftCertificate1.getId());
         assertTrue(optionalGiftCertificate.isPresent());
 
         GiftCertificate retrievedGiftCertificate = optionalGiftCertificate.get();
@@ -113,7 +169,7 @@ class GiftCertificateDaoTest {
         assertEquals(giftCertificate1.getDuration(), retrievedGiftCertificate.getDuration());
     }
 
-        @Test
+    @Test
     public void testGetAll() throws SQLException {
         giftCertificateDao.create(giftCertificate1);
         giftCertificateDao.create(giftCertificate2);
@@ -126,5 +182,28 @@ class GiftCertificateDaoTest {
         assertTrue(allCertificates.size() >= 2);
         assertTrue(allCertificates.contains(giftCertificate1));
         assertTrue(allCertificates.contains(giftCertificate2));
+    }
+
+    @Test
+    public void testGetCertificatesByTagId() throws DbException {
+        // Create a new tag and add it to the database
+        Tag newTag = tagDao.create(new Tag(null,"Test Tag"));
+
+        // Create two gift certificates and add the new tag to them
+        giftCertificateDao.create(giftCertificate1);
+        giftCertificateDao.create(giftCertificate2);
+        giftCertificateDao.addTagToCertificate(giftCertificate1, newTag);
+        giftCertificateDao.addTagToCertificate(giftCertificate2, newTag);
+
+        // Get gift certificates by the new tag's ID
+        List<GiftCertificate> giftCertificatesByTag = giftCertificateDao.getCertificatesByTagId(newTag.id());
+
+        // Verify that the retrieved gift certificates match the expected ones
+        assertEquals(2, giftCertificatesByTag.size());
+        assertTrue(giftCertificatesByTag.stream().anyMatch(cert -> cert.getId().equals(giftCertificate1.getId())));
+        assertTrue(giftCertificatesByTag.stream().anyMatch(cert -> cert.getId().equals(giftCertificate2.getId())));
+
+        // Clean up the tag from the database
+        tagDao.delete(newTag.id());
     }
 }

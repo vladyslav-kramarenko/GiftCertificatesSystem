@@ -65,4 +65,11 @@ public interface TagDao {
      * @throws DbException if an error occurred while accessing the database.
      */
     boolean delete(Long id) throws DbException;
+
+    /**
+     * Not supported
+     *
+     * @throws DbException
+     */
+    Optional<Tag> update(Tag tag) throws DbException;
 }
