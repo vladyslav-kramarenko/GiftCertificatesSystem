@@ -115,3 +115,32 @@ VALUES (1, 1),
        (20, 1),
        (20, 3),
        (20, 7);
+
+-- Insert users
+INSERT INTO user (first_name, last_name)
+VALUES ('John', 'Doe'),
+       ('Jane', 'Smith'),
+       ('Alice', 'Johnson'),
+       ('Bob', 'Williams'),
+       ('Charlie', 'Brown');
+
+-- Insert orders
+INSERT INTO `user_order` (user_id, sum)
+VALUES (1, 500.00),
+       (2, 250.00),
+       (3, 300.00),
+       (4, 150.00),
+       (5, 200.00);
+
+-- Insert order-gift_certificate relations (order_has_gift_certificate)
+INSERT INTO order_has_gift_certificate (order_id, gift_certificate_id, count)
+VALUES (1, 1, 2),
+       (1, 2, 1),
+       (2, 3, 1),
+       (2, 4, 1),
+       (3, 5, 1),
+       (3, 6, 1),
+       (4, 7, 1),
+       (4, 8, 1),
+       (5, 9, 1),
+       (5, 10, 1);
