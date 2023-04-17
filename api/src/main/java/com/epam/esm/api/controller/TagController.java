@@ -3,7 +3,7 @@ package com.epam.esm.api.controller;
 import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
-import com.epam.esm.core.service.impl.TagServiceImpl;
+import com.epam.esm.core.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,24 +12,26 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.api.util.Constants.DEFAULT_SORT;
+import static com.epam.esm.api.util.Constants.*;
 
 @RestController
 @RequestMapping("/tags")
 public class TagController {
-    private final TagServiceImpl tagService;
+    private final TagService tagService;
 
     @Autowired
-    public TagController(TagServiceImpl tagService) {
+    public TagController(TagService tagService) {
         this.tagService = tagService;
     }
 
     @GetMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> getTags(
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams) {
         try {
-            List<Tag> tags = tagService.getTags(sortParams);
+            List<Tag> tags = tagService.getTags(page,size,sortParams);
             if (tags.size() > 0) return ResponseEntity.ok(tags);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested resource not found", "40401"));
