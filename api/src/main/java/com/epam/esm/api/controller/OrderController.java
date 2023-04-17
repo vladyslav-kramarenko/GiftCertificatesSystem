@@ -1,0 +1,65 @@
+package com.epam.esm.api.controller;
+
+import com.epam.esm.api.ErrorResponse;
+import com.epam.esm.core.entity.UserOrder;
+import com.epam.esm.core.exception.ServiceException;
+import com.epam.esm.core.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.epam.esm.api.util.Constants.*;
+
+@RestController
+@RequestMapping("/orders")
+public class OrderController {
+    private final OrderService orderService;
+
+    @Autowired
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @GetMapping(value = "")
+    @ResponseBody
+    public ResponseEntity<?> getOrders(
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams) {
+        try {
+            List<UserOrder> orders = orderService.getOrders(page, size, sortParams);
+            if (orders.size() > 0) return ResponseEntity.ok(orders);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Requested resource not found", "40401"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
+        }
+    }
+
+    @GetMapping(value = "/{id}")
+    @ResponseBody
+    public ResponseEntity<?> getOrderById(@PathVariable Long id) {
+        try {
+            Optional<UserOrder> order = orderService.getOrderById(id);
+            if (order.isPresent()) return ResponseEntity.ok(order.get());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
+        }
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @ResponseBody
+    public ResponseEntity<?> deleteOrderById(@PathVariable Long id) {
+        return ResponseEntity.badRequest().body(new ErrorResponse("Deleting Orders is not allowed", "40001"));
+    }
+}
