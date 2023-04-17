@@ -60,12 +60,24 @@ public class UserController {
     @PostMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> addUser(@RequestBody User user) {
-        return ResponseEntity.badRequest().body(new ErrorResponse("Adding new Users is not allowed", "40001"));
+        try {
+            return ResponseEntity.ok(userService.createUser(user));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
+        }
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseBody
     public ResponseEntity<?> deleteUserById(@PathVariable Long id) {
         return ResponseEntity.badRequest().body(new ErrorResponse("Deleting Users is not allowed", "40001"));
+    }
+
+    @PutMapping(value = "/{id}")
+    @ResponseBody
+    public ResponseEntity<?> updateUserById(@PathVariable Long id) {
+        return ResponseEntity.badRequest().body(new ErrorResponse("Updating Users is not allowed", "40001"));
     }
 }
