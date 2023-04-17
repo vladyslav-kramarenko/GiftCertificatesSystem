@@ -1,6 +1,7 @@
 package com.epam.esm.core.entity;
 
 import com.epam.esm.core.util.CoreConstants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -70,4 +71,12 @@ public class GiftCertificate {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "giftCertificates")
     @JsonManagedReference
     private List<Tag> tags;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "order_has_gift_certificate",
+            joinColumns = @JoinColumn(name = "gift_certificate_id"),
+            inverseJoinColumns = @JoinColumn(name = "order_id")
+    )
+    @JsonBackReference
+    private List<UserOrder> orders;
 }
