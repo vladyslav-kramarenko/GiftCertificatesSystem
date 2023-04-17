@@ -10,6 +10,8 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -103,11 +105,12 @@ public class TagServiceImpl implements TagService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tag> getTags(String[] sortParams) throws ServiceException {
+    public List<Tag> getTags(int page, int size, String[] sortParams) throws ServiceException {
         Optional<Sort> sort = createSort(sortParams, ALLOWED_TAG_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
+        Pageable pageable = PageRequest.of(page, size, sort.orElse(Sort.by("id").ascending()));
+
         try {
-            if (sort.isEmpty()) return tagRepository.findAll();
-            return tagRepository.findAll(sort.get());
+            return tagRepository.findAll(pageable).toList();
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));

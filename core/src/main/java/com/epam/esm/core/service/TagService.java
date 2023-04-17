@@ -37,12 +37,6 @@ public interface TagService {
      */
     void deleteTag(Long id) throws ServiceException;
 
-    /**
-     * Retrieves a list of all tags, sorted according to the specified sort parameters.
-     *
-     * @param sortParams an array of sort parameters, specifying the order in which to sort the tags.
-     * @return a list of all tags, sorted according to the specified sort parameters.
-     * @throws ServiceException if there was an error retrieving the tags.
-     */
-    List<Tag> getTags(String[] sortParams) throws ServiceException;
+
+    List<Tag> getTags(int page, int size, String[] sortParams) throws ServiceException;
 }
