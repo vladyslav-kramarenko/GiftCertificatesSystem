@@ -1,3 +1,3 @@
 rootProject.name = "SpringBootGiftCertificatesSystem"
-include 'api'
-include 'core'
+include("api")
+include("core")
