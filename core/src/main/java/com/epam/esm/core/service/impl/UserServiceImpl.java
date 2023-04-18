@@ -2,7 +2,7 @@ package com.epam.esm.core.service.impl;
 
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.exception.ServiceException;
-import com.epam.esm.core.repository.UserOrderRepository;
+import com.epam.esm.core.repository.OrderRepository;
 import com.epam.esm.core.repository.UserRepository;
 import com.epam.esm.core.service.TagService;
 import com.epam.esm.core.service.UserService;
@@ -32,12 +32,10 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
-    private final UserOrderRepository orderRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserOrderRepository orderRepository) {
+    public UserServiceImpl(UserRepository userRepository, OrderRepository orderRepository) {
         this.userRepository = userRepository;
-        this.orderRepository = orderRepository;
     }
 
     /**
