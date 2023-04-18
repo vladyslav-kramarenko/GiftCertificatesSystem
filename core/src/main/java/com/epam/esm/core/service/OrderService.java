@@ -33,4 +33,6 @@ public interface OrderService {
     List<UserOrder> getOrders(int page, int size, String[] sortParams) throws ServiceException;
 
     UserOrder createOrder(Long userId, List<OrderRequest> orderRequests) throws ServiceException;
+
+    List<UserOrder> getOrdersByUserId(Long userId);
 }

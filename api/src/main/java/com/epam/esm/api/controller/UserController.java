@@ -87,6 +87,16 @@ public class UserController {
         return ResponseEntity.badRequest().body(new ErrorResponse("Updating Users is not allowed", "40001"));
     }
 
+    @GetMapping("/{userId}/orders")
+    public ResponseEntity<?> getOrdersByUserId(@PathVariable Long userId) {
+        List<UserOrder> orders = orderService.getOrdersByUserId(userId);
+        try {
+            return ResponseEntity.ok(orders);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/{userId}/orders")
     public ResponseEntity<?> createOrder(@PathVariable("userId") Long userId, @RequestBody List<OrderRequest> orderRequests) {
         try {
@@ -94,7 +104,7 @@ public class UserController {
             return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
         } catch (ServiceException e) {
             return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
-        }catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "40001"));
         }
     }

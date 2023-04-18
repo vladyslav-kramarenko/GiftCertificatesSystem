@@ -171,4 +171,10 @@ public class OrderServiceImpl implements OrderService {
         }
         return sum;
     }
+
+    @Override
+    public List<UserOrder> getOrdersByUserId(Long userId) {
+        validateId(userId);
+        return orderRepository.findByUserId(userId);
+    }
 }
