@@ -1,5 +1,6 @@
 package com.epam.esm.core.service;
 
+import com.epam.esm.core.entity.OrderRequest;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
 
@@ -21,15 +22,6 @@ public interface OrderService {
     Optional<UserOrder> getOrderById(Long id) throws ServiceException;
 
     /**
-     * Creates a new tag.
-     *
-     * @param order the tag to create.
-     * @return the created tag.
-     * @throws ServiceException if there was an error creating the tag.
-     */
-    UserOrder createOrder(UserOrder order) throws ServiceException;
-
-    /**
      * Deletes a tag by ID.
      *
      * @param id the ID of the tag to delete.
@@ -39,4 +31,6 @@ public interface OrderService {
 
 
     List<UserOrder> getOrders(int page, int size, String[] sortParams) throws ServiceException;
+
+    UserOrder createOrder(Long userId, List<OrderRequest> orderRequests) throws ServiceException;
 }

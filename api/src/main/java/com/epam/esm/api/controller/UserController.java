@@ -1,8 +1,11 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
+import com.epam.esm.core.entity.OrderRequest;
 import com.epam.esm.core.entity.User;
+import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
+import com.epam.esm.core.service.OrderService;
 import com.epam.esm.core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,11 +20,14 @@ import static com.epam.esm.api.util.Constants.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     private final UserService userService;
+    private final OrderService orderService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, OrderService orderService) {
         this.userService = userService;
+        this.orderService = orderService;
     }
 
     @GetMapping(value = "")
@@ -79,5 +85,17 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<?> updateUserById(@PathVariable Long id) {
         return ResponseEntity.badRequest().body(new ErrorResponse("Updating Users is not allowed", "40001"));
+    }
+
+    @PostMapping("/{userId}/orders")
+    public ResponseEntity<?> createOrder(@PathVariable("userId") Long userId, @RequestBody List<OrderRequest> orderRequests) {
+        try {
+            UserOrder newOrder = orderService.createOrder(userId, orderRequests);
+            return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
+        }catch (IllegalArgumentException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "40001"));
+        }
     }
 }

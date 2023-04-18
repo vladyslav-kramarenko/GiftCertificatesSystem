@@ -15,4 +15,12 @@ public class OrderGiftCertificateId implements Serializable {
 
     @Column(name = "gift_certificate_id")
     private Long giftCertificateId;
+
+    public OrderGiftCertificateId() {
+    }
+
+    public OrderGiftCertificateId(Long orderId, Long giftCertificateId) {
+        this.orderId = orderId;
+        this.giftCertificateId = giftCertificateId;
+    }
 }
