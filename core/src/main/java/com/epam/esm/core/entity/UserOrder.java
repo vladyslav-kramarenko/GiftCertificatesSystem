@@ -27,7 +27,7 @@ import java.util.List;
 @Table(name = "user_order")
 public class UserOrder {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     Long id;
 
@@ -35,12 +35,10 @@ public class UserOrder {
     @Positive(message = "Order Sum can't be negative")
     private BigDecimal sum;
 
-    @GeneratedValue
     @Column(name = "create_date")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime createDate;
 
-    @GeneratedValue
     @Column(name = "last_update_date")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime lastUpdateDate;
@@ -51,4 +49,21 @@ public class UserOrder {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderGiftCertificate> orderGiftCertificates;
+
+    public UserOrder() {}
+
+    public UserOrder(BigDecimal sum, User user) {
+        this.sum = sum;
+        this.user = user;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        createDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastUpdateDate = LocalDateTime.now();
+    }
 }
