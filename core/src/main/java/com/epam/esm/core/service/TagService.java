@@ -39,4 +39,6 @@ public interface TagService {
 
 
     List<Tag> getTags(int page, int size, String[] sortParams) throws ServiceException;
+
+    Optional<Tag> getMostWidelyUsedTagWithHighestCostByUserId(Long userId, int page, int size);
 }
