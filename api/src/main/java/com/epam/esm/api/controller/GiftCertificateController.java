@@ -1,6 +1,7 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
+import com.epam.esm.api.assembler.GiftCertificateAssembler;
 import com.epam.esm.core.service.GiftCertificateService;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.filter.GiftCertificateFilter;
@@ -25,6 +26,7 @@ public class GiftCertificateController {
      * Service class for gift certificate operations.
      */
     private final GiftCertificateService giftCertificateService;
+    private final GiftCertificateAssembler giftCertificateAssembler;
 
     /**
      * Constructs a new instance of {@code GiftCertificateController} with the given gift certificate service.
@@ -32,8 +34,12 @@ public class GiftCertificateController {
      * @param giftCertificateService a {@link GiftCertificateService} object
      */
     @Autowired
-    public GiftCertificateController(GiftCertificateService giftCertificateService) {
+    public GiftCertificateController(
+            GiftCertificateService giftCertificateService,
+            GiftCertificateAssembler giftCertificateAssembler
+    ) {
         this.giftCertificateService = giftCertificateService;
+        this.giftCertificateAssembler = giftCertificateAssembler;
     }
 
 
@@ -51,7 +57,7 @@ public class GiftCertificateController {
             Optional<GiftCertificate> certificate = giftCertificateService.getGiftCertificateById(id);
             if (certificate.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", "40401"));
-            return ResponseEntity.ok(certificate.get());
+            return ResponseEntity.ok(giftCertificateAssembler.toModel(certificate.get()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {
@@ -147,7 +153,7 @@ public class GiftCertificateController {
                     .withSearchQuery(searchQuery)
                     .build();
             List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size, sortParams);
-            return ResponseEntity.ok(certificates);
+            return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(certificates));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {

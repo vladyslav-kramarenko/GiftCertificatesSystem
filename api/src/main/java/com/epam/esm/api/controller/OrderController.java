@@ -1,10 +1,13 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
+import com.epam.esm.api.assembler.OrderAssembler;
+import com.epam.esm.api.dto.OrderDTO;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +21,12 @@ import static com.epam.esm.api.util.Constants.*;
 @RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
+    private final OrderAssembler orderAssembler;
 
     @Autowired
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, OrderAssembler orderAssembler) {
         this.orderService = orderService;
+        this.orderAssembler = orderAssembler;
     }
 
     @GetMapping(value = "")
@@ -32,7 +37,10 @@ public class OrderController {
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams) {
         try {
             List<UserOrder> orders = orderService.getOrders(page, size, sortParams);
-            if (orders.size() > 0) return ResponseEntity.ok(orders);
+            if (orders.size() > 0) {
+                CollectionModel<OrderDTO> orderCollection = orderAssembler.toCollectionModel(orders, page, size, sortParams);
+                return ResponseEntity.ok(orderCollection);
+            }
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested resource not found", "40401"));
         } catch (IllegalArgumentException e) {
@@ -47,7 +55,7 @@ public class OrderController {
     public ResponseEntity<?> getOrderById(@PathVariable Long id) {
         try {
             Optional<UserOrder> order = orderService.getOrderById(id);
-            if (order.isPresent()) return ResponseEntity.ok(order.get());
+            if (order.isPresent()) return ResponseEntity.ok(orderAssembler.toModel(order.get()));
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
         } catch (IllegalArgumentException e) {
