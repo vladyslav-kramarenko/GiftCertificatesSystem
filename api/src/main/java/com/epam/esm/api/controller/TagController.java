@@ -1,10 +1,13 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
+import com.epam.esm.api.assembler.TagAssembler;
+import com.epam.esm.api.dto.TagDTO;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +21,12 @@ import static com.epam.esm.api.util.Constants.*;
 @RequestMapping("/tags")
 public class TagController {
     private final TagService tagService;
+    private final TagAssembler tagAssembler;
 
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService, TagAssembler tagAssembler) {
         this.tagService = tagService;
+        this.tagAssembler = tagAssembler;
     }
 
     @GetMapping(value = "")
@@ -31,8 +36,11 @@ public class TagController {
             @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams) {
         try {
-            List<Tag> tags = tagService.getTags(page,size,sortParams);
-            if (tags.size() > 0) return ResponseEntity.ok(tags);
+            List<Tag> tags = tagService.getTags(page, size, sortParams);
+            if (tags.size() > 0) {
+                CollectionModel<TagDTO> tagCollection = tagAssembler.toCollectionModel(tags, page, size, sortParams);
+                return ResponseEntity.ok(tagCollection);
+            }
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested resource not found", "40401"));
         } catch (IllegalArgumentException e) {
@@ -59,7 +67,7 @@ public class TagController {
     public ResponseEntity<?> getTagById(@PathVariable Long id) {
         try {
             Optional<Tag> tag = tagService.getTagById(id);
-            if (tag.isPresent()) return ResponseEntity.ok(tag.get());
+            if (tag.isPresent()) return ResponseEntity.ok(tagAssembler.toModel(tag.get()));
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
         } catch (IllegalArgumentException e) {

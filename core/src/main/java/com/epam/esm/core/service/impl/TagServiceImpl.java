@@ -117,4 +117,12 @@ public class TagServiceImpl implements TagService {
             throw new ServiceException("Error while getting all tags");
         }
     }
+
+    @Override
+    public Optional<Tag> getMostWidelyUsedTagWithHighestCostByUserId(Long userId,int page,int size) {
+        validateId(userId);
+        Pageable pageable = PageRequest.of(page, size);
+        List<Tag> tags = tagRepository.findMostWidelyUsedTagWithHighestCostByUserId(userId, pageable);
+        return tags.stream().findFirst();
+    }
 }
