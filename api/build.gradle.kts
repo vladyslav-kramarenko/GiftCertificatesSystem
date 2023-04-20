@@ -14,15 +14,23 @@ repositories {
 }
 dependencies {
     implementation(project(":core"))
-
 	implementation("org.springframework.boot:spring-boot-configuration-processor:3.0.5")
     implementation("org.springframework.boot:spring-boot-starter-hateoas:3.0.5")
 	implementation("org.springframework.boot:spring-boot-starter-web:3.0.5")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.0.5")
     implementation("org.springframework.boot:spring-boot-devtools:3.0.5")
-	providedRuntime("org.springframework.boot:spring-boot-starter-tomcat:3.0.5")
+
+    implementation("org.glassfish:jakarta.el:4.0.2")
+    implementation("com.github.javafaker:javafaker:1.0.2")
+    implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+    implementation("org.hibernate.validator:hibernate-validator-annotation-processor:8.0.0.Final")
+
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat:3.0.5")
 
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    compileOnly("org.projectlombok:lombok:1.18.26")
+
+    annotationProcessor("org.projectlombok:lombok:1.18.26")
 
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("com.mysql:mysql-connector-j:8.0.32")
