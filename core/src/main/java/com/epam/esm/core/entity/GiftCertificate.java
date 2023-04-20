@@ -42,7 +42,7 @@ import java.util.List;
 @Table(name = "gift_certificate")
 public class GiftCertificate {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull(message = "Gift Certificate Name cannot be blank")
@@ -51,7 +51,7 @@ public class GiftCertificate {
     private String name;
 
     @NotNull(message = "Gift Certificate Description cannot be blank")
-    @Size(max = CoreConstants.MAX_GIFT_CERTIFICATE_NAME_LENGTH,
+    @Size(max = CoreConstants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH,
             message = "Gift Certificate Description must be less then " + CoreConstants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH + " characters")
     private String description;
 

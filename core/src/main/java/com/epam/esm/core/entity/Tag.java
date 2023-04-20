@@ -25,7 +25,7 @@ import java.util.List;
 @Table(name = "tag")
 public class Tag {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     Long id;
     @NotNull(message = "Gift Certificate Name cannot be blank")
