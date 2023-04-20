@@ -2,6 +2,7 @@ package com.epam.esm.api.assembler;
 
 import com.epam.esm.api.controller.GiftCertificateController;
 import com.epam.esm.api.dto.GiftCertificateDTO;
+import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.GiftCertificate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -34,6 +35,12 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
         dto.setCreateDate(giftCertificate.getCreateDate());
         dto.setLastUpdateDate(giftCertificate.getLastUpdateDate());
         dto.setTags(giftCertificate.getTags().stream().map(tagAssembler::toModel).toList());
+
+        dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(giftCertificate.getId()))
+                .toUriComponentsBuilder().toUriString(), "self", "GET"));
+        dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).deleteGiftCertificate(giftCertificate.getId()))
+                .toUriComponentsBuilder().toUriString(), "deleteOrder", "DELETE"));
+
 
         return dto;
     }
@@ -74,6 +81,9 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
                             .getGiftCertificates(search, tags, page + 1, size, sortParams)
                     ).withRel("next"));
         }
+        orderCollection.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).createGiftCertificate(null))
+                .toUriComponentsBuilder().toUriString(), "create gift certificate", "POST"));
+
 
         return orderCollection;
     }

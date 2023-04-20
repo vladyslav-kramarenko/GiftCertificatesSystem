@@ -153,7 +153,8 @@ public class GiftCertificateController {
                     .withSearchQuery(searchQuery)
                     .build();
             List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size, sortParams);
-            return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(certificates));
+            return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(
+                    certificates, searchQuery, tags, page, size, sortParams));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {

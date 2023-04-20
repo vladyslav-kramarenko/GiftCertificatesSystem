@@ -27,19 +27,6 @@ public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
                 .toUriComponentsBuilder().toUriString(), "self", "GET"));
         tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).deleteTagById(tag.getId()))
                 .toUriComponentsBuilder().toUriString(), "deleteTag", "DELETE"));
-        tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).addTag(null)).toUriComponentsBuilder()
-                .toUriString(), "createTag", "POST"));
-
-
-//        tagDTO.add(linkTo(methodOn(TagController.class)
-//                .getTagById(tag.getId()))
-//                .withSelfRel());
-//        tagDTO.add(linkTo(methodOn(TagController.class)
-//                .deleteTagById(tag.getId()))
-//                .withRel("deleteTag"));
-//        tagDTO.add(linkTo(methodOn(TagController.class)
-//                .addTag(null))
-//                .withRel("createTag"));
         return tagDTO;
     }
 
@@ -58,10 +45,6 @@ public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
         if (!tags.isEmpty()) {
             tagCollection.add(linkTo(methodOn(TagController.class).getTags(page + 1, size, sortParams)).withRel("next"));
         }
-        // Assuming you have a method to calculate the last page number
-//        int lastPage = getLastPageNumber();
-//        tagCollection.add(linkTo(methodOn(TagController.class).getTags(lastPage, size, sortParams)).withRel("last"));
-
         return tagCollection;
     }
 }
