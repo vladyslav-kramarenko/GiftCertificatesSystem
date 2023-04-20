@@ -130,7 +130,7 @@ public class GiftCertificateController {
      * Retrieves a list of gift certificates that match the specified filter, sorted and paginated as specified.
      *
      * @param searchQuery a search query to apply to the gift certificates
-     * @param tagName     a tag name to apply to the gift certificates
+     * @param tags        tag names to filter gift certificates
      * @param page        the page number to return (starting at 0)
      * @param size        the number of gift certificates to return per page
      * @param sortParams  an array of sort parameters in the format {field},{direction},
@@ -142,14 +142,14 @@ public class GiftCertificateController {
     @GetMapping("")
     public ResponseEntity<?> getGiftCertificates(
             @RequestParam(name = "search", required = false) String searchQuery,
-            @RequestParam(name = "tag", required = false) String tagName,
+            @RequestParam(name = "tags", required = false) String[] tags,
             @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
             @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams
     ) {
         try {
             GiftCertificateFilter giftCertificateFilter = GiftCertificateFilter.builder()
-                    .withTagName(tagName)
+                    .withTags(tags)
                     .withSearchQuery(searchQuery)
                     .build();
             List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size, sortParams);

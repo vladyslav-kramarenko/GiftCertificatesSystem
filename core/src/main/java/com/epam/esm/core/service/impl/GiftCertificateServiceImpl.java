@@ -12,8 +12,6 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS;
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_SORT_DIRECTIONS;
@@ -202,29 +199,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter giftCertificateFilter, int page, int size, String[] sortParams) throws ServiceException {
         try {
             Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
-            Pageable pageable = PageRequest.of(page, size, sort.orElse(Sort.by("id").ascending()));
-            Stream<GiftCertificate> giftCertificates;
-
-            String searchQuery = giftCertificateFilter.getSearchQuery();
-
-            if (searchQuery == null || searchQuery.isEmpty()) {
-                giftCertificates = giftCertificateRepository.findAll(pageable).stream();
-            } else {
-                String sortConditions = concatSort(sort.get(), "id asc");
-                giftCertificates = giftCertificateRepository.findAll(
-                        giftCertificateFilter.getSearchQuery(),
-                        sortConditions,
-                        page * size,
-                        page
-                ).stream();
-            }
-            List<GiftCertificate> giftCertificatesList = giftCertificateFilter.filter(giftCertificates)
-                    .toList();
-
+            String tagsFilter = String.join(",", giftCertificateFilter.getTags());
+            String sortConditions = concatSort(sort.orElse(null), "id asc");
+            List<GiftCertificate> giftCertificatesList = giftCertificateRepository.findAll(
+                    giftCertificateFilter.getSearchQuery(),
+                    sortConditions,
+                    page * size,
+                    size,
+                    tagsFilter
+            );
             for (GiftCertificate giftCertificate : giftCertificatesList) {
                 Hibernate.initialize(giftCertificate.getTags());
             }
-
             return giftCertificatesList;
         } catch (Exception e) {
             throw new ServiceException(e.getMessage());

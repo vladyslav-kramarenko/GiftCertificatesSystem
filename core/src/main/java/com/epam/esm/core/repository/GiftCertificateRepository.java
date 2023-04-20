@@ -18,11 +18,12 @@ public interface GiftCertificateRepository extends JpaRepository<GiftCertificate
     @Query("SELECT gc FROM GiftCertificate gc JOIN gc.tags t WHERE t.id = :tagId")
     List<GiftCertificate> getCertificatesByTagId(Long tagId);
 
-    @Procedure(name = "search_gift_certificates_inout")
+    @Procedure(name = "search_gift_certificates_with_tags")
     List<GiftCertificate> findAll(
             @Param("searchTerm") String searchTerm,
             @Param("sortConditions") String sortConditions,
+            @Param("pageLimit") Integer pageLimit,
             @Param("pageOffset") Integer pageOffset,
-            @Param("pageLimit") Integer pageLimit
+            @Param("tagsFilter") String tagsFilter
     );
 }

@@ -20,11 +20,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "search_gift_certificates_inout", procedureName = "search_gift_certificates_sort",
+        @NamedStoredProcedureQuery(name = "search_gift_certificates_with_tags", procedureName = "search_gift_certificates_with_tags",
                 resultClasses = GiftCertificate.class,
                 parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "search_term", type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, name = "sort_conditions", type = String.class)
+                        @StoredProcedureParameter(mode = ParameterMode.IN, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, type = String.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, type = Integer.class),
+                        @StoredProcedureParameter(mode = ParameterMode.IN, type = String.class)
                 })
 })
 @JsonIdentityInfo(

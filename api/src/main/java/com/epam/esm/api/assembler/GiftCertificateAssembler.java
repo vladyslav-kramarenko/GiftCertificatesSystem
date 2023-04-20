@@ -41,7 +41,7 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
     public CollectionModel<GiftCertificateDTO> toCollectionModel(
             List<GiftCertificate> orders,
             String search,
-            String tag,
+            String[] tags,
             int page,
             int size,
             String[] sortParams
@@ -55,23 +55,23 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
         orderCollection.add(
                 linkTo(
                         methodOn(GiftCertificateController.class)
-                                .getGiftCertificates(search, tag, page, size, sortParams)
+                                .getGiftCertificates(search, tags, page, size, sortParams)
                 ).withSelfRel());
         orderCollection.add(
                 linkTo(
                         methodOn(GiftCertificateController.class)
-                                .getGiftCertificates(search, tag, 0, size, sortParams)
+                                .getGiftCertificates(search, tags, 0, size, sortParams)
                 ).withRel("first"));
         if (page > 0) {
             orderCollection.add(
                     linkTo(methodOn(GiftCertificateController.class)
-                            .getGiftCertificates(search, tag, page - 1, size, sortParams)
+                            .getGiftCertificates(search, tags, page - 1, size, sortParams)
                     ).withRel("previous"));
         }
         if (!orders.isEmpty()) {
             orderCollection.add(
                     linkTo(methodOn(GiftCertificateController.class)
-                            .getGiftCertificates(search, tag, page + 1, size, sortParams)
+                            .getGiftCertificates(search, tags, page + 1, size, sortParams)
                     ).withRel("next"));
         }
 

@@ -1,13 +1,9 @@
 package com.epam.esm.core.filter;
 
-import com.epam.esm.core.entity.GiftCertificate;
-import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.util.CoreConstants;
 
-import java.util.stream.Stream;
-
 public class GiftCertificateFilter {
-    String tagName;
+    String[] tags;
     String searchQuery;
 
     public static GiftCertificateFilterBuilder builder() {
@@ -18,19 +14,29 @@ public class GiftCertificateFilter {
         return searchQuery;
     }
 
+    public String[] getTags() {
+        return tags;
+    }
+
     public static class GiftCertificateFilterBuilder {
-        String tagName;
+        String[] tags;
         String searchQuery;
 
-        public GiftCertificateFilterBuilder withTagName(String tagName) {
-            if (tagName != null && tagName.length() > CoreConstants.MAX_TAG_NAME_LENGTH) {
-                throw new IllegalArgumentException("Tag name should be less than " + CoreConstants.MAX_TAG_NAME_LENGTH + " characters");
-            }
-            this.tagName = tagName;
+        public GiftCertificateFilterBuilder withTags(String[] tags) {
+            if (tags != null) {
+                for (String tag : tags) {
+                    if (tag.length() > CoreConstants.MAX_TAG_NAME_LENGTH) {
+                        throw new IllegalArgumentException("Tag name should be less than " + CoreConstants.MAX_TAG_NAME_LENGTH + " characters");
+                    }
+                }
+
+            } else tags = new String[0];
+            this.tags = tags;
             return this;
         }
 
         public GiftCertificateFilterBuilder withSearchQuery(String searchQuery) {
+            if (searchQuery == null) searchQuery = "";
             this.searchQuery = searchQuery;
             return this;
         }
@@ -41,15 +47,7 @@ public class GiftCertificateFilter {
     }
 
     private GiftCertificateFilter(GiftCertificateFilterBuilder builder) {
-        this.tagName = builder.tagName;
+        this.tags = builder.tags;
         this.searchQuery = builder.searchQuery;
-    }
-
-    public Stream<GiftCertificate> filter(Stream<GiftCertificate> input) {
-        return input
-                .filter(movie -> (tagName == null || (movie.getTags() != null &&
-                        movie.getTags().stream()
-                                .map(Tag::getName)
-                                .anyMatch(tag -> tag != null && tag.equalsIgnoreCase(tagName)))));
     }
 }

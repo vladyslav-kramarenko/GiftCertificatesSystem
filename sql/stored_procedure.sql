@@ -1,6 +1,6 @@
 DELIMITER $$
 
-CREATE PROCEDURE search_gift_certificates_inout(INOUT search_term VARCHAR(255), IN sort_conditions VARCHAR(255),
+CREATE PROCEDURE search_gift_certificates(IN search_term VARCHAR(255), IN sort_conditions VARCHAR(255),
                                                 IN page_offset INT, IN page_limit INT)
 BEGIN
     SET @query = CONCAT('
