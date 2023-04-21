@@ -1,11 +1,7 @@
 package com.epam.esm.core.entity;
 
 import com.epam.esm.core.util.CoreConstants;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -14,9 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @NamedStoredProcedureQueries({
@@ -36,11 +30,12 @@ import java.util.List;
 )
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper=true)
 @ToString
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "gift_certificate")
-public class GiftCertificate {
+public class GiftCertificate extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -63,16 +58,7 @@ public class GiftCertificate {
     @Positive(message = "Gift Certificate Duration can't be negative")
     private Integer duration;
 
-    @GeneratedValue
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime createDate;
-
-    @GeneratedValue
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime lastUpdateDate;
-
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "giftCertificates")
-    @JsonManagedReference
     private List<Tag> tags;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -80,6 +66,5 @@ public class GiftCertificate {
             joinColumns = @JoinColumn(name = "gift_certificate_id"),
             inverseJoinColumns = @JoinColumn(name = "order_id")
     )
-    @JsonBackReference
     private List<UserOrder> orders;
 }
