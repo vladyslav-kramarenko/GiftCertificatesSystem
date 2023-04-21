@@ -3,6 +3,7 @@ package com.epam.esm.api.controller;
 import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.api.assembler.OrderAssembler;
 import com.epam.esm.api.dto.OrderDTO;
+import com.epam.esm.core.dto.OrderRequest;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.OrderService;
@@ -69,5 +70,18 @@ public class OrderController {
     @ResponseBody
     public ResponseEntity<?> deleteOrderById(@PathVariable Long id) {
         return ResponseEntity.badRequest().body(new ErrorResponse("Deleting Orders is not allowed", "40001"));
+    }
+
+
+    @PostMapping("")
+    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest) {
+        try {
+            UserOrder newOrder = orderService.createOrder(orderRequest);
+            return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+        } catch (ServiceException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "40001"));
+        }
     }
 }

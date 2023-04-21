@@ -1,6 +1,6 @@
 package com.epam.esm.core.service;
 
-import com.epam.esm.core.entity.OrderRequest;
+import com.epam.esm.core.dto.OrderRequest;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
 
@@ -32,7 +32,7 @@ public interface OrderService {
 
     List<UserOrder> getOrders(int page, int size, String[] sortParams) throws ServiceException;
 
-    UserOrder createOrder(Long userId, List<OrderRequest> orderRequests) throws ServiceException;
+    UserOrder createOrder(OrderRequest orderRequest) throws ServiceException;
 
     List<UserOrder> getOrdersByUserId(Long userId);
 }

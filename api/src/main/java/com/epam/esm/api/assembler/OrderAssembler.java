@@ -1,11 +1,11 @@
 package com.epam.esm.api.assembler;
 
 import com.epam.esm.api.controller.OrderController;
-import com.epam.esm.api.controller.UserController;
 import com.epam.esm.api.dto.GiftCertificateDTO;
 import com.epam.esm.api.dto.OrderDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.UserOrder;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -27,6 +27,7 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
     }
 
     @Override
+    @NotNull
     public OrderDTO toModel(UserOrder order) {
         OrderDTO OrderDTO = new OrderDTO();
         OrderDTO.setId(order.getId());
@@ -40,15 +41,11 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
 
         OrderDTO.setGiftCertificates(giftCertificateDTOs);
 
-//        OrderDTO.add(
-//                linkTo(methodOn(UserController.class)
-//                .getUserOrderById(order.getUser().getId(), order.getId())).withSelfRel());
-
         OrderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).getOrderById(order.getId()))
                 .toUriComponentsBuilder().toUriString(), "self", "GET"));
         OrderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).deleteOrderById(order.getId()))
                 .toUriComponentsBuilder().toUriString(), "deleteOrder", "DELETE"));
-        OrderDTO.add(new CustomLink(linkTo(methodOn(UserController.class).createOrder(order.getUser().getId(),null))
+        OrderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).createOrder(null))
                 .toUriComponentsBuilder().toUriString(), "createOrder", "POST"));
 
         return OrderDTO;

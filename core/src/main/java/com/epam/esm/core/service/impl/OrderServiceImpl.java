@@ -1,5 +1,7 @@
 package com.epam.esm.core.service.impl;
 
+import com.epam.esm.core.dto.GiftCertificateOrder;
+import com.epam.esm.core.dto.OrderRequest;
 import com.epam.esm.core.entity.*;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
@@ -105,13 +107,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public UserOrder createOrder(Long userId, List<OrderRequest> orderRequests) throws ServiceException {
-        validateId(userId);
+    public UserOrder createOrder(OrderRequest orderRequest) throws ServiceException {
+        validateId(orderRequest.userId());
         try {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("User with id = " + userId + " not found"));
+            User user = userRepository.findById(orderRequest.userId())
+                    .orElseThrow(() -> new IllegalArgumentException("User with id = " + orderRequest.userId() + " not found"));
 
-            Map<GiftCertificate, Integer> giftCertificatesWithQuantity = getCertificateMap(orderRequests);
+            Map<GiftCertificate, Integer> giftCertificatesWithQuantity = getCertificateMap(orderRequest.giftCertificates());
 
             BigDecimal orderSum = calculateOrderSum(giftCertificatesWithQuantity);
 
@@ -125,15 +127,15 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    private Map<GiftCertificate, Integer> getCertificateMap(List<OrderRequest> orderRequests) {
+    private Map<GiftCertificate, Integer> getCertificateMap(List<GiftCertificateOrder> giftCertificateOrders) {
         Map<GiftCertificate, Integer> giftCertificatesWithQuantity = new HashMap<>();
 
-        for (OrderRequest orderRequest : orderRequests) {
-            Optional<GiftCertificate> gc = giftCertificateRepository.findById(orderRequest.giftCertificateID());
+        for (GiftCertificateOrder giftCertificateOrder : giftCertificateOrders) {
+            Optional<GiftCertificate> gc = giftCertificateRepository.findById(giftCertificateOrder.giftCertificateId());
             if (gc.isPresent()) {
-                giftCertificatesWithQuantity.put(gc.get(), orderRequest.quantity());
+                giftCertificatesWithQuantity.put(gc.get(), giftCertificateOrder.quantity());
             } else {
-                throw new IllegalArgumentException("Gift Certificate with id = " + orderRequest.giftCertificateID() + " not found");
+                throw new IllegalArgumentException("Gift Certificate with id = " + giftCertificateOrder.giftCertificateId() + " not found");
             }
         }
         return giftCertificatesWithQuantity;

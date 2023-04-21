@@ -4,7 +4,6 @@ import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.api.assembler.UserAssembler;
 import com.epam.esm.api.assembler.OrderAssembler;
 import com.epam.esm.api.dto.UserDTO;
-import com.epam.esm.core.entity.OrderRequest;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.entity.UserOrder;
@@ -130,18 +129,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (ServiceException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/{userId}/orders")
-    public ResponseEntity<?> createOrder(@PathVariable("userId") Long userId, @RequestBody List<OrderRequest> orderRequests) {
-        try {
-            UserOrder newOrder = orderService.createOrder(userId, orderRequests);
-            return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
-        } catch (ServiceException e) {
-            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "40001"));
         }
     }
 
