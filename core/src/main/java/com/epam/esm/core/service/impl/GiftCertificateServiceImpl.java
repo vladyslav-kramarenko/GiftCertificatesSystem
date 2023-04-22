@@ -12,6 +12,7 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -175,7 +176,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         validateId(id);
         try {
             giftCertificateRepository.deleteById(id);
-        } catch (Exception e) {
+        } catch(DataIntegrityViolationException e){
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            throw new IllegalArgumentException("Cannot delete Gift Certificate that used in an order");
+        }
+        catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while deleting a gift certificate");
