@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
-    Optional<Tag> getByName(String name);
+    Optional<Tag> getByName(@Param("name") String name);
 
     @Query("""
             SELECT t 
@@ -24,6 +24,8 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
             WHERE o.user.id = :userId 
             GROUP BY t.id 
             ORDER BY COUNT(t) DESC, SUM(o.sum) DESC""")
-    List<Tag> findMostWidelyUsedTagWithHighestCostByUserId(@Param("userId") Long userId, Pageable pageable);
-
+    List<Tag> findMostWidelyUsedTagWithHighestCostByUserId(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
 }
