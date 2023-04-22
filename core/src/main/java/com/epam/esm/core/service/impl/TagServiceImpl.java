@@ -93,11 +93,11 @@ public class TagServiceImpl implements TagService {
         }
     }
 
-    private void validateIsThisOnlyTagForSomeCertificate(long id) throws ServiceException {
+    private void validateIsThisOnlyTagForSomeCertificate(long id) throws IllegalArgumentException {
         List<GiftCertificate> certificatesWithTag = giftCertificateRepository.getCertificatesByTagId(id);
         boolean isThisOnlyOneTagForSomeCertificate = certificatesWithTag.stream().anyMatch(x -> x.getTags().size() == 1);
         if (isThisOnlyOneTagForSomeCertificate) {
-            throw new ServiceException("Cannot delete the only tag of a certificate");
+            throw new IllegalArgumentException("Cannot delete the only tag of a certificate");
         }
     }
 
