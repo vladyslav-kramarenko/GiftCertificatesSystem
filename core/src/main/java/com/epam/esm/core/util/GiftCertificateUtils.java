@@ -1,8 +1,10 @@
 package com.epam.esm.core.util;
 
 import com.epam.esm.core.entity.GiftCertificate;
+import com.epam.esm.core.entity.Tag;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static com.epam.esm.core.util.CoreConstants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH;
 import static com.epam.esm.core.util.CoreConstants.MAX_GIFT_CERTIFICATE_NAME_LENGTH;
@@ -113,7 +115,8 @@ public class GiftCertificateUtils {
         if (giftCertificateWithNewData.getPrice() != null) {
             giftCertificateToUpdate.setPrice(giftCertificateWithNewData.getPrice());
         }
-        if (giftCertificateWithNewData.getTags() != null) {
+        List<Tag> newTags = giftCertificateWithNewData.getTags();
+        if (newTags != null && newTags.size() > 0) {
             giftCertificateToUpdate.setTags(giftCertificateWithNewData.getTags());
         }
     }
