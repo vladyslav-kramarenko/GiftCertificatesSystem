@@ -16,7 +16,7 @@ public interface GiftCertificateRepository extends JpaRepository<GiftCertificate
     List<GiftCertificate> findAll(Sort sort);
 
     @Query("SELECT gc FROM GiftCertificate gc JOIN gc.tags t WHERE t.id = :tagId")
-    List<GiftCertificate> getCertificatesByTagId(Long tagId);
+    List<GiftCertificate> getCertificatesByTagId(@Param("tagId")Long tagId);
 
     @Procedure(name = "search_gift_certificates_with_tags")
     List<GiftCertificate> findAll(
