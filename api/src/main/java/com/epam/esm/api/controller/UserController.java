@@ -1,9 +1,10 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
+import com.epam.esm.api.assembler.NestedUserAssembler;
 import com.epam.esm.api.assembler.UserAssembler;
 import com.epam.esm.api.assembler.OrderAssembler;
-import com.epam.esm.api.dto.UserDTO;
+import com.epam.esm.api.dto.NestedUserDTO;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.entity.UserOrder;
@@ -30,6 +31,7 @@ public class UserController {
     private final OrderService orderService;
     private final TagService tagService;
     private final UserAssembler userAssembler;
+    private final NestedUserAssembler nestedUserAssembler;
     private final OrderAssembler userOrderAssembler;
 
     @Autowired
@@ -38,13 +40,15 @@ public class UserController {
             OrderService orderService,
             TagService tagService,
             UserAssembler userAssembler,
-            OrderAssembler userOrderAssembler
+            OrderAssembler userOrderAssembler,
+            NestedUserAssembler nestedUserAssembler
     ) {
         this.userService = userService;
         this.orderService = orderService;
         this.tagService = tagService;
         this.userOrderAssembler = userOrderAssembler;
         this.userAssembler = userAssembler;
+        this.nestedUserAssembler = nestedUserAssembler;
     }
 
     @GetMapping(value = "")
@@ -56,7 +60,7 @@ public class UserController {
         try {
             List<User> users = userService.getUsers(page, size, sortParams);
             if (users.size() > 0) {
-                CollectionModel<UserDTO> userCollection = userAssembler.toCollectionModel(users, page, size, sortParams);
+                CollectionModel<NestedUserDTO> userCollection = nestedUserAssembler.toCollectionModel(users, page, size, sortParams);
                 return ResponseEntity.ok(userCollection);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -87,7 +91,7 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<?> addUser(@RequestBody User user) {
         try {
-            return ResponseEntity.ok(userService.createUser(user));
+            return ResponseEntity.ok(userAssembler.toModel(userService.createUser(user)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {
@@ -119,25 +123,15 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{userId}/orders/{id}")
-    public ResponseEntity<?> getUserOrderById(@PathVariable Long userId, @PathVariable Long id) {
-        try {
-            Optional<UserOrder> userOrder = orderService.getOrderById(id);
-            return userOrder.map(order -> ResponseEntity.ok(userOrderAssembler.toModel(order)))
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ServiceException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @GetMapping("/{userId}/tags/most-used")
     public ResponseEntity<Tag> getMostWidelyUsedTagWithHighestCostByUserId(
             @PathVariable Long userId,
             @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
             @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size) {
         Optional<Tag> tag = tagService.getMostWidelyUsedTagWithHighestCostByUserId(userId, page, size);
-        return tag.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        if (tag.isPresent()) {
+            return ResponseEntity.ok(tag.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 }

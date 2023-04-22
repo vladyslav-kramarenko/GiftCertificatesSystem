@@ -1,7 +1,7 @@
 package com.epam.esm.api.assembler;
 
 import com.epam.esm.api.controller.OrderController;
-import com.epam.esm.api.dto.GiftCertificateDTO;
+import com.epam.esm.api.dto.NestedGiftCertificateDTO;
 import com.epam.esm.api.dto.OrderDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.UserOrder;
@@ -13,42 +13,59 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.epam.esm.api.util.LinksUtils.addOrderNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class OrderAssembler implements RepresentationModelAssembler<UserOrder, OrderDTO> {
-
-    private final GiftCertificateAssembler giftCertificateAssembler;
+    private final NestedGiftCertificateAssembler nestedGiftCertificateAssembler;
+    private final NestedUserAssembler nestedUserAssembler;
 
     @Autowired
-    public OrderAssembler(GiftCertificateAssembler giftCertificateAssembler) {
-        this.giftCertificateAssembler = giftCertificateAssembler;
+    public OrderAssembler(
+            NestedGiftCertificateAssembler nestedGiftCertificateAssembler,
+            NestedUserAssembler nestedUserAssembler
+    ) {
+        this.nestedUserAssembler = nestedUserAssembler;
+        this.nestedGiftCertificateAssembler = nestedGiftCertificateAssembler;
     }
 
     @Override
     @NotNull
     public OrderDTO toModel(UserOrder order) {
-        OrderDTO OrderDTO = new OrderDTO();
-        OrderDTO.setId(order.getId());
-        OrderDTO.setSum(order.getSum());
-        OrderDTO.setCreateDate(order.getCreateDate());
-        OrderDTO.setLastUpdateDate(order.getLastUpdateDate());
-
-        List<GiftCertificateDTO> giftCertificateDTOs = order.getOrderGiftCertificates().stream()
-                .map(orderGiftCertificate -> giftCertificateAssembler.toModel(orderGiftCertificate.getGiftCertificate()))
+        OrderDTO orderDTO = getOrderDTO(order);
+        orderDTO.setUser(nestedUserAssembler.toNestedModel(order.getUser()));
+        List<NestedGiftCertificateDTO> giftCertificateDTOs = order.getOrderGiftCertificates().stream()
+                .map(orderGiftCertificate -> nestedGiftCertificateAssembler.toModel(orderGiftCertificate.getGiftCertificate()))
                 .toList();
+        orderDTO.setGiftCertificates(giftCertificateDTOs);
+        return orderDTO;
+    }
 
-        OrderDTO.setGiftCertificates(giftCertificateDTOs);
+    public OrderDTO toSingleModel(UserOrder order) {
+        OrderDTO orderDTO = getOrderDTO(order);
+        orderDTO.setUser(nestedUserAssembler.toModel(order.getUser()));
+        List<NestedGiftCertificateDTO> giftCertificateDTOs = order.getOrderGiftCertificates().stream()
+                .map(orderGiftCertificate -> nestedGiftCertificateAssembler.toSingleModel(orderGiftCertificate.getGiftCertificate()))
+                .toList();
+        orderDTO.setGiftCertificates(giftCertificateDTOs);
 
-        OrderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).getOrderById(order.getId()))
-                .toUriComponentsBuilder().toUriString(), "self", "GET"));
-        OrderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).deleteOrderById(order.getId()))
+        orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).deleteOrderById(order.getId()))
                 .toUriComponentsBuilder().toUriString(), "deleteOrder", "DELETE"));
-        OrderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).createOrder(null))
-                .toUriComponentsBuilder().toUriString(), "createOrder", "POST"));
+        return orderDTO;
+    }
 
-        return OrderDTO;
+    private OrderDTO getOrderDTO(UserOrder order) {
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(order.getId());
+        orderDTO.setSum(order.getSum());
+        orderDTO.setCreateDate(order.getCreateDate());
+        orderDTO.setLastUpdateDate(order.getLastUpdateDate());
+
+        orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).getOrderById(order.getId()))
+                .toUriComponentsBuilder().toUriString(), "self", "GET"));
+        return orderDTO;
     }
 
     public CollectionModel<OrderDTO> toCollectionModel(List<UserOrder> orders, int page, int size, String[] sortParams) {
@@ -57,16 +74,7 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
                 .toList();
 
         CollectionModel<OrderDTO> orderCollection = CollectionModel.of(orderDTOs);
-
-        orderCollection.add(linkTo(methodOn(OrderController.class).getOrders(page, size, sortParams)).withSelfRel());
-        orderCollection.add(linkTo(methodOn(OrderController.class).getOrders(0, size, sortParams)).withRel("first"));
-        if (page > 0) {
-            orderCollection.add(linkTo(methodOn(OrderController.class).getOrders(page - 1, size, sortParams)).withRel("previous"));
-        }
-        if (!orders.isEmpty()) {
-            orderCollection.add(linkTo(methodOn(OrderController.class).getOrders(page + 1, size, sortParams)).withRel("next"));
-        }
-
+        addOrderNavigationLinks(orderCollection,orders, page, size, sortParams);
         return orderCollection;
     }
 }

@@ -11,22 +11,42 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.epam.esm.api.util.LinksUtils.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class GiftCertificateAssembler implements RepresentationModelAssembler<GiftCertificate, GiftCertificateDTO> {
     private final TagAssembler tagAssembler;
+    private final NestedTagAssembler nestedTagAssembler;
 
     @Autowired
-    public GiftCertificateAssembler(TagAssembler tagAssembler) {
+    public GiftCertificateAssembler(TagAssembler tagAssembler, NestedTagAssembler nestedTagAssembler) {
         this.tagAssembler = tagAssembler;
+        this.nestedTagAssembler = nestedTagAssembler;
     }
 
     @Override
     public GiftCertificateDTO toModel(GiftCertificate giftCertificate) {
-        GiftCertificateDTO dto = new GiftCertificateDTO();
+        GiftCertificateDTO dto = getGiftCertificateDTO(giftCertificate);
+        dto.setTags(giftCertificate.getTags().stream().map(nestedTagAssembler::toModel).toList());
+        return dto;
+    }
 
+    public GiftCertificateDTO toSingleModel(GiftCertificate giftCertificate) {
+        GiftCertificateDTO dto = getGiftCertificateDTO(giftCertificate);
+        dto.setTags(giftCertificate.getTags().stream().map(tagAssembler::toModel).toList());
+        dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).updateGiftCertificate(giftCertificate.getId(), giftCertificate))
+                .toUriComponentsBuilder().toUriString(), "updateGiftCertificate", "PUT"));
+        dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).deleteGiftCertificate(giftCertificate.getId()))
+                .toUriComponentsBuilder().toUriString(), "deleteGiftCertificate", "DELETE"));
+        dto.add(getCreateGiftCertificateLink());
+        return dto;
+    }
+
+    private GiftCertificateDTO getGiftCertificateDTO(GiftCertificate giftCertificate) {
+
+        GiftCertificateDTO dto = new GiftCertificateDTO();
         dto.setId(giftCertificate.getId());
         dto.setName(giftCertificate.getName());
         dto.setDescription(giftCertificate.getDescription());
@@ -34,14 +54,8 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
         dto.setDuration(giftCertificate.getDuration());
         dto.setCreateDate(giftCertificate.getCreateDate());
         dto.setLastUpdateDate(giftCertificate.getLastUpdateDate());
-        dto.setTags(giftCertificate.getTags().stream().map(tagAssembler::toModel).toList());
 
-        dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).getGiftCertificateById(giftCertificate.getId()))
-                .toUriComponentsBuilder().toUriString(), "self", "GET"));
-        dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).deleteGiftCertificate(giftCertificate.getId()))
-                .toUriComponentsBuilder().toUriString(), "deleteOrder", "DELETE"));
-
-
+        dto.add(getGiftCertificateSelfLink(giftCertificate.getId()));
         return dto;
     }
 
@@ -57,34 +71,8 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
                 .map(this::toModel)
                 .toList();
 
-        CollectionModel<GiftCertificateDTO> orderCollection = CollectionModel.of(giftCertificateDTOs);
-
-        orderCollection.add(
-                linkTo(
-                        methodOn(GiftCertificateController.class)
-                                .getGiftCertificates(search, tags, page, size, sortParams)
-                ).withSelfRel());
-        orderCollection.add(
-                linkTo(
-                        methodOn(GiftCertificateController.class)
-                                .getGiftCertificates(search, tags, 0, size, sortParams)
-                ).withRel("first"));
-        if (page > 0) {
-            orderCollection.add(
-                    linkTo(methodOn(GiftCertificateController.class)
-                            .getGiftCertificates(search, tags, page - 1, size, sortParams)
-                    ).withRel("previous"));
-        }
-        if (!orders.isEmpty()) {
-            orderCollection.add(
-                    linkTo(methodOn(GiftCertificateController.class)
-                            .getGiftCertificates(search, tags, page + 1, size, sortParams)
-                    ).withRel("next"));
-        }
-        orderCollection.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).createGiftCertificate(null))
-                .toUriComponentsBuilder().toUriString(), "create gift certificate", "POST"));
-
-
-        return orderCollection;
+        CollectionModel<GiftCertificateDTO> collection = CollectionModel.of(giftCertificateDTOs);
+        addOrderNavigationLinks(collection, orders, search, tags, page, size, sortParams);
+        return collection;
     }
 }

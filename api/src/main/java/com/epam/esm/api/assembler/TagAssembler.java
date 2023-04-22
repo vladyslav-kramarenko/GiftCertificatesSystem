@@ -8,9 +8,9 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
-
 import java.util.List;
 
+import static com.epam.esm.api.util.LinksUtils.getCreateTagLink;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -19,14 +19,23 @@ public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
 
     @Override
     public TagDTO toModel(Tag tag) {
+        return getTagDTO(tag);
+    }
+
+    public TagDTO toSingleModel(Tag tag) {
+        TagDTO tagDTO = getTagDTO(tag);
+        tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).deleteTagById(tag.getId()))
+                .toUriComponentsBuilder().toUriString(), "deleteTag", "DELETE"));
+        tagDTO.add(getCreateTagLink());
+        return tagDTO;
+    }
+
+    private TagDTO getTagDTO(Tag tag) {
         TagDTO tagDTO = new TagDTO();
         tagDTO.setId(tag.getId());
         tagDTO.setName(tag.getName());
-
         tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).getTagById(tag.getId()))
                 .toUriComponentsBuilder().toUriString(), "self", "GET"));
-        tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).deleteTagById(tag.getId()))
-                .toUriComponentsBuilder().toUriString(), "deleteTag", "DELETE"));
         return tagDTO;
     }
 
@@ -45,6 +54,7 @@ public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
         if (!tags.isEmpty()) {
             tagCollection.add(linkTo(methodOn(TagController.class).getTags(page + 1, size, sortParams)).withRel("next"));
         }
+        tagCollection.add(getCreateTagLink());
         return tagCollection;
     }
 }

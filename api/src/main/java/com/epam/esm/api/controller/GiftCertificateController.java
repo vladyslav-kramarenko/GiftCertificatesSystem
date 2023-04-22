@@ -57,7 +57,7 @@ public class GiftCertificateController {
             Optional<GiftCertificate> certificate = giftCertificateService.getGiftCertificateById(id);
             if (certificate.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", "40401"));
-            return ResponseEntity.ok(giftCertificateAssembler.toModel(certificate.get()));
+            return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(certificate.get()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {
@@ -76,7 +76,7 @@ public class GiftCertificateController {
     public ResponseEntity<?> createGiftCertificate(@RequestBody GiftCertificate certificate) {
         try {
             GiftCertificate createdCertificate = giftCertificateService.createGiftCertificate(certificate);
-            return ResponseEntity.ok(createdCertificate);
+            return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(createdCertificate));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {
@@ -97,9 +97,13 @@ public class GiftCertificateController {
                                                    @RequestBody GiftCertificate certificate) {
         try {
             Optional<GiftCertificate> updatedCertificate = giftCertificateService.updateGiftCertificate(id, certificate);
-            return updatedCertificate
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            if (updatedCertificate.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponse(
+                                "Requested certificate not found (id = " + id + ")", "40401")
+                        );
+            }
+            return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(updatedCertificate.get()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {
@@ -143,6 +147,7 @@ public class GiftCertificateController {
     public ResponseEntity<?> getGiftCertificates(
             @RequestParam(name = "search", required = false) String searchQuery,
             @RequestParam(name = "tags", required = false) String[] tags,
+            //TODO tags search not worked
             @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
             @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams

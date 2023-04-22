@@ -10,10 +10,9 @@ import java.util.List;
 
 @Getter
 @Setter
-public class OrderDTO extends RepresentationModel<OrderDTO> {
+public class NestedOrderDTO extends RepresentationModel<NestedOrderDTO> {
 
     private Long id;
-    private NestedUserDTO user;
     private BigDecimal sum;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;

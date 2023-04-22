@@ -54,7 +54,7 @@ public class TagController {
     @ResponseBody
     public ResponseEntity<?> addTag(@RequestBody Tag tag) {
         try {
-            return ResponseEntity.ok(tagService.createTag(tag));
+            return ResponseEntity.ok(tagAssembler.toSingleModel(tagService.createTag(tag)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {
@@ -67,7 +67,7 @@ public class TagController {
     public ResponseEntity<?> getTagById(@PathVariable Long id) {
         try {
             Optional<Tag> tag = tagService.getTagById(id);
-            if (tag.isPresent()) return ResponseEntity.ok(tagAssembler.toModel(tag.get()));
+            if (tag.isPresent()) return ResponseEntity.ok(tagAssembler.toSingleModel(tag.get()));
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
         } catch (IllegalArgumentException e) {

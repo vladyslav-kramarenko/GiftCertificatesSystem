@@ -1,6 +1,7 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
+import com.epam.esm.api.assembler.NestedOrderAssembler;
 import com.epam.esm.api.assembler.OrderAssembler;
 import com.epam.esm.api.dto.OrderDTO;
 import com.epam.esm.core.dto.OrderRequest;
@@ -56,7 +57,7 @@ public class OrderController {
     public ResponseEntity<?> getOrderById(@PathVariable Long id) {
         try {
             Optional<UserOrder> order = orderService.getOrderById(id);
-            if (order.isPresent()) return ResponseEntity.ok(orderAssembler.toModel(order.get()));
+            if (order.isPresent()) return ResponseEntity.ok(orderAssembler.toSingleModel(order.get()));
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
         } catch (IllegalArgumentException e) {

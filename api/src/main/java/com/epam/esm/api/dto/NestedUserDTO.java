@@ -4,13 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class UserDTO extends RepresentationModel<UserDTO> {
+public class NestedUserDTO extends RepresentationModel<NestedUserDTO> {
     private Long id;
     private String firstName;
     private String lastName;
-    private List<NestedOrderDTO> orders;
 }
