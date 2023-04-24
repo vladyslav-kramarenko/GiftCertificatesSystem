@@ -3,19 +3,25 @@ package com.epam.esm.api.controller;
 import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.core.exception.ServiceException;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
-    public ResponseEntity<?> handleMethodArgumentNotValidException(ConstraintViolationException e) {
+    public ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException e) {
         String errorMessage = e.getConstraintViolations().stream()
                 .map(constraintViolation -> constraintViolation.getPropertyPath() + ": " + constraintViolation.getMessage())
                 .collect(Collectors.joining("; "));
@@ -24,16 +30,37 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "Data integrity violation: " + Objects.requireNonNull(ex.getRootCause()).getMessage(),
+                "40001"
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
-    public ResponseEntity<?> handleMethodIllegalArgumentException(IllegalArgumentException e) {
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), "40001");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(ServiceException.class)
     @ResponseBody
-    public ResponseEntity<?> handleMethodServiceException(ServiceException e) {
+    public ResponseEntity<?> handleServiceException(ServiceException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), "50001");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
