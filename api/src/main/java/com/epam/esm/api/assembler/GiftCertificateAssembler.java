@@ -5,6 +5,7 @@ import com.epam.esm.api.dto.GiftCertificateDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.exception.ServiceException;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -29,6 +30,7 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
         this.nestedTagAssembler = Objects.requireNonNull(nestedTagAssembler, "NestedTagAssembler must be initialised");
     }
 
+    @SneakyThrows(ServiceException.class)
     @Override
     public GiftCertificateDTO toModel(GiftCertificate giftCertificate) {
         GiftCertificateDTO dto = getGiftCertificateDTO(giftCertificate);
@@ -36,7 +38,7 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
         return dto;
     }
 
-    public GiftCertificateDTO toSingleModel(GiftCertificate giftCertificate) {
+    public GiftCertificateDTO toSingleModel(GiftCertificate giftCertificate) throws ServiceException {
         GiftCertificateDTO dto = getGiftCertificateDTO(giftCertificate);
         dto.setTags(giftCertificate.getTags().stream().map(tagAssembler::toModel).toList());
         dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).updateGiftCertificate(giftCertificate.getId(), giftCertificate))
@@ -47,7 +49,7 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
         return dto;
     }
 
-    private GiftCertificateDTO getGiftCertificateDTO(GiftCertificate giftCertificate) {
+    private GiftCertificateDTO getGiftCertificateDTO(GiftCertificate giftCertificate) throws ServiceException {
 
         GiftCertificateDTO dto = new GiftCertificateDTO();
         dto.setId(giftCertificate.getId());

@@ -13,6 +13,7 @@ import com.epam.esm.core.service.OrderService;
 import com.epam.esm.core.service.TagService;
 import com.epam.esm.core.service.UserService;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -59,31 +60,31 @@ public class UserController {
     @GetMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> getUsers(
-            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
-            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) @Min(value = 0, message = "Page number can't be negative") int page,
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) @Min(value = 0, message = "Page size can't be negative") int size,
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams) throws ServiceException {
-            List<User> users = userService.getUsers(page, size, sortParams);
-            if (users.size() > 0) {
-                CollectionModel<NestedUserDTO> userCollection = nestedUserAssembler.toCollectionModel(users, page, size, sortParams);
-                return ResponseEntity.ok(userCollection);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Requested resource not found", "40401"));
+        List<User> users = userService.getUsers(page, size, sortParams);
+        if (users.size() > 0) {
+            CollectionModel<NestedUserDTO> userCollection = nestedUserAssembler.toCollectionModel(users, page, size, sortParams);
+            return ResponseEntity.ok(userCollection);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("Requested resource not found", "40401"));
     }
 
     @GetMapping(value = "/{id}")
     @ResponseBody
     public ResponseEntity<?> getUserById(@PathVariable @Min(0) Long id) throws ServiceException {
-            Optional<User> user = userService.getUserById(id);
-            if (user.isPresent()) return ResponseEntity.ok(userAssembler.toModel(user.get()));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
+        Optional<User> user = userService.getUserById(id);
+        if (user.isPresent()) return ResponseEntity.ok(userAssembler.toModel(user.get()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
     }
 
     @PostMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> addUser(@RequestBody @NotNull User user) throws ServiceException {
-            return ResponseEntity.ok(userAssembler.toModel(userService.createUser(user)));
+        return ResponseEntity.ok(userAssembler.toModel(userService.createUser(user)));
 
     }
 
@@ -109,9 +110,14 @@ public class UserController {
 
     @GetMapping("/{userId}/tags/most-used")
     public ResponseEntity<Tag> getMostWidelyUsedTagWithHighestCostByUserId(
-            @PathVariable Long userId,
-            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
-            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size) {
+            @PathVariable @NotNull @NotEmpty @Min(0L)
+            Long userId,
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
+            @Min(value = 0, message = "Page number can't be negative")
+            int page,
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE)
+            @Min(value = 0, message = "Page size can't be negative")
+            int size) {
         Optional<Tag> tag = tagService.getMostWidelyUsedTagWithHighestCostByUserId(userId, page, size);
         return tag.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }

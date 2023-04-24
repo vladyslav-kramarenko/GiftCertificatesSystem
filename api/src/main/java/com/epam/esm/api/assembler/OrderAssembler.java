@@ -4,6 +4,7 @@ import com.epam.esm.api.controller.OrderController;
 import com.epam.esm.api.dto.NestedGiftCertificateDTO;
 import com.epam.esm.api.dto.OrderDTO;
 import com.epam.esm.api.util.CustomLink;
+import com.epam.esm.core.entity.OrderGiftCertificate;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +14,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,9 +52,13 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
     public OrderDTO toSingleModel(UserOrder order) throws ServiceException {
         OrderDTO orderDTO = getOrderDTO(order);
         orderDTO.setUser(nestedUserAssembler.toModel(order.getUser()));
-        List<NestedGiftCertificateDTO> giftCertificateDTOs = order.getOrderGiftCertificates().stream()
-                .map(orderGiftCertificate -> nestedGiftCertificateAssembler.toSingleModel(orderGiftCertificate.getGiftCertificate()))
-                .toList();
+
+        List<NestedGiftCertificateDTO> giftCertificateDTOs = new ArrayList<>();
+        for (OrderGiftCertificate orderGiftCertificate : order.getOrderGiftCertificates()) {
+            NestedGiftCertificateDTO nestedGiftCertificateDTO = nestedGiftCertificateAssembler.toSingleModel(orderGiftCertificate.getGiftCertificate());
+            giftCertificateDTOs.add(nestedGiftCertificateDTO);
+        }
+
         orderDTO.setGiftCertificates(giftCertificateDTOs);
 
         orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).deleteOrderById(order.getId()))
@@ -78,7 +84,7 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
                 .toList();
 
         CollectionModel<OrderDTO> orderCollection = CollectionModel.of(orderDTOs);
-        addOrderNavigationLinks(orderCollection,orders, page, size, sortParams);
+        addOrderNavigationLinks(orderCollection, orders, page, size, sortParams);
         return orderCollection;
     }
 }

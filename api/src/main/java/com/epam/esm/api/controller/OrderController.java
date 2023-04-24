@@ -7,6 +7,7 @@ import com.epam.esm.core.dto.OrderRequest;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.OrderService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,12 @@ public class OrderController {
     @GetMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> getOrders(
-            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
-            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
+            @Min(value = 0,message = "Page number can't be negative")
+            int page,
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE)
+            @Min(value = 0,message = "Page size can't be negative")
+            int size,
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams) throws ServiceException {
         List<UserOrder> orders = orderService.getOrders(page, size, sortParams);
         if (orders.size() > 0) {
@@ -67,8 +72,8 @@ public class OrderController {
 
 
     @PostMapping("")
-    public ResponseEntity<?> createOrder(@RequestBody @NotNull OrderRequest orderRequest) throws ServiceException {
-        UserOrder newOrder = orderService.createOrder(orderRequest);
-        return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+    public ResponseEntity<?> createOrder(@RequestBody @Valid @NotNull OrderRequest orderRequest) throws ServiceException {
+            UserOrder newOrder = orderService.createOrder(orderRequest);
+            return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
     }
 }
