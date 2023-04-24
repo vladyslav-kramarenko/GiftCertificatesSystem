@@ -5,7 +5,9 @@ import com.epam.esm.api.dto.NestedGiftCertificateDTO;
 import com.epam.esm.api.dto.NestedOrderDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.UserOrder;
+import com.epam.esm.core.exception.ServiceException;
 import jakarta.validation.constraints.NotNull;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -27,6 +29,7 @@ public class NestedOrderAssembler implements RepresentationModelAssembler<UserOr
         this.nestedGiftCertificateAssembler = Objects.requireNonNull(nestedGiftCertificateAssembler, "NestedGiftCertificateAssembler must be initialised");
     }
 
+    @SneakyThrows(ServiceException.class)
     @Override
     @NotNull
     public NestedOrderDTO toModel(UserOrder order) {
@@ -47,7 +50,7 @@ public class NestedOrderAssembler implements RepresentationModelAssembler<UserOr
         return orderDTO;
     }
 
-    public CollectionModel<NestedOrderDTO> toCollectionModel(List<UserOrder> orders, int page, int size, String[] sortParams) {
+    public CollectionModel<NestedOrderDTO> toCollectionModel(List<UserOrder> orders, int page, int size, String[] sortParams) throws ServiceException {
         List<NestedOrderDTO> orderDTOs = orders.stream()
                 .map(this::toModel)
                 .toList();

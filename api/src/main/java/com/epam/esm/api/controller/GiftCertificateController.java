@@ -6,14 +6,19 @@ import com.epam.esm.core.service.GiftCertificateService;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.filter.GiftCertificateFilter;
 import com.epam.esm.core.entity.GiftCertificate;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.epam.esm.api.util.Constants.*;
 
@@ -22,6 +27,7 @@ import static com.epam.esm.api.util.Constants.*;
  */
 @RestController
 @RequestMapping("/certificates")
+@Validated
 public class GiftCertificateController {
     /**
      * Service class for gift certificate operations.
@@ -53,7 +59,7 @@ public class GiftCertificateController {
      */
     @GetMapping(value = "/{id}")
     @ResponseBody
-    public ResponseEntity<?> getGiftCertificateById(@PathVariable Long id) {
+    public ResponseEntity<?> getGiftCertificateById(@PathVariable @Min(0)Long id) {
         try {
             Optional<GiftCertificate> certificate = giftCertificateService.getGiftCertificateById(id);
             if (certificate.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -74,7 +80,7 @@ public class GiftCertificateController {
      * of the provided gift certificate are invalid or an error occurs while creating it in the database
      */
     @PostMapping
-    public ResponseEntity<?> createGiftCertificate(@RequestBody GiftCertificate certificate) {
+    public ResponseEntity<?> createGiftCertificate(@RequestBody @NotNull GiftCertificate certificate) {
         try {
             GiftCertificate createdCertificate = giftCertificateService.createGiftCertificate(certificate);
             return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(createdCertificate));
@@ -95,8 +101,8 @@ public class GiftCertificateController {
      * certificate does not exist or an error occurs while updating it in the database
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateGiftCertificate(@PathVariable Long id,
-                                                   @RequestBody GiftCertificate certificate) {
+    public ResponseEntity<?> updateGiftCertificate(@PathVariable @Min(0) Long id,
+                                                   @RequestBody @NotNull GiftCertificate certificate) {
         try {
             Optional<GiftCertificate> updatedCertificate = giftCertificateService.updateGiftCertificate(id, certificate);
             if (updatedCertificate.isEmpty()) {
@@ -121,7 +127,7 @@ public class GiftCertificateController {
      * error occurs while deleting it from the database
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteGiftCertificate(@PathVariable Long id) {
+    public ResponseEntity<?> deleteGiftCertificate(@PathVariable @Min(0) Long id) {
         try {
             giftCertificateService.deleteGiftCertificate(id);
             return ResponseEntity.noContent().build();
@@ -153,8 +159,7 @@ public class GiftCertificateController {
             @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE) int page,
             @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int size,
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams
-    ) {
-        try {
+    ) throws ServiceException {
             GiftCertificateFilter giftCertificateFilter = GiftCertificateFilter.builder()
                     .withTags(tags)
                     .withSearchQuery(searchQuery)
@@ -162,10 +167,15 @@ public class GiftCertificateController {
             List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size, sortParams);
             return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(
                     certificates, searchQuery, tags, page, size, sortParams));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
-        } catch (ServiceException e) {
-            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
-        }
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(ConstraintViolationException e) {
+        String errorMessage = e.getConstraintViolations().stream()
+                .map(constraintViolation -> constraintViolation.getPropertyPath() + ": " + constraintViolation.getMessage())
+                .collect(Collectors.joining("; "));
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage, "40001");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }

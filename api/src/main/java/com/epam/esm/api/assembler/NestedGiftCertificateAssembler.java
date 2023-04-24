@@ -4,6 +4,7 @@ import com.epam.esm.api.controller.GiftCertificateController;
 import com.epam.esm.api.dto.NestedGiftCertificateDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.GiftCertificate;
+import com.epam.esm.core.exception.ServiceException;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
@@ -56,7 +57,7 @@ public class NestedGiftCertificateAssembler implements RepresentationModelAssemb
             int page,
             int size,
             String[] sortParams
-    ) {
+    ) throws ServiceException {
         List<NestedGiftCertificateDTO> giftCertificateDTOs = orders.stream()
                 .map(this::toModel)
                 .toList();

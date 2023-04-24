@@ -4,9 +4,12 @@ import com.epam.esm.api.controller.TagController;
 import com.epam.esm.api.dto.TagDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.Tag;
+import com.epam.esm.core.exception.ServiceException;
+import lombok.SneakyThrows;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
+
 
 import java.util.List;
 
@@ -17,12 +20,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
 
+    @SneakyThrows(ServiceException.class)
     @Override
     public TagDTO toModel(Tag tag) {
         return getTagDTO(tag);
     }
 
-    public TagDTO toSingleModel(Tag tag) {
+    public TagDTO toSingleModel(Tag tag) throws ServiceException {
         TagDTO tagDTO = getTagDTO(tag);
         tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).deleteTagById(tag.getId()))
                 .toUriComponentsBuilder().toUriString(), "deleteTag", "DELETE"));
@@ -30,7 +34,7 @@ public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
         return tagDTO;
     }
 
-    private TagDTO getTagDTO(Tag tag) {
+    private TagDTO getTagDTO(Tag tag) throws ServiceException {
         TagDTO tagDTO = new TagDTO();
         tagDTO.setId(tag.getId());
         tagDTO.setName(tag.getName());
@@ -39,7 +43,7 @@ public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
         return tagDTO;
     }
 
-    public CollectionModel<TagDTO> toCollectionModel(List<Tag> tags, int page, int size, String[] sortParams) {
+    public CollectionModel<TagDTO> toCollectionModel(List<Tag> tags, int page, int size, String[] sortParams) throws ServiceException {
         List<TagDTO> tagDTOs = tags.stream()
                 .map(this::toModel)
                 .toList();

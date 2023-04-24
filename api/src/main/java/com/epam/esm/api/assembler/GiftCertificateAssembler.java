@@ -4,6 +4,7 @@ import com.epam.esm.api.controller.GiftCertificateController;
 import com.epam.esm.api.dto.GiftCertificateDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.GiftCertificate;
+import com.epam.esm.core.exception.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -68,7 +69,7 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
             int page,
             int size,
             String[] sortParams
-    ) {
+    ) throws ServiceException {
         List<GiftCertificateDTO> giftCertificateDTOs = orders.stream()
                 .map(this::toModel)
                 .toList();
