@@ -1,6 +1,8 @@
 package com.epam.esm.core.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Entity
@@ -21,5 +23,7 @@ public class OrderGiftCertificate {
     private GiftCertificate giftCertificate;
 
     @Column(name = "count", nullable = false)
+    @NotEmpty(message = "count could not be empty")
+    @Min(value = 1, message = "count should be greater than 0")
     private int count;
 }
