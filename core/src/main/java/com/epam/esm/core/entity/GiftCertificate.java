@@ -3,13 +3,12 @@ package com.epam.esm.core.entity;
 import com.epam.esm.core.util.CoreConstants;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -30,32 +29,34 @@ import java.util.List;
 )
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @ToString
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "gift_certificate")
-public class GiftCertificate extends Auditable{
+public class GiftCertificate extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull(message = "Gift Certificate Name cannot be blank")
+    @NotEmpty(message = "Gift Certificate Name cannot be blank")
     @Size(max = CoreConstants.MAX_GIFT_CERTIFICATE_NAME_LENGTH,
             message = "Gift Certificate Name must be less then " + CoreConstants.MAX_GIFT_CERTIFICATE_NAME_LENGTH + " characters")
     private String name;
 
     @NotNull(message = "Gift Certificate Description cannot be blank")
+    @NotEmpty(message = "Gift Certificate Description cannot be blank")
     @Size(max = CoreConstants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH,
             message = "Gift Certificate Description must be less then " + CoreConstants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH + " characters")
     private String description;
 
     @NotNull(message = "Gift Certificate Price cannot be blank")
-    @Positive(message = "Gift Certificate Price can't be negative")
+    @Min(value = 0, message = "Gift Certificate Price can't be negative")
     private BigDecimal price;
 
     @NotNull(message = "Gift Certificate Duration cannot be blank")
-    @Positive(message = "Gift Certificate Duration can't be negative")
+    @Min(value = 0, message = "Gift Certificate Duration can't be negative")
     private Integer duration;
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "giftCertificates")
