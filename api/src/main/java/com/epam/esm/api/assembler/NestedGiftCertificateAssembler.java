@@ -24,7 +24,7 @@ public class NestedGiftCertificateAssembler implements RepresentationModelAssemb
         return getGiftCertificateDTO(giftCertificate);
     }
 
-    public NestedGiftCertificateDTO toSingleModel(GiftCertificate giftCertificate) {
+    public NestedGiftCertificateDTO toSingleModel(GiftCertificate giftCertificate) throws ServiceException {
         NestedGiftCertificateDTO dto = getGiftCertificateDTO(giftCertificate);
         dto.add(new CustomLink(
                 linkTo(methodOn(GiftCertificateController.class)
