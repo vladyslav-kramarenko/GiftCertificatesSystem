@@ -2,7 +2,6 @@ package com.epam.esm.core.service.impl;
 
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.Tag;
-import com.epam.esm.core.exception.DbException;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.filter.GiftCertificateFilter;
 import com.epam.esm.core.repository.GiftCertificateRepository;
@@ -19,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS;
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_SORT_DIRECTIONS;
 import static com.epam.esm.core.util.GiftCertificateUtils.*;
 import static com.epam.esm.core.util.SortUtilities.createSort;
-import static com.epam.esm.core.util.TagUtils.validateTags;
 import static com.epam.esm.core.util.Utilities.*;
 
 /**
@@ -41,8 +40,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateRepository, TagRepository tagRepository) {
-        this.giftCertificateRepository = giftCertificateRepository;
-        this.tagRepository = tagRepository;
+        this.giftCertificateRepository = Objects.requireNonNull(giftCertificateRepository, "GiftCertificateRepository must be initialised");
+        this.tagRepository = Objects.requireNonNull(tagRepository, "TagRepository must be initialised");
     }
 
     /**
@@ -52,24 +51,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      * @return an {@link Optional} containing the retrieved gift certificate or empty if the gift
      * certificate does not exist
      * @throws IllegalArgumentException if the provided ID is invalid
-     * @throws ServiceException         if an error occurred while retrieving the gift certificate from the database
-     */
+ */
     @Override
-    public Optional<GiftCertificate> getGiftCertificateById(Long id)
-            throws IllegalArgumentException, ServiceException {
-        validateId(id);
-        try {
+    public Optional<GiftCertificate> getGiftCertificateById(Long id) {
             Optional<GiftCertificate> giftCertificateOpt = giftCertificateRepository.findById(id);
             if (giftCertificateOpt.isPresent()) {
                 GiftCertificate giftCertificate = giftCertificateOpt.get();
+                //TODO remove Hibernate.initialize
                 Hibernate.initialize(giftCertificate.getTags());
                 return Optional.of(giftCertificate);
             } else return Optional.empty();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while searching a gift certificate with id =" + id + "; ");
-        }
     }
 
     /**
@@ -77,44 +68,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      *
      * @param giftCertificate a {@link com.epam.esm.core.entity.GiftCertificate} object to create
      * @return the created gift certificate
-     * @throws IllegalArgumentException if any of the fields of the provided gift certificate are invalid
      * @throws ServiceException         if an error occurred while creating the gift certificate in the database
      */
     @Override
     @Transactional(rollbackFor = ServiceException.class)
     public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate)
             throws IllegalArgumentException, ServiceException {
-        validateForNull(giftCertificate.getDescription(), "description");
-        validateForNull(giftCertificate.getName(), "name");
-        validateForNull(giftCertificate.getPrice(), "price");
-        validateForNull(giftCertificate.getDuration(), "duration");
-
-        validateGiftCertificateParams(giftCertificate);
-        validateTags(giftCertificate.getTags());
-
-        try {
             giftCertificateRepository.save(giftCertificate);
             addTags(giftCertificate);
 
             Optional<GiftCertificate> CreatedGiftCertificate = giftCertificateRepository.findById(giftCertificate.getId());
-            if (CreatedGiftCertificate.isEmpty()) throw new DbException("Cannot find created gift certificate by id");
+            if (CreatedGiftCertificate.isEmpty()) throw new ServiceException("Cannot find created gift certificate by id");
             return CreatedGiftCertificate.get();
-        } catch (DbException e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while creating a gift certificate");
-        }
     }
 
-
-    private void validateGiftCertificateParams(GiftCertificate giftCertificate) {
-        validateGiftCertificateDescription(giftCertificate.getDescription());
-        validateGiftCertificateName(giftCertificate.getName());
-        validateGiftCertificatePrice(giftCertificate.getPrice());
-        validateGiftCertificateDuration(giftCertificate.getDuration());
-    }
-
-    private void addTags(GiftCertificate giftCertificate) throws DbException {
+    private void addTags(GiftCertificate giftCertificate) {
         List<Tag> tags = giftCertificate.getTags();
         if (tags != null) {
             for (Tag tag : tags) {
@@ -139,10 +107,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      */
     @Override
     @Transactional(rollbackFor = ServiceException.class)
-    public Optional<GiftCertificate> updateGiftCertificate(Long id, GiftCertificate giftCertificate) throws IllegalArgumentException, ServiceException {
-        validateId(id);
-        validateGiftCertificateParams(giftCertificate);
-
+    public Optional<GiftCertificate> updateGiftCertificate(Long id, GiftCertificate giftCertificate) throws ServiceException {
         try {
             Optional<GiftCertificate> optionalOldGiftCertificate = giftCertificateRepository.findById(id);
             if (optionalOldGiftCertificate.isEmpty()) return Optional.empty();
@@ -152,12 +117,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             giftCertificateRepository.save(oldGiftCertificate);
 
             if (giftCertificate.getTags() != null) {
-                validateTags(giftCertificate.getTags());
                 giftCertificateRepository.deleteAllTagsForCertificateById(oldGiftCertificate.getId());
                 addTags(oldGiftCertificate);
             }
             return giftCertificateRepository.findById(id);
-        } catch (DbException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));
             throw new ServiceException("Error while updating a gift certificate");
@@ -169,22 +133,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      *
      * @param id the id of the gift certificate to delete
      * @throws IllegalArgumentException if the specified id is null or negative
-     * @throws ServiceException         if an error occurs while deleting the gift certificate
      */
     @Override
-    public void deleteGiftCertificate(Long id) throws IllegalArgumentException, ServiceException {
-        validateId(id);
+    public void deleteGiftCertificate(Long id) {
         try {
             giftCertificateRepository.deleteById(id);
-        } catch(DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));
             throw new IllegalArgumentException("Cannot delete Gift Certificate that used in an order");
-        }
-        catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while deleting a gift certificate");
         }
     }
 
@@ -198,12 +155,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      *                              sort fields and direction is one of the allowed sort directions. If no sort parameters are
      *                              specified, the gift certificates are returned in their natural order.
      * @return a list of gift certificates that match the specified filter, sorted and paginated as specified
-     * @throws ServiceException if an error occurs while getting the gift certificates
      */
     @Override
     @Transactional
-    public List<GiftCertificate> getGiftCertificates(GiftCertificateFilter giftCertificateFilter, int page, int size, String[] sortParams) throws ServiceException {
-        try {
+    public List<GiftCertificate> getGiftCertificates(
+            GiftCertificateFilter giftCertificateFilter,
+            int page,
+            int size,
+            String[] sortParams
+    ) {
             Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
             String tagsFilter = String.join(",", giftCertificateFilter.getTags());
             String sortConditions = concatSort(sort.orElse(null), "id asc");
@@ -218,8 +178,5 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 Hibernate.initialize(giftCertificate.getTags());
             }
             return giftCertificatesList;
-        } catch (Exception e) {
-            throw new ServiceException(e.getMessage());
-        }
     }
 }

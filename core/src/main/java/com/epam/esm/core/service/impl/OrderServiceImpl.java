@@ -3,7 +3,6 @@ package com.epam.esm.core.service.impl;
 import com.epam.esm.core.dto.GiftCertificateOrder;
 import com.epam.esm.core.dto.OrderRequest;
 import com.epam.esm.core.entity.*;
-import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.OrderGiftCertificateRepository;
 import com.epam.esm.core.repository.OrderRepository;
@@ -25,7 +24,7 @@ import java.util.*;
 
 import static com.epam.esm.core.util.CoreConstants.*;
 import static com.epam.esm.core.util.SortUtilities.createSort;
-import static com.epam.esm.core.util.Utilities.validateId;
+//import static com.epam.esm.core.util.Utilities.validateId;
 
 /**
  * Implementation of the {@link TagService} interface that provides the business logic for working with tags.
@@ -46,85 +45,59 @@ public class OrderServiceImpl implements OrderService {
             OrderGiftCertificateRepository orderGiftCertificateRepository,
             GiftCertificateRepository giftCertificateRepository
     ) {
-        this.userRepository = userRepository;
-        this.orderRepository = orderRepository;
-        this.orderGiftCertificateRepository = orderGiftCertificateRepository;
-        this.giftCertificateRepository = giftCertificateRepository;
+        this.userRepository = Objects.requireNonNull(userRepository, "UserRepository must be initialised");
+        this.orderRepository = Objects.requireNonNull(orderRepository, "OrderRepository must be initialised");
+        this.orderGiftCertificateRepository = Objects.requireNonNull(orderGiftCertificateRepository, "OrderGiftCertificateRepository must be initialised");
+        this.giftCertificateRepository = Objects.requireNonNull(giftCertificateRepository, "GiftCertificateRepository must be initialised");
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<UserOrder> getOrderById(Long id) throws ServiceException {
-        validateId(id);
-        try {
-            Optional<UserOrder> orderOpt = orderRepository.findById(id);
-            if (orderOpt.isPresent()) {
-                UserOrder order = orderOpt.get();
-                Hibernate.initialize(order.getOrderGiftCertificates());
-                return Optional.of(order);
-            }
-            return Optional.empty();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while get order with id = " + id);
+    public Optional<UserOrder> getOrderById(Long id) {
+        Optional<UserOrder> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isPresent()) {
+            UserOrder order = orderOpt.get();
+            Hibernate.initialize(order.getOrderGiftCertificates());
+            return Optional.of(order);
         }
+        return Optional.empty();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void deleteOrder(Long id) throws ServiceException {
-        validateId(id);
-        try {
-            orderRepository.deleteById(id);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while deleting order with id = " + id);
-        }
+    public void deleteOrder(Long id) {
+        orderRepository.deleteById(id);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<UserOrder> getOrders(int page, int size, String[] sortParams) throws ServiceException {
+    public List<UserOrder> getOrders(int page, int size, String[] sortParams) {
         Optional<Sort> sort = createSort(sortParams, ALLOWED_ORDER_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
         Pageable pageable = PageRequest.of(page, size, sort.orElse(Sort.by("id").ascending()));
-
-        try {
             return orderRepository.findAll(pageable).toList();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while getting all orders");
-        }
     }
 
     @Transactional
     @Override
-    public UserOrder createOrder(OrderRequest orderRequest) throws ServiceException {
-        validateId(orderRequest.userId());
-        try {
-            User user = userRepository.findById(orderRequest.userId())
-                    .orElseThrow(() -> new IllegalArgumentException("User with id = " + orderRequest.userId() + " not found"));
+    public UserOrder createOrder(OrderRequest orderRequest) {
+        User user = userRepository.findById(orderRequest.userId())
+                .orElseThrow(() -> new IllegalArgumentException("User with id = " + orderRequest.userId() + " not found"));
 
-            Map<GiftCertificate, Integer> giftCertificatesWithQuantity = getCertificateMap(orderRequest.giftCertificates());
+        Map<GiftCertificate, Integer> giftCertificatesWithQuantity = getCertificateMap(orderRequest.giftCertificates());
 
-            BigDecimal orderSum = calculateOrderSum(giftCertificatesWithQuantity);
+        BigDecimal orderSum = calculateOrderSum(giftCertificatesWithQuantity);
 
-            UserOrder savedUserOrder = orderRepository.save(new UserOrder(orderSum, user));
+        UserOrder savedUserOrder = orderRepository.save(new UserOrder(orderSum, user));
 
-            addGiftCertificatesToOrder(savedUserOrder, giftCertificatesWithQuantity);
+        addGiftCertificatesToOrder(savedUserOrder, giftCertificatesWithQuantity);
 
-            return savedUserOrder;
-        } catch (Exception e) {
-            throw new ServiceException(e.getMessage());
-        }
+        return savedUserOrder;
     }
 
     private Map<GiftCertificate, Integer> getCertificateMap(List<GiftCertificateOrder> giftCertificateOrders) {
@@ -176,7 +149,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<UserOrder> getOrdersByUserId(Long userId) {
-        validateId(userId);
         return orderRepository.findByUserId(userId);
     }
 }

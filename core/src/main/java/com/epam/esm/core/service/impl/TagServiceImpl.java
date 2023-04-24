@@ -17,13 +17,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_SORT_DIRECTIONS;
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_TAG_SORT_FIELDS;
 import static com.epam.esm.core.util.SortUtilities.createSort;
-import static com.epam.esm.core.util.TagUtils.validateTag;
-import static com.epam.esm.core.util.Utilities.validateId;
 
 /**
  * Implementation of the {@link TagService} interface that provides the business logic for working with tags.
@@ -37,8 +36,8 @@ public class TagServiceImpl implements TagService {
 
     @Autowired
     public TagServiceImpl(TagRepository tagRepository, GiftCertificateRepository giftCertificateRepository) {
-        this.tagRepository = tagRepository;
-        this.giftCertificateRepository = giftCertificateRepository;
+        this.tagRepository = Objects.requireNonNull(tagRepository, "TagRepository must be initialised");
+        this.giftCertificateRepository = Objects.requireNonNull(giftCertificateRepository, "GiftCertificateRepository must be initialised");
     }
 
     /**
@@ -46,7 +45,6 @@ public class TagServiceImpl implements TagService {
      */
     @Override
     public Optional<Tag> getTagById(Long id) throws ServiceException {
-        validateId(id);
         try {
             Optional<Tag> tagOpt = tagRepository.findById(id);
             if (tagOpt.isPresent()) {
@@ -66,31 +64,17 @@ public class TagServiceImpl implements TagService {
      * {@inheritDoc}
      */
     @Override
-    public Tag createTag(Tag tag) throws ServiceException {
-        validateTag(tag);
-        try {
+    public Tag createTag(Tag tag){
             return tagRepository.save(tag);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while creating a tag");
-        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void deleteTag(Long id) throws ServiceException {
-        validateId(id);
+    public void deleteTag(Long id) {
         validateIsThisOnlyTagForSomeCertificate(id);
-        try {
             tagRepository.deleteById(id);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while deleting tag with id = " + id);
-        }
     }
 
     private void validateIsThisOnlyTagForSomeCertificate(long id) throws IllegalArgumentException {
@@ -105,22 +89,14 @@ public class TagServiceImpl implements TagService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tag> getTags(int page, int size, String[] sortParams) throws ServiceException {
+    public List<Tag> getTags(int page, int size, String[] sortParams){
         Optional<Sort> sort = createSort(sortParams, ALLOWED_TAG_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
         Pageable pageable = PageRequest.of(page, size, sort.orElse(Sort.by("id").ascending()));
-
-        try {
             return tagRepository.findAll(pageable).toList();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while getting all tags");
-        }
     }
 
     @Override
-    public Optional<Tag> getMostWidelyUsedTagWithHighestCostByUserId(Long userId,int page,int size) {
-        validateId(userId);
+    public Optional<Tag> getMostWidelyUsedTagWithHighestCostByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         List<Tag> tags = tagRepository.findMostWidelyUsedTagWithHighestCostByUserId(userId, pageable);
         return tags.stream().findFirst();
