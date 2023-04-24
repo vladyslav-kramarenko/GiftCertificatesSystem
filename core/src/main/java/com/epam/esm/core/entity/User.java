@@ -4,6 +4,7 @@ import com.epam.esm.core.util.CoreConstants;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
@@ -29,11 +30,13 @@ public class User {
     @Column(name = "id")
     Long id;
     @NotNull(message = "Gift Certificate Name cannot be blank")
+    @NotEmpty(message = "Gift Certificate Name cannot be blank")
     @Size(max = CoreConstants.MAX_USER_FIRST_NAME_LENGTH,
             message = "Tag Name must be less then " + CoreConstants.MAX_TAG_NAME_LENGTH + " characters")
     @Column(name = "first_name", nullable = false)
     String firstName;
     @NotNull(message = "Gift Certificate Name cannot be blank")
+    @NotEmpty(message = "Gift Certificate Name cannot be blank")
     @Size(max = CoreConstants.MAX_USER_LAST_NAME_LENGTH,
             message = "Tag Name must be less then " + CoreConstants.MAX_TAG_NAME_LENGTH + " characters")
     @Column(name = "last_name")
