@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.epam.esm.api.util.Constants.*;
@@ -25,8 +26,8 @@ public class TagController {
 
     @Autowired
     public TagController(TagService tagService, TagAssembler tagAssembler) {
-        this.tagService = tagService;
-        this.tagAssembler = tagAssembler;
+        this.tagService = Objects.requireNonNull(tagService, "TagService must be initialised");
+        this.tagAssembler = Objects.requireNonNull(tagAssembler, "TagAssembler must be initialised");
     }
 
     @GetMapping(value = "")

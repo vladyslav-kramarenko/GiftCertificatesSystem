@@ -9,11 +9,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/generate")
 public class DemoDataController {
+
+    private final DemoDataGenerator demoDataGenerator;
     @Autowired
-    private DemoDataGenerator demoDataGenerator;
+    public DemoDataController(DemoDataGenerator demoDataGenerator){
+        this.demoDataGenerator=Objects.requireNonNull(demoDataGenerator, "DemoDataGenerator must be initialised");
+    }
 
     @PostMapping("")
     public ResponseEntity<String> generateDemoData(

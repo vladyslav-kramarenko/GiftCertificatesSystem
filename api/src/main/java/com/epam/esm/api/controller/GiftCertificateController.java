@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.epam.esm.api.util.Constants.*;
@@ -38,8 +39,8 @@ public class GiftCertificateController {
             GiftCertificateService giftCertificateService,
             GiftCertificateAssembler giftCertificateAssembler
     ) {
-        this.giftCertificateService = giftCertificateService;
-        this.giftCertificateAssembler = giftCertificateAssembler;
+        this.giftCertificateService = Objects.requireNonNull(giftCertificateService, "GiftCertificateService must be initialised");
+        this.giftCertificateAssembler = Objects.requireNonNull(giftCertificateAssembler, "GiftCertificateAssembler must be initialised");
     }
 
 
@@ -77,7 +78,8 @@ public class GiftCertificateController {
         try {
             GiftCertificate createdCertificate = giftCertificateService.createGiftCertificate(certificate);
             return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(createdCertificate));
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
         } catch (ServiceException e) {
             return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));

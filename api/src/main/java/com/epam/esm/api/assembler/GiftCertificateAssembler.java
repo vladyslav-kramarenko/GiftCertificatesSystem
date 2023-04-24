@@ -10,6 +10,7 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.epam.esm.api.util.LinksUtils.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -20,10 +21,11 @@ public class GiftCertificateAssembler implements RepresentationModelAssembler<Gi
     private final TagAssembler tagAssembler;
     private final NestedTagAssembler nestedTagAssembler;
 
+
     @Autowired
     public GiftCertificateAssembler(TagAssembler tagAssembler, NestedTagAssembler nestedTagAssembler) {
-        this.tagAssembler = tagAssembler;
-        this.nestedTagAssembler = nestedTagAssembler;
+        this.tagAssembler = Objects.requireNonNull(tagAssembler, "TagAssembler must be initialised");
+        this.nestedTagAssembler = Objects.requireNonNull(nestedTagAssembler, "NestedTagAssembler must be initialised");
     }
 
     @Override

@@ -8,11 +8,18 @@ import com.epam.esm.core.repository.CustomGiftCertificateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Objects;
+
 @Repository
 public class CustomGiftCertificateRepositoryImpl implements CustomGiftCertificateRepository {
 
+
+    private final EntityManager entityManager;
+
     @Autowired
-    private EntityManager entityManager;
+    public CustomGiftCertificateRepositoryImpl(EntityManager entityManager) {
+        this.entityManager = Objects.requireNonNull(entityManager, "EntityManager must be initialised");
+    }
 
     @Override
     public void addTagToCertificate(GiftCertificate giftCertificate, Tag tag) {

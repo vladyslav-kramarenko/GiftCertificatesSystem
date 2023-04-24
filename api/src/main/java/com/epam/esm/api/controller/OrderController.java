@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.epam.esm.api.util.Constants.*;
@@ -27,8 +28,8 @@ public class OrderController {
 
     @Autowired
     public OrderController(OrderService orderService, OrderAssembler orderAssembler) {
-        this.orderService = orderService;
-        this.orderAssembler = orderAssembler;
+        this.orderService = Objects.requireNonNull(orderService, "OrderService must be initialised");
+        this.orderAssembler = Objects.requireNonNull(orderAssembler, "OrderAssembler must be initialised");
     }
 
     @GetMapping(value = "")

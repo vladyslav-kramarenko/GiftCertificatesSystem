@@ -11,6 +11,7 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.epam.esm.api.util.LinksUtils.addUserNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -22,7 +23,7 @@ public class UserAssembler implements RepresentationModelAssembler<User, UserDTO
 
     @Autowired
     public UserAssembler(NestedOrderAssembler nestedUserOrderAssembler) {
-        this.nestedUserOrderAssembler = nestedUserOrderAssembler;
+        this.nestedUserOrderAssembler = Objects.requireNonNull(nestedUserOrderAssembler, "NestedOrderAssembler must be initialised");
     }
 
     @Override

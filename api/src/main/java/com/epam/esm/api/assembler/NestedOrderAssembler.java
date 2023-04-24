@@ -12,6 +12,7 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.epam.esm.api.util.LinksUtils.addOrderNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -23,7 +24,7 @@ public class NestedOrderAssembler implements RepresentationModelAssembler<UserOr
 
     @Autowired
     public NestedOrderAssembler(NestedGiftCertificateAssembler nestedGiftCertificateAssembler) {
-        this.nestedGiftCertificateAssembler = nestedGiftCertificateAssembler;
+        this.nestedGiftCertificateAssembler = Objects.requireNonNull(nestedGiftCertificateAssembler, "NestedGiftCertificateAssembler must be initialised");
     }
 
     @Override

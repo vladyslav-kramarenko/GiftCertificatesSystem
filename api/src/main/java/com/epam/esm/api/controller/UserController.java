@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.epam.esm.api.util.Constants.*;
@@ -43,12 +44,12 @@ public class UserController {
             OrderAssembler userOrderAssembler,
             NestedUserAssembler nestedUserAssembler
     ) {
-        this.userService = userService;
-        this.orderService = orderService;
-        this.tagService = tagService;
-        this.userOrderAssembler = userOrderAssembler;
-        this.userAssembler = userAssembler;
-        this.nestedUserAssembler = nestedUserAssembler;
+        this.userService = Objects.requireNonNull(userService, "UserService must be initialised");
+        this.orderService = Objects.requireNonNull(orderService, "OrderService must be initialised");
+        this.tagService = Objects.requireNonNull(tagService, "TagService must be initialised");
+        this.userOrderAssembler = Objects.requireNonNull(userOrderAssembler, "OrderAssembler must be initialised");
+        this.userAssembler = Objects.requireNonNull(userAssembler, "UserAssembler must be initialised");
+        this.nestedUserAssembler = Objects.requireNonNull(nestedUserAssembler, "NestedUserAssembler must be initialised");
     }
 
     @GetMapping(value = "")

@@ -5,26 +5,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
+import java.util.Objects;
 
-@EntityScan(basePackages = "com.epam.esm.core.entity")
+@EntityScan(basePackages = "com.epam.esm")
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "com.epam.esm.core.repository")
 @PropertySource("classpath:application.properties")
 @ComponentScan(basePackages = {"com.epam.esm.api", "com.epam.esm.core"})
 public class ApiApplication {
 
+    private final Environment env;
     @Autowired
-    private Environment env;
+    public ApiApplication(Environment env){
+        this.env=Objects.requireNonNull(env,"Environment must be initialised");
+    }
 
     /**
      * Creates a data source for the test environment using an H2 embedded database.
@@ -62,5 +63,4 @@ public class ApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
     }
-
 }
