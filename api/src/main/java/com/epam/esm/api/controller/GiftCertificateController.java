@@ -59,10 +59,10 @@ public class GiftCertificateController {
     @GetMapping(value = "/{id}")
     @ResponseBody
     public ResponseEntity<?> getGiftCertificateById(@PathVariable @Min(0) Long id) throws ServiceException {
-            Optional<GiftCertificate> certificate = giftCertificateService.getGiftCertificateById(id);
-            if (certificate.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", "40401"));
-            return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(certificate.get()));
+        Optional<GiftCertificate> certificate = giftCertificateService.getGiftCertificateById(id);
+        if (certificate.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", "40401"));
+        return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(certificate.get()));
     }
 
     /**
@@ -73,15 +73,9 @@ public class GiftCertificateController {
      * of the provided gift certificate are invalid or an error occurs while creating it in the database
      */
     @PostMapping
-    public ResponseEntity<?> createGiftCertificate(@RequestBody @NotNull @Valid GiftCertificate certificate) {
-        try {
-            GiftCertificate createdCertificate = giftCertificateService.createGiftCertificate(certificate);
-            return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(createdCertificate));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
-        } catch (ServiceException e) {
-            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
-        }
+    public ResponseEntity<?> createGiftCertificate(@RequestBody @NotNull @Valid GiftCertificate certificate) throws ServiceException {
+        GiftCertificate createdCertificate = giftCertificateService.createGiftCertificate(certificate);
+        return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(createdCertificate));
     }
 
     /**
@@ -95,21 +89,15 @@ public class GiftCertificateController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateGiftCertificate(
             @PathVariable @Min(0) Long id,
-            @RequestBody @Valid @NotNull GiftCertificate certificate) {
-        try {
-            Optional<GiftCertificate> updatedCertificate = giftCertificateService.updateGiftCertificate(id, certificate);
-            if (updatedCertificate.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ErrorResponse(
-                                "Requested certificate not found (id = " + id + ")", "40401")
-                        );
-            }
-            return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(updatedCertificate.get()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), "40001"));
-        } catch (ServiceException e) {
-            return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), "50001"));
+            @RequestBody @Valid @NotNull GiftCertificate certificate) throws ServiceException {
+        Optional<GiftCertificate> updatedCertificate = giftCertificateService.updateGiftCertificate(id, certificate);
+        if (updatedCertificate.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(
+                            "Requested certificate not found (id = " + id + ")", "40401")
+                    );
         }
+        return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(updatedCertificate.get()));
     }
 
     /**
@@ -159,7 +147,8 @@ public class GiftCertificateController {
                 .withSearchQuery(searchQuery)
                 .build();
         List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size, sortParams);
-        return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(
+        if (certificates.size() > 0) return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(
                 certificates, searchQuery, tags, page, size, sortParams));
+        return ResponseEntity.notFound().build();
     }
 }
