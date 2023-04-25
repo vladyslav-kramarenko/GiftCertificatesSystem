@@ -51,16 +51,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      * @return an {@link Optional} containing the retrieved gift certificate or empty if the gift
      * certificate does not exist
      * @throws IllegalArgumentException if the provided ID is invalid
- */
+     */
     @Override
     public Optional<GiftCertificate> getGiftCertificateById(Long id) {
-            Optional<GiftCertificate> giftCertificateOpt = giftCertificateRepository.findById(id);
-            if (giftCertificateOpt.isPresent()) {
-                GiftCertificate giftCertificate = giftCertificateOpt.get();
-                //TODO remove Hibernate.initialize
-                Hibernate.initialize(giftCertificate.getTags());
-                return Optional.of(giftCertificate);
-            } else return Optional.empty();
+        Optional<GiftCertificate> giftCertificateOpt = giftCertificateRepository.findById(id);
+        if (giftCertificateOpt.isPresent()) {
+            GiftCertificate giftCertificate = giftCertificateOpt.get();
+            //TODO remove Hibernate.initialize
+            Hibernate.initialize(giftCertificate.getTags());
+            return Optional.of(giftCertificate);
+        } else return Optional.empty();
     }
 
     /**
@@ -68,18 +68,22 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      *
      * @param giftCertificate a {@link com.epam.esm.core.entity.GiftCertificate} object to create
      * @return the created gift certificate
-     * @throws ServiceException         if an error occurred while creating the gift certificate in the database
      */
     @Override
     @Transactional(rollbackFor = ServiceException.class)
-    public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate)
-            throws IllegalArgumentException, ServiceException {
-            giftCertificateRepository.save(giftCertificate);
-            addTags(giftCertificate);
+    public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate) {
+        updateTagsData(giftCertificate);
+        giftCertificateRepository.save(giftCertificate);
+        return giftCertificate;
+    }
 
-            Optional<GiftCertificate> CreatedGiftCertificate = giftCertificateRepository.findById(giftCertificate.getId());
-            if (CreatedGiftCertificate.isEmpty()) throw new ServiceException("Cannot find created gift certificate by id");
-            return CreatedGiftCertificate.get();
+    private void updateTagsData(GiftCertificate giftCertificate) {
+        List<Tag> tags = giftCertificate.getTags();
+        for (int i = 0; i < tags.size(); i++) {
+            Tag tag = tags.get(i);
+            Optional<Tag> existingTag = tagRepository.getByName(tag.getName());
+            tags.set(i, existingTag.orElseGet(() -> tagRepository.save(tag)));
+        }
     }
 
     private void addTags(GiftCertificate giftCertificate) {
@@ -164,19 +168,19 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             int size,
             String[] sortParams
     ) {
-            Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
-            String tagsFilter = String.join(",", giftCertificateFilter.getTags());
-            String sortConditions = concatSort(sort.orElse(null), "id asc");
-            List<GiftCertificate> giftCertificatesList = giftCertificateRepository.findAll(
-                    giftCertificateFilter.getSearchQuery(),
-                    sortConditions,
-                    page * size,
-                    size,
-                    tagsFilter
-            );
-            for (GiftCertificate giftCertificate : giftCertificatesList) {
-                Hibernate.initialize(giftCertificate.getTags());
-            }
-            return giftCertificatesList;
+        Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
+        String tagsFilter = String.join(",", giftCertificateFilter.getTags());
+        String sortConditions = concatSort(sort.orElse(null), "id asc");
+        List<GiftCertificate> giftCertificatesList = giftCertificateRepository.findAll(
+                giftCertificateFilter.getSearchQuery(),
+                sortConditions,
+                page * size,
+                size,
+                tagsFilter
+        );
+        for (GiftCertificate giftCertificate : giftCertificatesList) {
+            Hibernate.initialize(giftCertificate.getTags());
+        }
+        return giftCertificatesList;
     }
 }
