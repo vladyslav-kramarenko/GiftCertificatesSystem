@@ -3,7 +3,6 @@ package com.epam.esm.core.service.impl;
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
-import com.epam.esm.core.filter.GiftCertificateFilter;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
 import com.epam.esm.core.service.GiftCertificateService;
@@ -152,7 +151,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     /**
      * Gets a list of gift certificates that match the specified filter, sorted and paginated as specified.
      *
-     * @param giftCertificateFilter the filter to apply to the gift certificates
      * @param page                  the page number to return (starting at 0)
      * @param size                  the number of gift certificates to return per page
      * @param sortParams            an array of sort parameters in the format {field},{direction}, where field is one of the allowed
@@ -162,17 +160,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      */
     @Override
     @Transactional
-    public List<GiftCertificate> getGiftCertificates(
-            GiftCertificateFilter giftCertificateFilter,
-            int page,
-            int size,
-            String[] sortParams
-    ) {
+    public List<GiftCertificate> getGiftCertificates(String searchQuery, String[] tags, int page, int size, String[] sortParams) {
         Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
-        String tagsFilter = String.join(",", giftCertificateFilter.getTags());
+        String tagsFilter = tags != null ? String.join(",", tags) : "";
         String sortConditions = concatSort(sort.orElse(null), "id asc");
+        if (searchQuery == null) searchQuery = "";
         List<GiftCertificate> giftCertificatesList = giftCertificateRepository.findAll(
-                giftCertificateFilter.getSearchQuery(),
+                searchQuery,
                 sortConditions,
                 page * size,
                 size,

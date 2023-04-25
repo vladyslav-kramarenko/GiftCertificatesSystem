@@ -4,7 +4,6 @@ import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.api.assembler.GiftCertificateAssembler;
 import com.epam.esm.core.service.GiftCertificateService;
 import com.epam.esm.core.exception.ServiceException;
-import com.epam.esm.core.filter.GiftCertificateFilter;
 import com.epam.esm.core.entity.GiftCertificate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -142,11 +141,8 @@ public class GiftCertificateController {
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT)
             String[] sortParams
     ) throws ServiceException {
-        GiftCertificateFilter giftCertificateFilter = GiftCertificateFilter.builder()
-                .withTags(tags)
-                .withSearchQuery(searchQuery)
-                .build();
-        List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(giftCertificateFilter, page, size, sortParams);
+        List<GiftCertificate> certificates = giftCertificateService.getGiftCertificates(
+                searchQuery, tags, page, size, sortParams);
         if (certificates.size() > 0) return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(
                 certificates, searchQuery, tags, page, size, sortParams));
         return ResponseEntity.notFound().build();

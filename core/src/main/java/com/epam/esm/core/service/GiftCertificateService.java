@@ -2,7 +2,6 @@ package com.epam.esm.core.service;
 
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.exception.ServiceException;
-import com.epam.esm.core.filter.GiftCertificateFilter;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,12 +52,14 @@ public interface GiftCertificateService {
     /**
      * Retrieves a list of gift certificates, filtered and sorted by the specified parameters.
      *
-     * @param filter     the GiftCertificateFilter object containing the filter parameters
-     * @param page       the page number to retrieve
-     * @param size       the number of elements per page
-     * @param sortParams an array of strings representing the sorting parameters (field names and directions)
+     * @param searchQuery
+     * @param tags
+     * @param page        the page number to retrieve
+     * @param size        the number of elements per page
+     * @param sortParams  an array of strings representing the sorting parameters (field names and directions)
      * @return a list of GiftCertificate objects matching the specified filter and sorted by the specified parameters
      * @throws ServiceException if there was an error performing the operation
      */
-    List<GiftCertificate> getGiftCertificates(GiftCertificateFilter filter, int page, int size, String[] sortParams) throws ServiceException;
+    List<GiftCertificate> getGiftCertificates(
+            String searchQuery, String[] tags, int page, int size, String[] sortParams) throws ServiceException;
 }
