@@ -66,7 +66,7 @@ public class LinksUtils {
         collection.add(getCreateGiftCertificateLink());
     }
 
-    public static CustomLink getCreateGiftCertificateLink() {
+    public static CustomLink getCreateGiftCertificateLink() throws ServiceException {
         return new CustomLink(linkTo(methodOn(GiftCertificateController.class).createGiftCertificate(null))
                 .toUriComponentsBuilder().toUriString(), "create gift certificate", "POST");
     }
