@@ -9,14 +9,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GiftCertificateRepository extends JpaRepository<GiftCertificate, Long>, CustomGiftCertificateRepository {
 
     List<GiftCertificate> findAll(Sort sort);
 
+    Optional<GiftCertificate> getByName(@Param("name") String name);
     @Query("SELECT gc FROM GiftCertificate gc JOIN gc.tags t WHERE t.id = :tagId")
-    List<GiftCertificate> getCertificatesByTagId(@Param("tagId")Long tagId);
+    List<GiftCertificate> getCertificatesByTagId(@Param("tagId") Long tagId);
 
     @Procedure(name = "search_gift_certificates_with_tags")
     List<GiftCertificate> findAll(
