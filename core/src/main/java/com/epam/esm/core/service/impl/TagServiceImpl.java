@@ -64,8 +64,12 @@ public class TagServiceImpl implements TagService {
      * {@inheritDoc}
      */
     @Override
-    public Tag createTag(Tag tag){
+    public Tag createTag(Tag tag) {
+        Optional<Tag> existingTag = tagRepository.getByName(tag.getName());
+        if (existingTag.isEmpty()) {
             return tagRepository.save(tag);
+        }
+        return existingTag.get();
     }
 
     /**
@@ -74,7 +78,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public void deleteTag(Long id) {
         validateIsThisOnlyTagForSomeCertificate(id);
-            tagRepository.deleteById(id);
+        tagRepository.deleteById(id);
     }
 
     private void validateIsThisOnlyTagForSomeCertificate(long id) throws IllegalArgumentException {
@@ -89,10 +93,10 @@ public class TagServiceImpl implements TagService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tag> getTags(int page, int size, String[] sortParams){
+    public List<Tag> getTags(int page, int size, String[] sortParams) {
         Optional<Sort> sort = createSort(sortParams, ALLOWED_TAG_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
         Pageable pageable = PageRequest.of(page, size, sort.orElse(Sort.by("id").ascending()));
-            return tagRepository.findAll(pageable).toList();
+        return tagRepository.findAll(pageable).toList();
     }
 
     @Override
