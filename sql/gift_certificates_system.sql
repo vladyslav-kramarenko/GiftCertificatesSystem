@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`tag`
 (
     `id`   INT         NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(64) NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE
 );
 
 
@@ -39,7 +40,8 @@ CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`gift_certificate`
     `duration`         INT            NULL,
     `create_date`      DATETIME       NULL DEFAULT CURRENT_TIMESTAMP,
     `last_update_date` DATETIME       NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE
 );
 
 
@@ -56,13 +58,13 @@ CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`gift_certificate_has_tag`
     CONSTRAINT `fk_gift_certificate_has_tag_gift_certificate`
         FOREIGN KEY (`gift_certificate_id`)
             REFERENCES `gift_certificates_system`.`gift_certificate` (`id`)
-            ON DELETE NO ACTION
-            ON UPDATE NO ACTION,
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
     CONSTRAINT `fk_gift_certificate_has_tag_tag1`
         FOREIGN KEY (`tag_id`)
             REFERENCES `gift_certificates_system`.`tag` (`id`)
-            ON DELETE NO ACTION
-            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
 );
 
 
