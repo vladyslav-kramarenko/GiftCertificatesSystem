@@ -11,13 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 @Component
 public class DemoDataGenerator {
@@ -37,28 +31,31 @@ public class DemoDataGenerator {
         this.giftCertificateRepository = Objects.requireNonNull(giftCertificateRepository, "GiftCertificateRepository must be initialised");
     }
 
-
     private final Faker faker = new Faker();
 
     public String generateDemoData(int userCount, int tagsCount, int giftCertificateCount) {
         StringBuilder result = new StringBuilder("created ");
-        List<User> users = generateUsers(userCount);
-        users = userRepository.saveAll(users);
-        result.append(users.size()).append(" users, ");
+        Set<User> users = generateUsers(userCount);
+        List<User> createdUsers = userRepository.saveAll(users);
+        result.append(createdUsers.size()).append(" users, ");
 
-        List<Tag> tags = generateTags(tagsCount);
-        tags = tagRepository.saveAll(tags);
-        result.append(tags.size()).append(" tags, ");
+        Set<Tag> tags = generateTags(tagsCount);
+        tags.removeIf(tag -> tagRepository.getByName(tag.getName()).isPresent());
+        List<Tag> createdTags = tagRepository.saveAll(tags);
+        result.append(createdTags.size()).append(" tags, ");
 
         List<Tag> savedTags = tagRepository.findAll();
-        List<GiftCertificate> giftCertificates = generateGiftCertificate(savedTags, giftCertificateCount);
-        giftCertificates = giftCertificateRepository.saveAll(giftCertificates);
+        Set<GiftCertificate> giftCertificates = generateGiftCertificate(savedTags, giftCertificateCount);
+        giftCertificates.removeIf(giftCertificate -> giftCertificateRepository.getByName(giftCertificate.getName()).isPresent());
+
+        giftCertificateRepository.saveAll(giftCertificates);
         result.append(giftCertificates.size()).append(" gift certificates");
+
         return result.toString();
     }
 
-    private List<User> generateUsers(int userCount) {
-        List<User> users = new ArrayList<>();
+    private Set<User> generateUsers(int userCount) {
+        Set<User> users = new HashSet<>();
         for (int i = 0; i < userCount; i++) {
             User user = new User();
             user.setFirstName(faker.name().firstName());
@@ -68,41 +65,79 @@ public class DemoDataGenerator {
         return users;
     }
 
-    private List<Tag> generateTags(int tagsCount) {
-        List<Tag> tags = new ArrayList<>();
+    private Set<Tag> generateTags(int tagsCount) {
+        Set<Tag> tags = new HashSet<>();
+        Set<String> names = new HashSet<>();
         for (int i = 0; i < tagsCount; i++) {
             Tag tag = new Tag();
-            tag.setName(faker.commerce().department());
+            tag.setName(generateTagName(names));
             tags.add(tag);
         }
         return tags;
     }
 
-    private List<GiftCertificate> generateGiftCertificate(List<Tag> tags, int giftCertificateCount) {
-//        Faker faker = new Faker();
-        List<GiftCertificate> giftCertificates = new ArrayList<>();
+    private Set<GiftCertificate> generateGiftCertificate(List<Tag> tags, int giftCertificateCount) {
+        Set<GiftCertificate> giftCertificates = new HashSet<>();
+        Set<String> names = new HashSet<>();
         for (int i = 0; i < giftCertificateCount; i++) {
-            GiftCertificate giftCertificate = new GiftCertificate();
-            giftCertificate.setName(faker.commerce().productName());
-            String description = faker.lorem().sentence(10);
-            giftCertificate.setDescription(description);
-            giftCertificate.setPrice(BigDecimal.valueOf(faker.number().randomDouble(2, 10, 1000)));
-            giftCertificate.setDuration(faker.number().numberBetween(1, 365));
-            // Assign random tags to gift certificate
-            List<Tag> giftCertificateTags = new ArrayList<>();
-            int certificateTagsCount = faker.number().numberBetween(1, 5);
-            for (int j = 0; j < certificateTagsCount; j++) {
-                Tag randomTag = tags.get(faker.number().numberBetween(0, tags.size()));
-                giftCertificateTags.add(randomTag);
-            }
-            giftCertificate.setTags(giftCertificateTags);
-            // Assign random dates
-            LocalDateTime lastUpdateDate = faker.date().past(365, TimeUnit.DAYS).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            giftCertificate.setLastUpdateDate(lastUpdateDate);
-            LocalDateTime createDate = faker.date().past(30, TimeUnit.DAYS, Date.from(lastUpdateDate.atZone(ZoneId.systemDefault()).toInstant())).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            giftCertificate.setCreateDate(createDate);
+            GiftCertificate giftCertificate = generateGiftCertificate(names);
+            giftCertificate.setTags(choseSomeTags(tags));
             giftCertificates.add(giftCertificate);
         }
         return giftCertificates;
+    }
+
+    private GiftCertificate generateGiftCertificate(Set<String> names) {
+        GiftCertificate giftCertificate = new GiftCertificate();
+        giftCertificate.setName(generateCertificateName(names));
+        String description = faker.lorem().sentence(10);
+        giftCertificate.setDescription(description);
+        giftCertificate.setPrice(BigDecimal.valueOf(faker.number().randomDouble(2, 10, 1000)));
+        giftCertificate.setDuration(faker.number().numberBetween(1, 365));
+        return giftCertificate;
+    }
+
+    private List<Tag> choseSomeTags(List<Tag> tags) {
+        List<Tag> giftCertificateTags = new ArrayList<>();
+        int certificateTagsCount = faker.number().numberBetween(1, 5);
+        for (int j = 0; j < certificateTagsCount; j++) {
+            Tag randomTag = tags.get(faker.number().numberBetween(0, tags.size()));
+            if (!giftCertificateTags.contains(randomTag)) {
+                giftCertificateTags.add(randomTag);
+            }
+        }
+        System.out.println("Assigned tags: " + giftCertificateTags);
+        return giftCertificateTags;
+    }
+
+
+    private String generateCertificateName(Set<String> names) {
+        String name;
+        boolean test;
+        do {
+            name = faker.commerce().productName();
+            test = names.contains(name);
+            if (test) {
+                name += " - " + faker.commerce().color();
+                test = names.contains(name);
+            }
+            if (test) {
+                name = faker.funnyName().name();
+                test = names.contains(name);
+            }
+        } while (test);
+        names.add(name);
+        return name;
+    }
+
+    private String generateTagName(Set<String> names) {
+        String name;
+        boolean test;
+        do {
+            name = faker.commerce().department();
+            test = names.contains(name);
+        } while (test);
+        names.add(name);
+        return name;
     }
 }
