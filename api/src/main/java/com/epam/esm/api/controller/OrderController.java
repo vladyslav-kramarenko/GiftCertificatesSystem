@@ -40,10 +40,10 @@ public class OrderController {
     @ResponseBody
     public ResponseEntity<?> getOrders(
             @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
-            @Min(value = 0,message = "Page number can't be negative")
+            @Min(value = 0, message = "Page number can't be negative")
             int page,
             @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE)
-            @Min(value = 0,message = "Page size can't be negative")
+            @Min(value = 0, message = "Page size can't be negative")
             int size,
             @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT) String[] sortParams) throws ServiceException {
         List<UserOrder> orders = orderService.getOrders(page, size, sortParams);
@@ -73,7 +73,7 @@ public class OrderController {
 
     @PostMapping("")
     public ResponseEntity<?> createOrder(@RequestBody @Valid @NotNull OrderRequest orderRequest) throws ServiceException {
-            UserOrder newOrder = orderService.createOrder(orderRequest);
-            return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+        UserOrder newOrder = orderService.createOrder(orderRequest);
+        return new ResponseEntity<>(orderAssembler.toSingleModel(newOrder), HttpStatus.CREATED);
     }
 }
