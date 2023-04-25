@@ -30,7 +30,7 @@ import java.util.List;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-@ToString
+@ToString(exclude = "tags")
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "gift_certificate")
@@ -59,7 +59,11 @@ public class GiftCertificate extends Auditable {
     @Min(value = 0, message = "Gift Certificate Duration can't be negative")
     private Integer duration;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "giftCertificates")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "gift_certificate_has_tag",
+            joinColumns = @JoinColumn(name = "gift_certificate_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
     private List<Tag> tags;
 
     @ManyToMany(fetch = FetchType.LAZY)

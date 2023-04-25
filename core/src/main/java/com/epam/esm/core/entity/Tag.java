@@ -21,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @EqualsAndHashCode
-@ToString
+@ToString(exclude = "giftCertificates")
 @Entity
 @Table(name = "tag")
 public class Tag {
@@ -35,11 +35,16 @@ public class Tag {
             message = "Tag Name must be gre less then " + CoreConstants.MAX_TAG_NAME_LENGTH + " characters")
     @Column(name = "name")
     String name;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "gift_certificate_has_tag",
-            joinColumns = @JoinColumn(name = "tag_id"),
-            inverseJoinColumns = @JoinColumn(name = "gift_certificate_id")
-    )
+
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(name = "gift_certificate_has_tag",
+//            joinColumns = @JoinColumn(name = "tag_id"),
+//            inverseJoinColumns = @JoinColumn(name = "gift_certificate_id")
+//    )
+//    @JsonBackReference
+//    List<GiftCertificate> giftCertificates;
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
     @JsonBackReference
     List<GiftCertificate> giftCertificates;
 
