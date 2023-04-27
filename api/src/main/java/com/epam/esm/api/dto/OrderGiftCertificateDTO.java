@@ -6,16 +6,17 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
-public class OrderDTO extends RepresentationModel<OrderDTO> {
-
-    private Long id;
-    private NestedUserDTO user;
+public class OrderGiftCertificateDTO extends RepresentationModel<OrderGiftCertificateDTO> {
+    private int count;
     private BigDecimal sum;
+    private Long id;
+    private String name;
+    private String description;
+    private BigDecimal price;
+    private Integer duration;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
-    private List<OrderGiftCertificateDTO> orderGiftCertificateDTOS;
 }

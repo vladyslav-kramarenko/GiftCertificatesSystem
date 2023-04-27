@@ -1,8 +1,8 @@
 package com.epam.esm.api.assembler;
 
 import com.epam.esm.api.controller.OrderController;
-import com.epam.esm.api.dto.NestedGiftCertificateDTO;
 import com.epam.esm.api.dto.OrderDTO;
+import com.epam.esm.api.dto.OrderGiftCertificateDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.OrderGiftCertificate;
 import com.epam.esm.core.entity.UserOrder;
@@ -24,16 +24,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class OrderAssembler implements RepresentationModelAssembler<UserOrder, OrderDTO> {
-    private final NestedGiftCertificateAssembler nestedGiftCertificateAssembler;
     private final NestedUserAssembler nestedUserAssembler;
+    private final OrderGiftCertificateAssembler orderGiftCertificateAssembler;
 
     @Autowired
     public OrderAssembler(
-            NestedGiftCertificateAssembler nestedGiftCertificateAssembler,
-            NestedUserAssembler nestedUserAssembler
+            NestedUserAssembler nestedUserAssembler,
+            OrderGiftCertificateAssembler orderGiftCertificateAssembler
     ) {
         this.nestedUserAssembler = Objects.requireNonNull(nestedUserAssembler, "NestedUserAssembler must be initialised");
-        this.nestedGiftCertificateAssembler = Objects.requireNonNull(nestedGiftCertificateAssembler, "NestedGiftCertificateAssembler must be initialised");
+        this.orderGiftCertificateAssembler = Objects.requireNonNull(orderGiftCertificateAssembler, "OrderGiftCertificateAssembler must be initialised");
     }
 
     @SneakyThrows(ServiceException.class)
@@ -42,10 +42,10 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
     public OrderDTO toModel(UserOrder order) {
         OrderDTO orderDTO = getOrderDTO(order);
         orderDTO.setUser(nestedUserAssembler.toNestedModel(order.getUser()));
-        List<NestedGiftCertificateDTO> giftCertificateDTOs = order.getOrderGiftCertificates().stream()
-                .map(orderGiftCertificate -> nestedGiftCertificateAssembler.toModel(orderGiftCertificate.getGiftCertificate()))
+        List<OrderGiftCertificateDTO> giftCertificateDTOs = order.getOrderGiftCertificates().stream()
+                .map(orderGiftCertificateAssembler::toModel)
                 .toList();
-        orderDTO.setGiftCertificates(giftCertificateDTOs);
+        orderDTO.setOrderGiftCertificateDTOS(giftCertificateDTOs);
         return orderDTO;
     }
 
@@ -53,13 +53,13 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
         OrderDTO orderDTO = getOrderDTO(order);
         orderDTO.setUser(nestedUserAssembler.toModel(order.getUser()));
 
-        List<NestedGiftCertificateDTO> giftCertificateDTOs = new ArrayList<>();
+        List<OrderGiftCertificateDTO> giftCertificateDTOs = new ArrayList<>();
         for (OrderGiftCertificate orderGiftCertificate : order.getOrderGiftCertificates()) {
-            NestedGiftCertificateDTO nestedGiftCertificateDTO = nestedGiftCertificateAssembler.toSingleModel(orderGiftCertificate.getGiftCertificate());
+            OrderGiftCertificateDTO nestedGiftCertificateDTO = orderGiftCertificateAssembler.toSingleModel(orderGiftCertificate);
             giftCertificateDTOs.add(nestedGiftCertificateDTO);
         }
 
-        orderDTO.setGiftCertificates(giftCertificateDTOs);
+        orderDTO.setOrderGiftCertificateDTOS(giftCertificateDTOs);
 
         orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).deleteOrderById(order.getId()))
                 .toUriComponentsBuilder().toUriString(), "deleteOrder", "DELETE"));
