@@ -19,6 +19,7 @@ import java.util.Objects;
 @EnableJpaRepositories(basePackages = "com.epam.esm.core.repository")
 @PropertySource("classpath:application.properties")
 @ComponentScan(basePackages = {"com.epam.esm.api", "com.epam.esm.core"})
+@PropertySource("classpath:application-${spring.profiles.active}.properties")
 public class ApiApplication {
 
     private final Environment env;
