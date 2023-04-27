@@ -1,11 +1,13 @@
 package com.epam.esm.api.util;
 
-import com.epam.esm.core.entity.GiftCertificate;
-import com.epam.esm.core.entity.Tag;
-import com.epam.esm.core.entity.User;
+import com.epam.esm.core.dto.GiftCertificateOrder;
+import com.epam.esm.core.dto.OrderRequest;
+import com.epam.esm.core.entity.*;
+import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
 import com.epam.esm.core.repository.UserRepository;
+import com.epam.esm.core.service.OrderService;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,42 +17,55 @@ import java.util.*;
 
 @Component
 public class DemoDataGenerator {
-
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final GiftCertificateRepository giftCertificateRepository;
+    private final OrderService orderService;
 
     @Autowired
     public DemoDataGenerator(
             UserRepository userRepository,
             TagRepository tagRepository,
-            GiftCertificateRepository giftCertificateRepository
+            GiftCertificateRepository giftCertificateRepository,
+            OrderService orderService
     ) {
         this.userRepository = Objects.requireNonNull(userRepository, "UserRepository must be initialised");
         this.tagRepository = Objects.requireNonNull(tagRepository, "TagRepository must be initialised");
         this.giftCertificateRepository = Objects.requireNonNull(giftCertificateRepository, "GiftCertificateRepository must be initialised");
+        this.orderService = Objects.requireNonNull(orderService, "OrderService must be initialised");
     }
 
     private final Faker faker = new Faker();
 
-    public String generateDemoData(int userCount, int tagsCount, int giftCertificateCount) {
+    public String generateDemoData(int userCount, int tagsCount, int giftCertificateCount, int orderCount) throws ServiceException {
         StringBuilder result = new StringBuilder("created ");
-        Set<User> users = generateUsers(userCount);
-        List<User> createdUsers = userRepository.saveAll(users);
-        result.append(createdUsers.size()).append(" users, ");
+        if (userCount > 0) {
+            Set<User> users = generateUsers(userCount);
+            List<User> createdUsers = userRepository.saveAll(users);
+            result.append(createdUsers.size()).append(" users, ");
+        }
+        if (tagsCount > 0) {
+            Set<Tag> tags = generateTags(tagsCount);
+            tags.removeIf(tag -> tagRepository.getByName(tag.getName()).isPresent());
+            List<Tag> createdTags = tagRepository.saveAll(tags);
+            result.append(createdTags.size()).append(" tags, ");
+        }
+        if (giftCertificateCount > 0) {
+            List<Tag> savedTags = tagRepository.findAll();
+            Set<GiftCertificate> giftCertificates = generateGiftCertificate(savedTags, giftCertificateCount);
+            giftCertificates.removeIf(giftCertificate -> giftCertificateRepository.getByName(giftCertificate.getName()).isPresent());
 
-        Set<Tag> tags = generateTags(tagsCount);
-        tags.removeIf(tag -> tagRepository.getByName(tag.getName()).isPresent());
-        List<Tag> createdTags = tagRepository.saveAll(tags);
-        result.append(createdTags.size()).append(" tags, ");
+            giftCertificateRepository.saveAll(giftCertificates);
+            result.append(giftCertificates.size()).append(" gift certificates, ");
+        }
 
-        List<Tag> savedTags = tagRepository.findAll();
-        Set<GiftCertificate> giftCertificates = generateGiftCertificate(savedTags, giftCertificateCount);
-        giftCertificates.removeIf(giftCertificate -> giftCertificateRepository.getByName(giftCertificate.getName()).isPresent());
+        if (orderCount > 0) {
+            List<GiftCertificate> savedGiftCertificates = giftCertificateRepository.findAll();
+            List<User> savedUsers = userRepository.findAll();
+            Set<UserOrder> orders = generateOrders(savedUsers, savedGiftCertificates, orderCount);
 
-        giftCertificateRepository.saveAll(giftCertificates);
-        result.append(giftCertificates.size()).append(" gift certificates");
-
+            result.append(orders.size()).append(" orders");
+        }
         return result.toString();
     }
 
@@ -81,7 +96,7 @@ public class DemoDataGenerator {
         Set<String> names = new HashSet<>();
         for (int i = 0; i < giftCertificateCount; i++) {
             GiftCertificate giftCertificate = generateGiftCertificate(names);
-            giftCertificate.setTags(choseSomeTags(tags));
+            giftCertificate.setTags(chooseSomeTags(tags));
             giftCertificates.add(giftCertificate);
         }
         return giftCertificates;
@@ -97,7 +112,7 @@ public class DemoDataGenerator {
         return giftCertificate;
     }
 
-    private List<Tag> choseSomeTags(List<Tag> tags) {
+    private List<Tag> chooseSomeTags(List<Tag> tags) {
         List<Tag> giftCertificateTags = new ArrayList<>();
         int certificateTagsCount = faker.number().numberBetween(1, 5);
         for (int j = 0; j < certificateTagsCount; j++) {
@@ -106,7 +121,6 @@ public class DemoDataGenerator {
                 giftCertificateTags.add(randomTag);
             }
         }
-        System.out.println("Assigned tags: " + giftCertificateTags);
         return giftCertificateTags;
     }
 
@@ -134,10 +148,53 @@ public class DemoDataGenerator {
         String name;
         boolean test;
         do {
-            name = faker.commerce().department();
-            test = names.contains(name);
+            name = Arrays.stream(Arrays.stream(faker.commerce().department().split(","))
+                    .findAny().orElse("").split(" & ")).filter(x -> !names.contains(x)).findAny().orElse("");
+            test = name.isEmpty() || names.contains(name);
+            if (test) {
+                name = faker.commerce().material();
+                test = name.isEmpty() || names.contains(name);
+            }
+            if (test) {
+                name = faker.commerce().color();
+                test = name.isEmpty() || names.contains(name);
+            }
+            if (test) {
+                name = faker.ancient().god();
+                test = name.isEmpty() || names.contains(name);
+            }
+            if (test) {
+                name = faker.animal().name();
+                test = name.isEmpty() || names.contains(name);
+            }
         } while (test);
         names.add(name);
         return name;
+    }
+
+    private Set<UserOrder> generateOrders(
+            List<User> users, List<GiftCertificate> giftCertificates, int orderCount
+    ) throws ServiceException {
+        Set<UserOrder> orders = new HashSet<>();
+        for (int i = 0; i < orderCount; i++) {
+            User user = users.get(faker.number().numberBetween(0, users.size()));
+
+            int certificateCount = faker.number().numberBetween(1, 5);
+            List<GiftCertificateOrder> giftCertificateOrders = new ArrayList<>();
+
+            for (int j = 0; j < certificateCount; j++) {
+                GiftCertificate randomGiftCertificate = giftCertificates.get(
+                        faker.number().numberBetween(0, giftCertificates.size())
+                );
+                int count = faker.number().numberBetween(1, 10);
+                GiftCertificateOrder giftCertificateOrder = new GiftCertificateOrder(randomGiftCertificate.getId(), count);
+                giftCertificateOrders.add(giftCertificateOrder);
+            }
+
+            OrderRequest orderRequest = new OrderRequest(user.getId(), giftCertificateOrders);
+            Optional<UserOrder> createdOrder = orderService.getOrderById(orderService.createOrder(orderRequest).getId());
+            createdOrder.ifPresent(orders::add);
+        }
+        return orders;
     }
 }
