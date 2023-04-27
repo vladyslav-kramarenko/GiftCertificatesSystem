@@ -24,7 +24,7 @@ import java.util.*;
 
 import static com.epam.esm.core.util.CoreConstants.*;
 import static com.epam.esm.core.util.SortUtilities.createSort;
-//import static com.epam.esm.core.util.Utilities.validateId;
+import static com.epam.esm.core.util.Utilities.calculateOrderSum;
 
 /**
  * Implementation of the {@link TagService} interface that provides the business logic for working with tags.
@@ -88,15 +88,10 @@ public class OrderServiceImpl implements OrderService {
     public UserOrder createOrder(OrderRequest orderRequest) {
         User user = userRepository.findById(orderRequest.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User with id = " + orderRequest.userId() + " not found"));
-
         Map<GiftCertificate, Integer> giftCertificatesWithQuantity = getCertificateMap(orderRequest.giftCertificates());
-
         BigDecimal orderSum = calculateOrderSum(giftCertificatesWithQuantity);
-
         UserOrder savedUserOrder = orderRepository.save(new UserOrder(orderSum, user));
-
         addGiftCertificatesToOrder(savedUserOrder, giftCertificatesWithQuantity);
-
         return savedUserOrder;
     }
 
@@ -116,35 +111,20 @@ public class OrderServiceImpl implements OrderService {
 
     private void addGiftCertificatesToOrder(UserOrder savedUserOrder, Map<GiftCertificate, Integer> giftCertificatesWithQuantity) {
         List<OrderGiftCertificate> orderGiftCertificates = new ArrayList<>();
-
         for (Map.Entry<GiftCertificate, Integer> entry : giftCertificatesWithQuantity.entrySet()) {
             orderGiftCertificates.add(createOrderGiftCertificate(savedUserOrder, entry.getKey(), entry.getValue()));
         }
-
         savedUserOrder.setOrderGiftCertificates(orderGiftCertificates);
         orderGiftCertificateRepository.saveAll(orderGiftCertificates);
     }
 
     private OrderGiftCertificate createOrderGiftCertificate(UserOrder savedUserOrder, GiftCertificate giftCertificate, Integer count) {
         OrderGiftCertificate orderGiftCertificate = new OrderGiftCertificate();
-
         orderGiftCertificate.setId(new OrderGiftCertificateId(savedUserOrder.getId(), giftCertificate.getId()));
         orderGiftCertificate.setOrder(savedUserOrder);
         orderGiftCertificate.setGiftCertificate(giftCertificate);
         orderGiftCertificate.setCount(count);
-
         return orderGiftCertificate;
-    }
-
-
-    private BigDecimal calculateOrderSum(Map<GiftCertificate, Integer> giftCertificatesWithQuantity) {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (Map.Entry<GiftCertificate, Integer> entry : giftCertificatesWithQuantity.entrySet()) {
-            GiftCertificate giftCertificate = entry.getKey();
-            int count = entry.getValue();
-            sum = sum.add(giftCertificate.getPrice().multiply(new BigDecimal(count)));
-        }
-        return sum;
     }
 
     @Override

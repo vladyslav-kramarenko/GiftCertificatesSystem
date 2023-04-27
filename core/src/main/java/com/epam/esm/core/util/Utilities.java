@@ -1,6 +1,10 @@
 package com.epam.esm.core.util;
 
+import com.epam.esm.core.entity.GiftCertificate;
 import org.springframework.data.domain.Sort;
+
+import java.math.BigDecimal;
+import java.util.Map;
 
 
 /**
@@ -16,5 +20,15 @@ public class Utilities {
         }
         sb.delete(sb.length() - 2, sb.length());
         return sb.toString();
+    }
+
+    public static BigDecimal calculateOrderSum(Map<GiftCertificate, Integer> giftCertificatesWithQuantity) {
+        BigDecimal sum = BigDecimal.ZERO;
+        for (Map.Entry<GiftCertificate, Integer> entry : giftCertificatesWithQuantity.entrySet()) {
+            GiftCertificate giftCertificate = entry.getKey();
+            int count = entry.getValue();
+            sum = sum.add(giftCertificate.getPrice().multiply(new BigDecimal(count)));
+        }
+        return sum;
     }
 }
