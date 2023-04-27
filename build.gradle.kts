@@ -2,7 +2,6 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.0.5"
 	id("io.spring.dependency-management") version "1.1.0"
-	kotlin("jvm") version "1.8.20"
 }
 
 group = "com.epam.esm"
@@ -24,4 +23,7 @@ dependencies {
 
 tasks.test {
 	useJUnitPlatform()
+	testLogging {
+		events ("passed", "skipped", "failed")
+	}
 }

@@ -34,8 +34,9 @@ dependencies {
 
     testImplementation("com.h2database:h2:2.1.214")
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.0.5")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    testImplementation("org.mockito:mockito-core:5.2.0")
 }
 tasks.jar {
     archiveBaseName.set("giftCertificatesSystem-core")
