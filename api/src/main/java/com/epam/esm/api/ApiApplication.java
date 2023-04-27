@@ -23,9 +23,10 @@ import java.util.Objects;
 public class ApiApplication {
 
     private final Environment env;
+
     @Autowired
-    public ApiApplication(Environment env){
-        this.env=Objects.requireNonNull(env,"Environment must be initialised");
+    public ApiApplication(Environment env) {
+        this.env = Objects.requireNonNull(env, "Environment must be initialised");
     }
 
     /**
@@ -52,12 +53,20 @@ public class ApiApplication {
     @Profile("!test")
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
+
         dataSource.setDriverClassName(env.getProperty("spring.datasource.driver-class-name"));
         dataSource.setJdbcUrl(env.getProperty("spring.datasource.url"));
         dataSource.setUsername(env.getProperty("spring.datasource.username"));
         dataSource.setPassword(env.getProperty("spring.datasource.password"));
-        dataSource.setMaximumPoolSize(Integer.parseInt(env.getProperty(
-                "spring.datasource.hikari.maximum-pool-size")));
+
+        dataSource.setPoolName(env.getProperty("spring.datasource.hikari.poolName"));
+        dataSource.setMinimumIdle(Integer.parseInt(Objects.requireNonNull(env.getProperty("spring.datasource.hikari.minimumIdle"))));
+        dataSource.setMaximumPoolSize(Integer.parseInt(Objects.requireNonNull(env.getProperty("spring.datasource.hikari.maximumPoolSize"))));
+        dataSource.setIdleTimeout(Long.parseLong(Objects.requireNonNull(env.getProperty("spring.datasource.hikari.idleTimeout"))));
+        dataSource.setPoolName(env.getProperty("spring.datasource.hikari.poolName"));
+        dataSource.setMaxLifetime(Long.parseLong(Objects.requireNonNull(env.getProperty("spring.datasource.hikari.maxLifetime"))));
+        dataSource.setConnectionTimeout(Long.parseLong(Objects.requireNonNull(env.getProperty("spring.datasource.hikari.connectionTimeout"))));
+
         return dataSource;
     }
 
