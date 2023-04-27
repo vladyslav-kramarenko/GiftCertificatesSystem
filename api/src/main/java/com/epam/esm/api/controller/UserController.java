@@ -5,15 +5,12 @@ import com.epam.esm.api.assembler.NestedUserAssembler;
 import com.epam.esm.api.assembler.UserAssembler;
 import com.epam.esm.api.assembler.OrderAssembler;
 import com.epam.esm.api.dto.NestedUserDTO;
-import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.OrderService;
-import com.epam.esm.core.service.TagService;
 import com.epam.esm.core.service.UserService;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -35,7 +32,6 @@ public class UserController {
 
     private final UserService userService;
     private final OrderService orderService;
-    private final TagService tagService;
     private final UserAssembler userAssembler;
     private final NestedUserAssembler nestedUserAssembler;
     private final OrderAssembler userOrderAssembler;
@@ -44,14 +40,12 @@ public class UserController {
     public UserController(
             UserService userService,
             OrderService orderService,
-            TagService tagService,
             UserAssembler userAssembler,
             OrderAssembler userOrderAssembler,
             NestedUserAssembler nestedUserAssembler
     ) {
         this.userService = Objects.requireNonNull(userService, "UserService must be initialised");
         this.orderService = Objects.requireNonNull(orderService, "OrderService must be initialised");
-        this.tagService = Objects.requireNonNull(tagService, "TagService must be initialised");
         this.userOrderAssembler = Objects.requireNonNull(userOrderAssembler, "OrderAssembler must be initialised");
         this.userAssembler = Objects.requireNonNull(userAssembler, "UserAssembler must be initialised");
         this.nestedUserAssembler = Objects.requireNonNull(nestedUserAssembler, "NestedUserAssembler must be initialised");
@@ -106,19 +100,5 @@ public class UserController {
         if (orders.size() > 0) {
             return ResponseEntity.ok(userOrderAssembler.toCollectionModel(orders));
         } else return ResponseEntity.notFound().build();
-    }
-
-    @GetMapping("/{userId}/tags/most-used")
-    public ResponseEntity<Tag> getMostWidelyUsedTagWithHighestCostByUserId(
-            @PathVariable @NotNull @NotEmpty @Min(0L)
-            Long userId,
-            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
-            @Min(value = 0, message = "Page number can't be negative")
-            int page,
-            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE)
-            @Min(value = 0, message = "Page size can't be negative")
-            int size) {
-        Optional<Tag> tag = tagService.getMostWidelyUsedTagWithHighestCostByUserId(userId, page, size);
-        return tag.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

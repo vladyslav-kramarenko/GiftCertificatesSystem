@@ -3,6 +3,7 @@ package com.epam.esm.api.controller;
 import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.api.assembler.TagAssembler;
 import com.epam.esm.api.dto.TagDTO;
+import com.epam.esm.core.dto.MostUsedTagDTO;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.TagService;
@@ -76,5 +77,41 @@ public class TagController {
     public ResponseEntity<?> deleteTagById(@PathVariable @Min(1) Long id) throws ServiceException {
         tagService.deleteTag(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/most-used")
+    public ResponseEntity<?> getMostWidelyUsedTagWithHighestCostByUserId(
+            @RequestParam @NotNull
+            @Min(value = 0, message = "User ID can't be negative")
+            Long userId,
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
+            @Min(value = 0, message = "Page number can't be negative")
+            int page,
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE)
+            @Min(value = 0, message = "Page size can't be negative")
+            int size) throws ServiceException {
+        Optional<Tag> tag = tagService.getMostWidelyUsedTagWithHighestCostByUserId(userId, page, size);
+        if (tag.isPresent()) return ResponseEntity.ok(tagAssembler.toSingleModel(tag.get()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("Requested resource not found (user ID = " + userId + ")", "40401"));
+
+    }
+
+    @GetMapping("/most-used-ext")
+    public ResponseEntity<?> getMostWidelyUsedTagWithHighestCostByUserIdExtended(
+            @RequestParam @NotNull
+            @Min(value = 0, message = "User ID can't be negative")
+            Long userId,
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
+            @Min(value = 0, message = "Page number can't be negative")
+            int page,
+            @RequestParam(name = "size", required = false, defaultValue = "1")
+            @Min(value = 0, message = "Page size can't be negative")
+            int size) {
+        List<MostUsedTagDTO> tags = tagService.getMostWidelyUsedTagWithHighestCostByUserIdExtended(userId, page, size);
+        if (tags.size() > 0) {
+            return ResponseEntity.ok(tags);
+        }
+        return ResponseEntity.notFound().build();
     }
 }
