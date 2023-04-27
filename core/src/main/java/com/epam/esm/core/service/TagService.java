@@ -1,5 +1,6 @@
 package com.epam.esm.core.service;
 
+import com.epam.esm.core.dto.MostUsedTagDTO;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
 
@@ -41,4 +42,6 @@ public interface TagService {
     List<Tag> getTags(int page, int size, String[] sortParams) throws ServiceException;
 
     Optional<Tag> getMostWidelyUsedTagWithHighestCostByUserId(Long userId, int page, int size);
+
+    List<MostUsedTagDTO> getMostWidelyUsedTagWithHighestCostByUserIdExtended(Long userId, int page, int size);
 }

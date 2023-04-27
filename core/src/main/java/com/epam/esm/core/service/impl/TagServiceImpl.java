@@ -1,5 +1,6 @@
 package com.epam.esm.core.service.impl;
 
+import com.epam.esm.core.dto.MostUsedTagDTO;
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
@@ -15,10 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_SORT_DIRECTIONS;
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_TAG_SORT_FIELDS;
@@ -104,5 +103,28 @@ public class TagServiceImpl implements TagService {
         Pageable pageable = PageRequest.of(page, size);
         List<Tag> tags = tagRepository.findMostWidelyUsedTagWithHighestCostByUserId(userId, pageable);
         return tags.stream().findFirst();
+    }
+
+    @Override
+    public List<MostUsedTagDTO> getMostWidelyUsedTagWithHighestCostByUserIdExtended(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return convertToMostUsedTagDTOList(
+                tagRepository.findMostWidelyUsedTagWithHighestCostByUserIdExtended(userId, pageable)
+        );
+    }
+
+    private List<MostUsedTagDTO> convertToMostUsedTagDTOList(List<Object[]> objectList) {
+        List<MostUsedTagDTO> dtoList = new ArrayList<>();
+        for (Object[] object : objectList) {
+            Long userId = ((Integer) object[0]).longValue();
+            Long tagId = ((Integer) object[1]).longValue();
+            String tagName = (String) object[2];
+            Long count = ((Long) object[3]);
+            BigDecimal sum = (BigDecimal) object[4];
+
+            MostUsedTagDTO dto = new MostUsedTagDTO(userId, tagId, tagName, count, sum);
+            dtoList.add(dto);
+        }
+        return dtoList;
     }
 }
