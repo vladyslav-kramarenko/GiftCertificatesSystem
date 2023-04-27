@@ -6,7 +6,6 @@ import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
 import com.epam.esm.core.service.GiftCertificateService;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS;
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_SORT_DIRECTIONS;
@@ -49,17 +45,36 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      * @param id a gift certificate ID
      * @return an {@link Optional} containing the retrieved gift certificate or empty if the gift
      * certificate does not exist
-     * @throws IllegalArgumentException if the provided ID is invalid
      */
     @Override
     public Optional<GiftCertificate> getGiftCertificateById(Long id) {
-        Optional<GiftCertificate> giftCertificateOpt = giftCertificateRepository.findById(id);
-        if (giftCertificateOpt.isPresent()) {
-            GiftCertificate giftCertificate = giftCertificateOpt.get();
-            //TODO remove Hibernate.initialize
-            Hibernate.initialize(giftCertificate.getTags());
-            return Optional.of(giftCertificate);
-        } else return Optional.empty();
+        return giftCertificateRepository.findByIdWithTags(id);
+    }
+
+    /**
+     * Gets a list of gift certificates that match the specified filter, sorted and paginated as specified.
+     *
+     * @param page       the page number to return (starting at 0)
+     * @param size       the number of gift certificates to return per page
+     * @param sortParams an array of sort parameters in the format {field},{direction}, where field is one of the allowed
+     *                   sort fields and direction is one of the allowed sort directions. If no sort parameters are
+     *                   specified, the gift certificates are returned in their natural order.
+     * @return a list of gift certificates that match the specified filter, sorted and paginated as specified
+     */
+    @Override
+    @Transactional
+    public List<GiftCertificate> getGiftCertificates(String searchQuery, String[] tags, int page, int size, String[] sortParams) {
+        Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
+        String tagsFilter = tags != null ? String.join(",", tags) : "";
+        String sortConditions = concatSort(sort.orElse(null), "id asc");
+        if (searchQuery == null) searchQuery = "";
+        return giftCertificateRepository.findAll(
+                searchQuery,
+                sortConditions,
+                page * size,
+                size,
+                tagsFilter
+        );
     }
 
     /**
@@ -104,9 +119,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      * @param giftCertificate a {@link com.epam.esm.core.entity.GiftCertificate} object containing the new data
      * @return an {@link Optional} containing the updated gift certificate or empty if the gift
      * certificate does not exist
-     * @throws IllegalArgumentException if the provided ID is invalid or any of the fields of the provided gift
-     *                                  certificate are invalid
-     * @throws ServiceException         if an error occurred while updating the gift certificate in the database
+     * @throws ServiceException if an error occurred while updating the gift certificate in the database
      */
     @Override
     @Transactional(rollbackFor = ServiceException.class)
@@ -135,7 +148,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      * Deletes a gift certificate with the specified id.
      *
      * @param id the id of the gift certificate to delete
-     * @throws IllegalArgumentException if the specified id is null or negative
+     * @throws IllegalArgumentException if the specified Gift Certificate is used in an order
      */
     @Override
     public void deleteGiftCertificate(Long id) {
@@ -146,35 +159,5 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             logger.error(Arrays.toString(e.getStackTrace()));
             throw new IllegalArgumentException("Cannot delete Gift Certificate that used in an order");
         }
-    }
-
-    /**
-     * Gets a list of gift certificates that match the specified filter, sorted and paginated as specified.
-     *
-     * @param page                  the page number to return (starting at 0)
-     * @param size                  the number of gift certificates to return per page
-     * @param sortParams            an array of sort parameters in the format {field},{direction}, where field is one of the allowed
-     *                              sort fields and direction is one of the allowed sort directions. If no sort parameters are
-     *                              specified, the gift certificates are returned in their natural order.
-     * @return a list of gift certificates that match the specified filter, sorted and paginated as specified
-     */
-    @Override
-    @Transactional
-    public List<GiftCertificate> getGiftCertificates(String searchQuery, String[] tags, int page, int size, String[] sortParams) {
-        Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
-        String tagsFilter = tags != null ? String.join(",", tags) : "";
-        String sortConditions = concatSort(sort.orElse(null), "id asc");
-        if (searchQuery == null) searchQuery = "";
-        List<GiftCertificate> giftCertificatesList = giftCertificateRepository.findAll(
-                searchQuery,
-                sortConditions,
-                page * size,
-                size,
-                tagsFilter
-        );
-        for (GiftCertificate giftCertificate : giftCertificatesList) {
-            Hibernate.initialize(giftCertificate.getTags());
-        }
-        return giftCertificatesList;
     }
 }

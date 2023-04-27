@@ -12,17 +12,35 @@ import lombok.ToString;
 import java.math.BigDecimal;
 import java.util.List;
 
-@NamedStoredProcedureQueries({
-        @NamedStoredProcedureQuery(name = "search_gift_certificates_with_tags", procedureName = "search_gift_certificates_with_tags",
-                resultClasses = GiftCertificate.class,
-                parameters = {
-                        @StoredProcedureParameter(mode = ParameterMode.IN, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, type = String.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, type = Integer.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, type = Integer.class),
-                        @StoredProcedureParameter(mode = ParameterMode.IN, type = String.class)
-                })
-})
+@NamedNativeQuery(
+        name = "search_gift_certificates_with_tags",
+        query = "{CALL search_gift_certificates_with_tags(:searchTerm, :sortConditions, :pageLimit, :pageOffset, :tagsFilter)}",
+        resultSetMapping = "GiftCertificateWithTagsMapping"
+)
+@SqlResultSetMapping(
+        name = "GiftCertificateWithTagsMapping",
+        entities = {
+                @EntityResult(
+                        entityClass = GiftCertificate.class,
+                        fields = {
+                                @FieldResult(name = "id", column = "id"),
+                                @FieldResult(name = "name", column = "name"),
+                                @FieldResult(name = "description", column = "description"),
+                                @FieldResult(name = "price", column = "price"),
+                                @FieldResult(name = "duration", column = "duration"),
+                                @FieldResult(name = "createDate", column = "create_date"),
+                                @FieldResult(name = "lastUpdateDate", column = "last_update_date"),
+                        }
+                ),
+                @EntityResult(
+                        entityClass = Tag.class,
+                        fields = {
+                                @FieldResult(name = "id", column = "tag_id"),
+                                @FieldResult(name = "name", column = "tag_name"),
+                        }
+                )
+        }
+)
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"

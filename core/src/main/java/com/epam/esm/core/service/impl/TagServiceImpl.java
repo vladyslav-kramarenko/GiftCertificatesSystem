@@ -3,11 +3,9 @@ package com.epam.esm.core.service.impl;
 import com.epam.esm.core.dto.MostUsedTagDTO;
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.Tag;
-import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
 import com.epam.esm.core.service.TagService;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,20 +41,8 @@ public class TagServiceImpl implements TagService {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Tag> getTagById(Long id) throws ServiceException {
-        try {
-            Optional<Tag> tagOpt = tagRepository.findById(id);
-            if (tagOpt.isPresent()) {
-                Tag tag = tagOpt.get();
-                Hibernate.initialize(tag.getGiftCertificates());
-                return Optional.of(tag);
-            }
-            return Optional.empty();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
-            throw new ServiceException("Error while get tag with id = " + id);
-        }
+    public Optional<Tag> getTagById(Long id) {
+        return tagRepository.findById(id);
     }
 
     /**

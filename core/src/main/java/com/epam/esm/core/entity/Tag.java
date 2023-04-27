@@ -36,14 +36,6 @@ public class Tag {
     @Column(name = "name")
     String name;
 
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(name = "gift_certificate_has_tag",
-//            joinColumns = @JoinColumn(name = "tag_id"),
-//            inverseJoinColumns = @JoinColumn(name = "gift_certificate_id")
-//    )
-//    @JsonBackReference
-//    List<GiftCertificate> giftCertificates;
-
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
     @JsonBackReference
     List<GiftCertificate> giftCertificates;

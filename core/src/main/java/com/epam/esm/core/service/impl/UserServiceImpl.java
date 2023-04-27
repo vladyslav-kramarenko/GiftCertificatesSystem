@@ -4,7 +4,6 @@ import com.epam.esm.core.entity.User;
 import com.epam.esm.core.repository.UserRepository;
 import com.epam.esm.core.service.TagService;
 import com.epam.esm.core.service.UserService;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +38,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Optional<User> getUserById(Long id) {
-        Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            Hibernate.initialize(user.getOrders());
-            return Optional.of(user);
-        }
-        return Optional.empty();
+        return userRepository.findById(id);
     }
 
     /**

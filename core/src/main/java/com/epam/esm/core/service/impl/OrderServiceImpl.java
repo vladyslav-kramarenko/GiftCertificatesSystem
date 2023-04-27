@@ -9,7 +9,6 @@ import com.epam.esm.core.repository.OrderRepository;
 import com.epam.esm.core.repository.UserRepository;
 import com.epam.esm.core.service.OrderService;
 import com.epam.esm.core.service.TagService;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +55,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public Optional<UserOrder> getOrderById(Long id) {
-        Optional<UserOrder> orderOpt = orderRepository.findById(id);
-        if (orderOpt.isPresent()) {
-            UserOrder order = orderOpt.get();
-            Hibernate.initialize(order.getOrderGiftCertificates());
-            return Optional.of(order);
-        }
-        return Optional.empty();
+        return orderRepository.findById(id);
     }
 
     /**
@@ -80,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
     public List<UserOrder> getOrders(int page, int size, String[] sortParams) {
         Optional<Sort> sort = createSort(sortParams, ALLOWED_ORDER_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
         Pageable pageable = PageRequest.of(page, size, sort.orElse(Sort.by("id").ascending()));
-            return orderRepository.findAll(pageable).toList();
+        return orderRepository.findAll(pageable).toList();
     }
 
     @Transactional

@@ -22,8 +22,12 @@ BEGIN
             gc.price,
             gc.duration,
             gc.create_date,
-            gc.last_update_date
+            gc.last_update_date,
+			t.id AS tag_id,
+            t.name AS tag_name
         FROM gift_certificate gc
+        LEFT JOIN gift_certificate_has_tag gct ON gc.id = gct.gift_certificate_id
+        LEFT JOIN tag t ON gct.tag_id = t.id
         WHERE (
             gc.name LIKE CONCAT("%", ?, "%") OR
             gc.description LIKE CONCAT("%", ?, "%")
@@ -33,10 +37,10 @@ BEGIN
             FROM gift_certificate_has_tag gct
             JOIN tag t ON gct.tag_id = t.id',
                         IF(
-                            LENGTH(@tags_filter) = 0,
-                            '',
-                            CONCAT(' WHERE t.name IN (''', @tags_filter, ''')')
-                        ),
+                                    LENGTH(@tags_filter) = 0,
+                                    '',
+                                    CONCAT(' WHERE t.name IN (''', @tags_filter, ''')')
+                            ),
                         ' GROUP BY gct.gift_certificate_id
                         HAVING
                             COUNT(t.id)
