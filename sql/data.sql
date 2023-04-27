@@ -3,9 +3,15 @@ USE gift_certificates_system;
 DELETE
 FROM gift_certificate_has_tag;
 DELETE
+FROM order_has_gift_certificate;
+DELETE
+FROM user_order;
+DELETE
 FROM gift_certificate;
 DELETE
 FROM tag;
+DELETE
+FROM user;
 
 -- Insert tags
 INSERT INTO tag (name)
@@ -22,19 +28,19 @@ VALUES ('Adventure'),
 
 -- Insert gift certificates
 INSERT INTO gift_certificate (name, description, price, duration)
-VALUES ('Luxury Spa Package', 'Indulge in a relaxing spa day with our luxury package', 299.99, 180),
+VALUES ('Luxury Spa Package', 'Indulge in a relaxing spa day with our luxury package', 300.00, 180),
        ('Gourmet Dinner for Two', 'Savor a delectable 3-course dinner at a top-rated restaurant', 149.99, 120),
        ('Hot Air Balloon Ride', 'Experience the thrill of soaring through the skies with a hot air balloon ride',
-        199.99, 60),
-       ('Concert Tickets', 'Enjoy front-row seats to see your favorite musician in concert', 249.99, 240),
-       ('Wine Tasting Tour', 'Explore local wineries and savor a variety of delicious wines', 99.99, 180),
+        200.00, 60),
+       ('Concert Tickets', 'Enjoy front-row seats to see your favorite musician in concert', 250.00, 240),
+       ('Wine Tasting Tour', 'Explore local wineries and savor a variety of delicious wines', 100.00, 180),
        ('Private Photography Lesson', 'Learn the art of photography from a professional photographer', 199.99, 120),
        ('Virtual Reality Gaming Session',
         'Experience the latest in gaming technology with a virtual reality gaming session', 79.99, 60),
-       ('Yoga Retreat Weekend', 'Escape to a tranquil yoga retreat and rejuvenate your mind and body', 399.99, 480),
-       ('Luxury Skincare Package', 'Treat yourself to a luxurious skincare routine with our premium package', 149.99,
+       ('Yoga Retreat Weekend', 'Escape to a tranquil yoga retreat and rejuvenate your mind and body', 400.00, 480),
+       ('Luxury Skincare Package', 'Treat yourself to a luxurious skincare routine with our premium package', 150.00,
         90),
-       ('Art Museum Membership', 'Enjoy unlimited access to a local art museum with an annual membership', 129.99, 365),
+       ('Art Museum Membership', 'Enjoy unlimited access to a local art museum with an annual membership', 130.00, 365),
        ('Cooking Class with a Celebrity Chef', 'Learn the secrets of gourmet cooking from a celebrity chef', 299.99,
         180),
        ('Guided Hiking Tour', 'Explore scenic trails and stunning landscapes with a guided hiking tour', 99.99, 120),
@@ -126,11 +132,11 @@ VALUES ('John', 'Doe'),
 
 -- Insert orders
 INSERT INTO `user_order` (user_id, sum)
-VALUES (1, 500.00),
-       (2, 250.00),
-       (3, 300.00),
-       (4, 150.00),
-       (5, 200.00);
+VALUES (1, 749.99),
+       (2, 450.00),
+       (3, 299.99),
+       (4, 479.99),
+       (5, 430.00);
 
 -- Insert order-gift_certificate relations (order_has_gift_certificate)
 INSERT INTO order_has_gift_certificate (order_id, gift_certificate_id, count)
@@ -142,5 +148,5 @@ VALUES (1, 1, 2),
        (3, 6, 1),
        (4, 7, 1),
        (4, 8, 1),
-       (5, 9, 1),
+       (5, 9, 2),
        (5, 10, 1);
