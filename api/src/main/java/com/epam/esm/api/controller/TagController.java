@@ -1,7 +1,7 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
-import com.epam.esm.api.assembler.TagAssembler;
+import com.epam.esm.api.assembler.tag.TagAssembler;
 import com.epam.esm.api.dto.TagDTO;
 import com.epam.esm.core.dto.MostUsedTagDTO;
 import com.epam.esm.core.entity.Tag;

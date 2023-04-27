@@ -1,8 +1,9 @@
-package com.epam.esm.api.assembler;
+package com.epam.esm.api.assembler.order;
 
+import com.epam.esm.api.assembler.giftCertificate.NestedGiftCertificateAssembler;
 import com.epam.esm.api.controller.OrderController;
-import com.epam.esm.api.dto.NestedGiftCertificateDTO;
-import com.epam.esm.api.dto.NestedOrderDTO;
+import com.epam.esm.api.dto.giftCertificate.BaseGiftCertificateDTO;
+import com.epam.esm.api.dto.order.NestedOrderDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 
+import static com.epam.esm.api.assembler.order.OrderMapper.mapGiftCertificateToDto;
 import static com.epam.esm.api.util.LinksUtils.addOrderNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -34,12 +36,9 @@ public class NestedOrderAssembler implements RepresentationModelAssembler<UserOr
     @NotNull
     public NestedOrderDTO toModel(UserOrder order) {
         NestedOrderDTO orderDTO = new NestedOrderDTO();
-        orderDTO.setId(order.getId());
-        orderDTO.setSum(order.getSum());
-        orderDTO.setCreateDate(order.getCreateDate());
-        orderDTO.setLastUpdateDate(order.getLastUpdateDate());
+        mapGiftCertificateToDto(order, orderDTO);
 
-        List<NestedGiftCertificateDTO> giftCertificateDTOs = order.getOrderGiftCertificates().stream()
+        List<BaseGiftCertificateDTO> giftCertificateDTOs = order.getOrderGiftCertificates().stream()
                 .map(orderGiftCertificate -> nestedGiftCertificateAssembler.toModel(orderGiftCertificate.getGiftCertificate()))
                 .toList();
 

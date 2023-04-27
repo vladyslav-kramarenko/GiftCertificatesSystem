@@ -1,8 +1,10 @@
-package com.epam.esm.api.assembler;
+package com.epam.esm.api.assembler.order;
 
+import com.epam.esm.api.assembler.NestedUserAssembler;
+import com.epam.esm.api.assembler.giftCertificate.OrderGiftCertificateAssembler;
 import com.epam.esm.api.controller.OrderController;
-import com.epam.esm.api.dto.OrderDTO;
-import com.epam.esm.api.dto.OrderGiftCertificateDTO;
+import com.epam.esm.api.dto.order.OrderDTO;
+import com.epam.esm.api.dto.giftCertificate.OrderGiftCertificateDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.OrderGiftCertificate;
 import com.epam.esm.core.entity.UserOrder;
@@ -18,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.epam.esm.api.assembler.order.OrderMapper.mapGiftCertificateToDto;
 import static com.epam.esm.api.util.LinksUtils.addOrderNavigationLinks;
+import static com.epam.esm.api.util.LinksUtils.getCreateOrderLink;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -60,7 +64,7 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
         }
 
         orderDTO.setOrderGiftCertificateDTOS(giftCertificateDTOs);
-
+        orderDTO.add(getCreateOrderLink());
         orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).deleteOrderById(order.getId()))
                 .toUriComponentsBuilder().toUriString(), "deleteOrder", "DELETE"));
         return orderDTO;
@@ -68,10 +72,7 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
 
     private OrderDTO getOrderDTO(UserOrder order) throws ServiceException {
         OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setId(order.getId());
-        orderDTO.setSum(order.getSum());
-        orderDTO.setCreateDate(order.getCreateDate());
-        orderDTO.setLastUpdateDate(order.getLastUpdateDate());
+        mapGiftCertificateToDto(order, orderDTO);
 
         orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).getOrderById(order.getId()))
                 .toUriComponentsBuilder().toUriString(), "self", "GET"));

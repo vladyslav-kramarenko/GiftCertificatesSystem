@@ -3,7 +3,7 @@ package com.epam.esm.api.controller;
 import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.api.assembler.NestedUserAssembler;
 import com.epam.esm.api.assembler.UserAssembler;
-import com.epam.esm.api.assembler.OrderAssembler;
+import com.epam.esm.api.assembler.order.OrderAssembler;
 import com.epam.esm.api.dto.NestedUserDTO;
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.entity.UserOrder;

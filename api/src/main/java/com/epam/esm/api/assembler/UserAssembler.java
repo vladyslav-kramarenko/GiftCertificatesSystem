@@ -1,7 +1,8 @@
 package com.epam.esm.api.assembler;
 
+import com.epam.esm.api.assembler.order.NestedOrderAssembler;
 import com.epam.esm.api.controller.UserController;
-import com.epam.esm.api.dto.NestedOrderDTO;
+import com.epam.esm.api.dto.order.NestedOrderDTO;
 import com.epam.esm.api.dto.UserDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.User;
@@ -22,12 +23,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class UserAssembler implements RepresentationModelAssembler<User, UserDTO> {
     private final NestedOrderAssembler nestedUserOrderAssembler;
-
     @Autowired
     public UserAssembler(NestedOrderAssembler nestedUserOrderAssembler) {
         this.nestedUserOrderAssembler = Objects.requireNonNull(nestedUserOrderAssembler, "NestedOrderAssembler must be initialised");
     }
-
     @SneakyThrows(ServiceException.class)
     @Override
     public UserDTO toModel(User user) {
@@ -46,7 +45,6 @@ public class UserAssembler implements RepresentationModelAssembler<User, UserDTO
         userDTO.add(getCreateUserLink());
         return userDTO;
     }
-
     public CollectionModel<UserDTO> toCollectionModel(List<User> users, int page, int size, String[] sortParams) throws ServiceException {
         List<UserDTO> userDTOs = users.stream()
                 .map(this::toModel)
@@ -56,7 +54,6 @@ public class UserAssembler implements RepresentationModelAssembler<User, UserDTO
         addUserNavigationLinks(userCollection, users, page, size, sortParams);
         return userCollection;
     }
-
     private CustomLink getCreateUserLink() throws ServiceException {
         return new CustomLink(linkTo(methodOn(UserController.class).addUser(null))
                 .toUriComponentsBuilder().toUriString(), "CreateUser", "POST");

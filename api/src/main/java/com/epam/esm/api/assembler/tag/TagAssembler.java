@@ -1,4 +1,4 @@
-package com.epam.esm.api.assembler;
+package com.epam.esm.api.assembler.tag;
 
 import com.epam.esm.api.controller.TagController;
 import com.epam.esm.api.dto.TagDTO;
@@ -7,7 +7,6 @@ import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
 import lombok.SneakyThrows;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 
@@ -18,7 +17,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
+public class TagAssembler extends BaseTagAssembler {
 
     @SneakyThrows(ServiceException.class)
     @Override
@@ -36,8 +35,7 @@ public class TagAssembler implements RepresentationModelAssembler<Tag, TagDTO> {
 
     private TagDTO getTagDTO(Tag tag) throws ServiceException {
         TagDTO tagDTO = new TagDTO();
-        tagDTO.setId(tag.getId());
-        tagDTO.setName(tag.getName());
+        mapTagToDto(tag, tagDTO);
         tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).getTagById(tag.getId()))
                 .toUriComponentsBuilder().toUriString(), "self", "GET"));
         return tagDTO;

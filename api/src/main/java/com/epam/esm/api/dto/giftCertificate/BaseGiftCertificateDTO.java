@@ -1,4 +1,4 @@
-package com.epam.esm.api.dto;
+package com.epam.esm.api.dto.giftCertificate;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,11 +6,10 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
-public class GiftCertificateDTO extends RepresentationModel<GiftCertificateDTO> {
+public class BaseGiftCertificateDTO extends RepresentationModel<BaseGiftCertificateDTO> {
     private Long id;
     private String name;
     private String description;
@@ -18,5 +17,4 @@ public class GiftCertificateDTO extends RepresentationModel<GiftCertificateDTO> 
     private Integer duration;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
-    private List<TagDTO> tags;
 }

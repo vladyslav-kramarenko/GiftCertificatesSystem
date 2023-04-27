@@ -1,4 +1,4 @@
-package com.epam.esm.api.dto;
+package com.epam.esm.api.dto.order;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,12 +9,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class NestedGiftCertificateDTO extends RepresentationModel<NestedGiftCertificateDTO> {
+public class BaseOrderDTO extends RepresentationModel<BaseOrderDTO> {
     private Long id;
-    private String name;
-    private String description;
-    private BigDecimal price;
-    private Integer duration;
+    private BigDecimal sum;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
 }

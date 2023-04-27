@@ -22,6 +22,7 @@ public class LinksUtils {
         if (!list.isEmpty()) {
             collection.add(linkTo(methodOn(OrderController.class).getOrders(page + 1, size, sortParams)).withRel("next"));
         }
+        collection.add(getCreateOrderLink());
     }
 
     public static void addUserNavigationLinks(
@@ -86,5 +87,10 @@ public class LinksUtils {
     public static CustomLink getCreateTagLink() throws ServiceException {
         return new CustomLink(linkTo(methodOn(TagController.class).addTag(null))
                 .toUriComponentsBuilder().toUriString(), "createTag", "POST");
+    }
+
+    public static CustomLink getCreateOrderLink() throws ServiceException {
+        return new CustomLink(linkTo(methodOn(OrderController.class).createOrder(null))
+                .toUriComponentsBuilder().toUriString(), "createOrder", "POST");
     }
 }

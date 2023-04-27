@@ -1,7 +1,7 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
-import com.epam.esm.api.assembler.GiftCertificateAssembler;
+import com.epam.esm.api.assembler.giftCertificate.GiftCertificateAssembler;
 import com.epam.esm.core.service.GiftCertificateService;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.entity.GiftCertificate;

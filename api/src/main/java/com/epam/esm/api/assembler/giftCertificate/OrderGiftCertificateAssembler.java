@@ -1,7 +1,7 @@
-package com.epam.esm.api.assembler;
+package com.epam.esm.api.assembler.giftCertificate;
 
 import com.epam.esm.api.controller.GiftCertificateController;
-import com.epam.esm.api.dto.OrderGiftCertificateDTO;
+import com.epam.esm.api.dto.giftCertificate.OrderGiftCertificateDTO;
 import com.epam.esm.api.util.CustomLink;
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.OrderGiftCertificate;
@@ -20,14 +20,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class OrderGiftCertificateAssembler implements RepresentationModelAssembler<OrderGiftCertificate, OrderGiftCertificateDTO> {
 
-
     @Override
     public OrderGiftCertificateDTO toModel(OrderGiftCertificate orderGiftCertificate) {
-        return getGiftCertificateDTO(orderGiftCertificate);
+        return mapOrderGiftCertificateToDto(orderGiftCertificate);
     }
 
     public OrderGiftCertificateDTO toSingleModel(OrderGiftCertificate orderGiftCertificate) throws ServiceException {
-        OrderGiftCertificateDTO dto = getGiftCertificateDTO(orderGiftCertificate);
+        OrderGiftCertificateDTO dto = mapOrderGiftCertificateToDto(orderGiftCertificate);
         dto.add(new CustomLink(
                 linkTo(methodOn(GiftCertificateController.class)
                         .getGiftCertificateById(orderGiftCertificate.getGiftCertificate().getId())
@@ -38,18 +37,12 @@ public class OrderGiftCertificateAssembler implements RepresentationModelAssembl
         return dto;
     }
 
-    private OrderGiftCertificateDTO getGiftCertificateDTO(OrderGiftCertificate orderGiftCertificate) {
+    private OrderGiftCertificateDTO mapOrderGiftCertificateToDto(OrderGiftCertificate orderGiftCertificate) {
         GiftCertificate giftCertificate = orderGiftCertificate.getGiftCertificate();
         OrderGiftCertificateDTO dto = new OrderGiftCertificateDTO();
+        GiftCertificateMapper.mapGiftCertificateToDto(giftCertificate, dto);
         dto.setCount(orderGiftCertificate.getCount());
         dto.setSum(giftCertificate.getPrice().multiply(new BigDecimal(orderGiftCertificate.getCount())));
-        dto.setId(giftCertificate.getId());
-        dto.setName(giftCertificate.getName());
-        dto.setDescription(giftCertificate.getDescription());
-        dto.setPrice(giftCertificate.getPrice());
-        dto.setDuration(giftCertificate.getDuration());
-        dto.setCreateDate(giftCertificate.getCreateDate());
-        dto.setLastUpdateDate(giftCertificate.getLastUpdateDate());
         return dto;
     }
 

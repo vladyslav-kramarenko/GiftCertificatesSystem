@@ -1,16 +1,13 @@
 package com.epam.esm.api.dto;
 
+import com.epam.esm.api.dto.order.NestedOrderDTO;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 
 @Getter
 @Setter
-public class UserDTO extends RepresentationModel<UserDTO> {
-    private Long id;
-    private String firstName;
-    private String lastName;
+public class UserDTO extends NestedUserDTO {
     private List<NestedOrderDTO> orders;
 }

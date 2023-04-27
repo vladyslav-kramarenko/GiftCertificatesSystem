@@ -19,7 +19,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class NestedUserAssembler implements RepresentationModelAssembler<User, NestedUserDTO> {
-
     @SneakyThrows(ServiceException.class)
     @Override
     public NestedUserDTO toModel(User user) {
@@ -32,7 +31,6 @@ public class NestedUserAssembler implements RepresentationModelAssembler<User, N
     public NestedUserDTO toNestedModel(User user) {
         return getNestedUserDTO(user);
     }
-
     private NestedUserDTO getNestedUserDTO(User user) {
         NestedUserDTO userDTO = new NestedUserDTO();
         userDTO.setId(user.getId());
@@ -40,8 +38,6 @@ public class NestedUserAssembler implements RepresentationModelAssembler<User, N
         userDTO.setLastName(user.getLastName());
         return userDTO;
     }
-
-
     public CollectionModel<NestedUserDTO> toCollectionModel(List<User> users, int page, int size, String[] sortParams) throws ServiceException {
         List<NestedUserDTO> userDTOs = users.stream()
                 .map(this::toModel)

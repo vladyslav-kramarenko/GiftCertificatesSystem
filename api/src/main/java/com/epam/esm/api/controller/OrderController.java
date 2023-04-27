@@ -1,8 +1,8 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
-import com.epam.esm.api.assembler.OrderAssembler;
-import com.epam.esm.api.dto.OrderDTO;
+import com.epam.esm.api.assembler.order.OrderAssembler;
+import com.epam.esm.api.dto.order.OrderDTO;
 import com.epam.esm.core.dto.OrderRequest;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
@@ -69,7 +69,6 @@ public class OrderController {
     public ResponseEntity<?> deleteOrderById(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Deleting Orders is not allowed");
     }
-
 
     @PostMapping("")
     public ResponseEntity<?> createOrder(@RequestBody @Valid @NotNull OrderRequest orderRequest) throws ServiceException {
