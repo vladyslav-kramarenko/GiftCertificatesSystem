@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface GiftCertificateRepository extends JpaRepository<GiftCertificate, Long>, CustomGiftCertificateRepository {
@@ -20,7 +21,7 @@ public interface GiftCertificateRepository extends JpaRepository<GiftCertificate
     List<GiftCertificate> getCertificatesByTagId(@Param("tagId") Long tagId);
 
     @Query(name = "search_gift_certificates_with_tags")
-    List<GiftCertificate> findAll(
+    Set<GiftCertificate> findAll(
             @Param("searchTerm") String searchTerm,
             @Param("sortConditions") String sortConditions,
             @Param("pageLimit") Integer pageLimit,

@@ -68,13 +68,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         String tagsFilter = tags != null ? String.join(",", tags) : "";
         String sortConditions = concatSort(sort.orElse(null), "id asc");
         if (searchQuery == null) searchQuery = "";
-        return giftCertificateRepository.findAll(
+        return new ArrayList<>(giftCertificateRepository.findAll(
                 searchQuery,
                 sortConditions,
                 page * size,
                 size,
                 tagsFilter
-        );
+        ));
     }
 
     /**
