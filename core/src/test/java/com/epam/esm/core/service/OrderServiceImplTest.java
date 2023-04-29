@@ -15,6 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -85,6 +88,20 @@ public class OrderServiceImplTest {
 
         List<UserOrder> result = orderService.getOrdersByUserId(1L);
 
+        assertEquals(List.of(userOrder), result);
+    }
+
+    @Test
+    public void getOrders_success() {
+        Sort sort = Sort.by("id").ascending();
+        int page = 0;
+        int size = 10;
+        PageRequest pageable = PageRequest.of(page, size, sort);
+        PageImpl<UserOrder> userOrderPage = new PageImpl<>(List.of(userOrder));
+
+        when(orderRepository.findAll(pageable)).thenReturn(userOrderPage);
+
+        List<UserOrder> result = orderService.getOrders(page, size, new String[]{"id", "asc"});
         assertEquals(List.of(userOrder), result);
     }
 
