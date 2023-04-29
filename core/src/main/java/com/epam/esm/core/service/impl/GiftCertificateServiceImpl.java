@@ -2,6 +2,7 @@ package com.epam.esm.core.service.impl;
 
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.Tag;
+import com.epam.esm.core.exception.DbException;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
@@ -100,16 +101,26 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         }
     }
 
-    private void addTags(GiftCertificate giftCertificate) {
-        List<Tag> tags = giftCertificate.getTags();
-        if (tags != null) {
-            for (Tag tag : tags) {
-                Tag newTag;
-                Optional<Tag> existingTag = tagRepository.getByName(tag.getName());
-                newTag = existingTag.map(value -> new Tag(value.getId(), value.getName())).orElseGet(() -> tagRepository.save(tag));
-                giftCertificateRepository.addTagToCertificate(giftCertificate, newTag);
-            }
+    private void addTagsToGiftCertificate(GiftCertificate giftCertificate, List<Tag> tags) {
+        for (Tag tag : tags) {
+            giftCertificateRepository.addTagToCertificate(giftCertificate, tag);
         }
+    }
+
+    private List<Tag> updateTagsFromBd(List<Tag> tags) throws DbException {
+        try {
+            if (tags != null) {
+                return tags.stream().map(tag -> {
+                    Optional<Tag> existingTagOpt = tagRepository.getByName(tag.getName());
+                    return existingTagOpt.orElseGet(() -> tagRepository.save(tag));
+                }).toList();
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            throw new DbException("Error while updating tags");
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -134,9 +145,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
             if (giftCertificate.getTags() != null) {
                 giftCertificateRepository.deleteAllTagsForCertificateById(oldGiftCertificate.getId());
-                addTags(oldGiftCertificate);
+                List<Tag> updatedTags = updateTagsFromBd(giftCertificate.getTags());
+                addTagsToGiftCertificate(oldGiftCertificate, updatedTags);
             }
             return giftCertificateRepository.findById(id);
+        } catch (DbException e) {
+            logger.error(e.getMessage());
+            logger.error(Arrays.toString(e.getStackTrace()));
+            throw new ServiceException(e.getMessage());
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));

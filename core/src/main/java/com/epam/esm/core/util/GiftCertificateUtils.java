@@ -1,9 +1,6 @@
 package com.epam.esm.core.util;
 
 import com.epam.esm.core.entity.GiftCertificate;
-import com.epam.esm.core.entity.Tag;
-
-import java.util.List;
 
 /**
  * Utility class for GiftCertificate object validation and update.
@@ -30,10 +27,6 @@ public class GiftCertificateUtils {
         }
         if (giftCertificateWithNewData.getPrice() != null) {
             giftCertificateToUpdate.setPrice(giftCertificateWithNewData.getPrice());
-        }
-        List<Tag> newTags = giftCertificateWithNewData.getTags();
-        if (newTags != null && newTags.size() > 0) {
-            giftCertificateToUpdate.setTags(giftCertificateWithNewData.getTags());
         }
     }
 }
