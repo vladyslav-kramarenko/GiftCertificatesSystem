@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -63,5 +64,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleServiceException(ServiceException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), "50001");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseBody
+    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        String errorMessage = "Invalid request body: " + e.getMessage();
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage, "40002");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }
