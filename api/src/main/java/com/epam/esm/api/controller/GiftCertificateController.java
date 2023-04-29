@@ -2,10 +2,10 @@ package com.epam.esm.api.controller;
 
 import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.api.assembler.giftCertificate.GiftCertificateAssembler;
+import com.epam.esm.core.entity.OnCreate;
 import com.epam.esm.core.service.GiftCertificateService;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.entity.GiftCertificate;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +72,7 @@ public class GiftCertificateController {
      * of the provided gift certificate are invalid or an error occurs while creating it in the database
      */
     @PostMapping
-    public ResponseEntity<?> createGiftCertificate(@RequestBody @NotNull @Valid GiftCertificate certificate) throws ServiceException {
+    public ResponseEntity<?> createGiftCertificate(@RequestBody @NotNull @Validated(OnCreate.class) GiftCertificate certificate) throws ServiceException {
         GiftCertificate createdCertificate = giftCertificateService.createGiftCertificate(certificate);
         return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(createdCertificate));
     }
@@ -88,7 +88,10 @@ public class GiftCertificateController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateGiftCertificate(
             @PathVariable @Min(0) Long id,
-            @RequestBody @Valid @NotNull GiftCertificate certificate) throws ServiceException {
+            @RequestBody
+            @Validated
+            @NotNull
+            GiftCertificate certificate) throws ServiceException {
         Optional<GiftCertificate> updatedCertificate = giftCertificateService.updateGiftCertificate(id, certificate);
         if (updatedCertificate.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -131,7 +134,6 @@ public class GiftCertificateController {
             String searchQuery,
             @RequestParam(name = "tags", required = false)
             String[] tags,
-            //TODO tags search not worked
             @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
             @Min(value = 0, message = "Page number can't be negative")
             int page,

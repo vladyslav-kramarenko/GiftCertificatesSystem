@@ -57,23 +57,23 @@ public class GiftCertificate extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Gift Certificate Name cannot be blank")
+    @NotNull(message = "Gift Certificate Name cannot be blank", groups = OnCreate.class)
     @NotEmpty(message = "Gift Certificate Name cannot be blank")
     @Size(max = CoreConstants.MAX_GIFT_CERTIFICATE_NAME_LENGTH,
             message = "Gift Certificate Name must be less then " + CoreConstants.MAX_GIFT_CERTIFICATE_NAME_LENGTH + " characters")
     private String name;
 
-    @NotNull(message = "Gift Certificate Description cannot be blank")
+    @NotNull(message = "Gift Certificate Description cannot be blank", groups = OnCreate.class)
     @NotEmpty(message = "Gift Certificate Description cannot be blank")
     @Size(max = CoreConstants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH,
             message = "Gift Certificate Description must be less then " + CoreConstants.MAX_GIFT_CERTIFICATE_DESCRIPTION_LENGTH + " characters")
     private String description;
 
-    @NotNull(message = "Gift Certificate Price cannot be blank")
+    @NotNull(message = "Gift Certificate Price cannot be blank", groups = OnCreate.class)
     @Min(value = 0, message = "Gift Certificate Price can't be negative")
     private BigDecimal price;
 
-    @NotNull(message = "Gift Certificate Duration cannot be blank")
+    @NotNull(message = "Gift Certificate Duration cannot be blank", groups = OnCreate.class)
     @Min(value = 0, message = "Gift Certificate Duration can't be negative")
     private Integer duration;
 
