@@ -2,7 +2,6 @@ package com.epam.esm.core.service.impl;
 
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.Tag;
-import com.epam.esm.core.exception.DbException;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
@@ -86,19 +85,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      */
     @Override
     @Transactional(rollbackFor = ServiceException.class)
-    public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate) {
-        updateTagsData(giftCertificate);
+    public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate) throws ServiceException {
+        giftCertificate.setTags(updateTagsFromBd(giftCertificate.getTags()));
         giftCertificateRepository.save(giftCertificate);
         return giftCertificate;
-    }
-
-    private void updateTagsData(GiftCertificate giftCertificate) {
-        List<Tag> tags = giftCertificate.getTags();
-        for (int i = 0; i < tags.size(); i++) {
-            Tag tag = tags.get(i);
-            Optional<Tag> existingTag = tagRepository.getByName(tag.getName());
-            tags.set(i, existingTag.orElseGet(() -> tagRepository.save(tag)));
-        }
     }
 
     private void addTagsToGiftCertificate(GiftCertificate giftCertificate, List<Tag> tags) {
@@ -107,7 +97,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         }
     }
 
-    private List<Tag> updateTagsFromBd(List<Tag> tags) throws DbException {
+    private List<Tag> updateTagsFromBd(List<Tag> tags) throws ServiceException {
         try {
             if (tags != null) {
                 return tags.stream().map(tag -> {
@@ -118,7 +108,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         } catch (Exception e) {
             logger.error(e.getMessage());
             logger.error(Arrays.toString(e.getStackTrace()));
-            throw new DbException("Error while updating tags");
+            throw new ServiceException("Error while updating tags");
         }
         return new ArrayList<>();
     }
@@ -149,9 +139,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 addTagsToGiftCertificate(oldGiftCertificate, updatedTags);
             }
             return giftCertificateRepository.findById(id);
-        } catch (DbException e) {
-            logger.error(e.getMessage());
-            logger.error(Arrays.toString(e.getStackTrace()));
+        } catch (ServiceException e) {
             throw new ServiceException(e.getMessage());
         } catch (Exception e) {
             logger.error(e.getMessage());
