@@ -9,11 +9,18 @@ import com.epam.esm.core.repository.TagRepository;
 import com.epam.esm.core.repository.UserRepository;
 import com.epam.esm.core.service.OrderService;
 import com.github.javafaker.Faker;
+import org.hibernate.PersistentObjectException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 
 @Component
 public class DemoDataGenerator {
@@ -21,6 +28,8 @@ public class DemoDataGenerator {
     private final TagRepository tagRepository;
     private final GiftCertificateRepository giftCertificateRepository;
     private final OrderService orderService;
+    private static final Logger logger = LoggerFactory.getLogger(DemoDataGenerator.class);
+
 
     @Autowired
     public DemoDataGenerator(
@@ -46,17 +55,14 @@ public class DemoDataGenerator {
         }
         if (tagsCount > 0) {
             Set<Tag> tags = generateTags(tagsCount);
-            tags.removeIf(tag -> tagRepository.getByName(tag.getName()).isPresent());
-            List<Tag> createdTags = tagRepository.saveAll(tags);
+            List<Tag> createdTags = saveEntitiesBatch(tagRepository, new ArrayList<>(tags), 50);
             result.append(createdTags.size()).append(" tags, ");
         }
         if (giftCertificateCount > 0) {
             List<Tag> savedTags = tagRepository.findAll();
             Set<GiftCertificate> giftCertificates = generateGiftCertificate(savedTags, giftCertificateCount);
-            giftCertificates.removeIf(giftCertificate -> giftCertificateRepository.getByName(giftCertificate.getName()).isPresent());
-
-            giftCertificateRepository.saveAll(giftCertificates);
-            result.append(giftCertificates.size()).append(" gift certificates, ");
+            List<GiftCertificate> createdGiftCertificates = saveEntitiesBatch(giftCertificateRepository, new ArrayList<>(giftCertificates), 50);
+            result.append(createdGiftCertificates.size()).append(" gift certificates, ");
         }
 
         if (orderCount > 0) {
@@ -67,6 +73,31 @@ public class DemoDataGenerator {
             result.append(orders.size()).append(" orders");
         }
         return result.toString();
+    }
+
+    private <T> List<T> saveEntitiesBatch(JpaRepository<T, ?> repository, List<T> entities, int batchSize) {
+        List<T> savedEntities = new ArrayList<>();
+        int start = 0;
+        while (start < entities.size()) {
+            int end = Math.min(start + batchSize, entities.size());
+            List<T> batch = entities.subList(start, end);
+            try {
+                savedEntities.addAll(repository.saveAll(batch));
+            } catch (Exception ignored) {
+                // Save entities individually when batch insert fails due to data integrity violation
+                for (T entity : batch) {
+                    try {
+                        repository.save(entity);
+                        savedEntities.add(entity);
+                    } catch (InvalidDataAccessApiUsageException | PersistentObjectException |
+                             DataIntegrityViolationException ex) {
+                        logger.error("Error saving entity: {}", entity, ex);
+                    }
+                }
+            }
+            start = end;
+        }
+        return savedEntities;
     }
 
     private Set<User> generateUsers(int userCount) {
@@ -84,9 +115,12 @@ public class DemoDataGenerator {
         Set<Tag> tags = new HashSet<>();
         Set<String> names = new HashSet<>();
         for (int i = 0; i < tagsCount; i++) {
-            Tag tag = new Tag();
-            tag.setName(generateTagName(names));
-            tags.add(tag);
+            String name = generateTagName(names);
+            if (!name.isEmpty()) {
+                Tag tag = new Tag();
+                tag.setName(name);
+                tags.add(tag);
+            }
         }
         return tags;
     }
@@ -124,52 +158,48 @@ public class DemoDataGenerator {
         return giftCertificateTags;
     }
 
-
     private String generateCertificateName(Set<String> names) {
-        String name;
-        boolean test;
-        do {
-            name = faker.commerce().productName();
-            test = names.contains(name);
-            if (test) {
-                name += " - " + faker.commerce().color();
-                test = names.contains(name);
+        List<Function<Faker, String>> nameGenerators = Arrays.asList(
+                f -> f.commerce().productName(),
+                f -> f.commerce().productName() + " - " + f.commerce().color(),
+                f -> f.ancient().god() + " - " + f.commerce().color(),
+                f -> f.ancient().hero() + " - " + f.color(),
+                f -> f.funnyName().name(),
+                f -> f.color().name() + " " + f.commerce().material()
+        );
+        return generateName(nameGenerators, names);
+    }
+
+    private String generateName(List<Function<Faker, String>> nameGenerators, Set<String> names) {
+        for (Function<Faker, String> nameGenerator : nameGenerators) {
+            String name = nameGenerator.apply(faker);
+            if (!names.contains(name)) {
+                names.add(name);
+                return name;
             }
-            if (test) {
-                name = faker.funnyName().name();
-                test = names.contains(name);
-            }
-        } while (test);
-        names.add(name);
-        return name;
+        }
+        return "";
     }
 
     private String generateTagName(Set<String> names) {
-        String name;
-        boolean test;
-        do {
-            name = Arrays.stream(Arrays.stream(faker.commerce().department().split(","))
-                    .findAny().orElse("").split(" & ")).filter(x -> !names.contains(x)).findAny().orElse("");
-            test = name.isEmpty() || names.contains(name);
-            if (test) {
-                name = faker.commerce().material();
-                test = name.isEmpty() || names.contains(name);
-            }
-            if (test) {
-                name = faker.commerce().color();
-                test = name.isEmpty() || names.contains(name);
-            }
-            if (test) {
-                name = faker.ancient().god();
-                test = name.isEmpty() || names.contains(name);
-            }
-            if (test) {
-                name = faker.animal().name();
-                test = name.isEmpty() || names.contains(name);
-            }
-        } while (test);
-        names.add(name);
-        return name;
+        List<Function<Faker, String>> nameGenerators = Arrays.asList(
+                f -> Arrays.stream(Arrays.stream(f.commerce().department().split(","))
+                                .findAny().orElse("").split(" & "))
+                        .filter(x -> !names.contains(x))
+                        .findAny()
+                        .orElse(""),
+                f -> f.commerce().material(),
+                f -> f.commerce().color(),
+                f -> f.ancient().god(),
+                f -> f.animal().name(),
+                f -> f.ancient().hero(),
+                f -> f.ancient().titan(),
+                f -> f.aviation().aircraft(),
+                f -> f.company().industry(),
+                f -> f.company().profession(),
+                f -> f.aviation().airport()
+        );
+        return generateName(nameGenerators, names);
     }
 
     private Set<UserOrder> generateOrders(
