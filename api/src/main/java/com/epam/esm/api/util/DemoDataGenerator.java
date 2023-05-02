@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class DemoDataGenerator {
@@ -48,25 +49,31 @@ public class DemoDataGenerator {
 
     public String generateDemoData(int userCount, int tagsCount, int giftCertificateCount, int orderCount) throws ServiceException {
         StringBuilder result = new StringBuilder("created ");
+        List<Tag> savedTags = null;
+        List<GiftCertificate> savedGiftCertificates = null;
         if (userCount > 0) {
             Set<User> users = generateUsers(userCount);
             List<User> createdUsers = userRepository.saveAll(users);
             result.append(createdUsers.size()).append(" users, ");
         }
         if (tagsCount > 0) {
-            Set<Tag> tags = generateTags(tagsCount);
+            savedTags = tagRepository.findAll();
+            Set<Tag> tags = generateTags(tagsCount, savedTags);
             List<Tag> createdTags = saveEntitiesBatch(tagRepository, new ArrayList<>(tags), 50);
+            savedTags.addAll(createdTags);
             result.append(createdTags.size()).append(" tags, ");
         }
         if (giftCertificateCount > 0) {
-            List<Tag> savedTags = tagRepository.findAll();
-            Set<GiftCertificate> giftCertificates = generateGiftCertificate(savedTags, giftCertificateCount);
+            savedGiftCertificates = giftCertificateRepository.findAll();
+            if (savedTags == null) savedTags = tagRepository.findAll();
+            Set<GiftCertificate> giftCertificates = generateGiftCertificate(savedTags, giftCertificateCount, savedGiftCertificates);
             List<GiftCertificate> createdGiftCertificates = saveEntitiesBatch(giftCertificateRepository, new ArrayList<>(giftCertificates), 50);
+            savedGiftCertificates.addAll(createdGiftCertificates);
             result.append(createdGiftCertificates.size()).append(" gift certificates, ");
         }
 
         if (orderCount > 0) {
-            List<GiftCertificate> savedGiftCertificates = giftCertificateRepository.findAll();
+            if (savedGiftCertificates == null) savedGiftCertificates = giftCertificateRepository.findAll();
             List<User> savedUsers = userRepository.findAll();
             Set<UserOrder> orders = generateOrders(savedUsers, savedGiftCertificates, orderCount);
 
@@ -83,7 +90,8 @@ public class DemoDataGenerator {
             List<T> batch = entities.subList(start, end);
             try {
                 savedEntities.addAll(repository.saveAll(batch));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                logger.error("Error saving batch: {}{}", batch, e.getMessage());
                 // Save entities individually when batch insert fails due to data integrity violation
                 for (T entity : batch) {
                     try {
@@ -91,7 +99,7 @@ public class DemoDataGenerator {
                         savedEntities.add(entity);
                     } catch (InvalidDataAccessApiUsageException | PersistentObjectException |
                              DataIntegrityViolationException ex) {
-                        logger.error("Error saving entity: {}", entity, ex);
+                        logger.error("Error saving entity: {}{}", entity, ex.getMessage());
                     }
                 }
             }
@@ -111,9 +119,9 @@ public class DemoDataGenerator {
         return users;
     }
 
-    private Set<Tag> generateTags(int tagsCount) {
+    private Set<Tag> generateTags(int tagsCount, List<Tag> tagsInDb) {
         Set<Tag> tags = new HashSet<>();
-        Set<String> names = new HashSet<>();
+        Set<String> names = tagsInDb.stream().map(Tag::getName).collect(Collectors.toSet());
         for (int i = 0; i < tagsCount; i++) {
             String name = generateTagName(names);
             if (!name.isEmpty()) {
@@ -125,20 +133,24 @@ public class DemoDataGenerator {
         return tags;
     }
 
-    private Set<GiftCertificate> generateGiftCertificate(List<Tag> tags, int giftCertificateCount) {
+    private Set<GiftCertificate> generateGiftCertificate(List<Tag> tags, int giftCertificateCount, List<GiftCertificate> certificatesInDb) {
         Set<GiftCertificate> giftCertificates = new HashSet<>();
-        Set<String> names = new HashSet<>();
+        Set<String> names = certificatesInDb.stream().map(GiftCertificate::getName).collect(Collectors.toSet());
         for (int i = 0; i < giftCertificateCount; i++) {
             GiftCertificate giftCertificate = generateGiftCertificate(names);
-            giftCertificate.setTags(chooseSomeTags(tags));
-            giftCertificates.add(giftCertificate);
+            if (giftCertificate != null) {
+                giftCertificate.setTags(chooseSomeTags(tags));
+                giftCertificates.add(giftCertificate);
+            }
         }
         return giftCertificates;
     }
 
     private GiftCertificate generateGiftCertificate(Set<String> names) {
         GiftCertificate giftCertificate = new GiftCertificate();
-        giftCertificate.setName(generateCertificateName(names));
+        String name = generateCertificateName(names);
+        if (name.isEmpty()) return null;
+        giftCertificate.setName(name);
         String description = faker.lorem().sentence(10);
         giftCertificate.setDescription(description);
         giftCertificate.setPrice(BigDecimal.valueOf(faker.number().randomDouble(2, 10, 1000)));
@@ -173,7 +185,8 @@ public class DemoDataGenerator {
     private String generateName(List<Function<Faker, String>> nameGenerators, Set<String> names) {
         for (Function<Faker, String> nameGenerator : nameGenerators) {
             String name = nameGenerator.apply(faker);
-            if (!names.contains(name)) {
+            boolean nameExists = names.stream().anyMatch(existingName -> existingName.equalsIgnoreCase(name));
+            if (!nameExists) {
                 names.add(name);
                 return name;
             }
@@ -197,7 +210,9 @@ public class DemoDataGenerator {
                 f -> f.aviation().aircraft(),
                 f -> f.company().industry(),
                 f -> f.company().profession(),
-                f -> f.aviation().airport()
+                f -> f.aviation().airport(),
+                f -> f.name().username()
+
         );
         return generateName(nameGenerators, names);
     }
