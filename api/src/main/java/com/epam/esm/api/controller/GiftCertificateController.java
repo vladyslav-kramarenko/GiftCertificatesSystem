@@ -3,6 +3,7 @@ package com.epam.esm.api.controller;
 import com.epam.esm.api.ErrorResponse;
 import com.epam.esm.api.assembler.giftCertificate.GiftCertificateAssembler;
 import com.epam.esm.core.entity.OnCreate;
+import com.epam.esm.core.entity.OnUpdate;
 import com.epam.esm.core.service.GiftCertificateService;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.entity.GiftCertificate;
@@ -89,7 +90,7 @@ public class GiftCertificateController {
     public ResponseEntity<?> updateGiftCertificate(
             @PathVariable @Min(0) Long id,
             @RequestBody
-            @Validated
+            @Validated(OnUpdate.class)
             @NotNull
             GiftCertificate certificate) throws ServiceException {
         Optional<GiftCertificate> updatedCertificate = giftCertificateService.updateGiftCertificate(id, certificate);
