@@ -55,6 +55,7 @@ public class DemoDataGenerator {
             Set<User> users = generateUsers(userCount);
             List<User> createdUsers = userRepository.saveAll(users);
             result.append(createdUsers.size()).append(" users, ");
+            logger.info(createdUsers.size()+" users");
         }
         if (tagsCount > 0) {
             savedTags = tagRepository.findAll();
@@ -62,6 +63,7 @@ public class DemoDataGenerator {
             List<Tag> createdTags = saveEntitiesBatch(tagRepository, new ArrayList<>(tags), 50);
             savedTags.addAll(createdTags);
             result.append(createdTags.size()).append(" tags, ");
+            logger.info(createdTags.size()+" tags");
         }
         if (giftCertificateCount > 0) {
             savedGiftCertificates = giftCertificateRepository.findAll();
@@ -70,6 +72,7 @@ public class DemoDataGenerator {
             List<GiftCertificate> createdGiftCertificates = saveEntitiesBatch(giftCertificateRepository, new ArrayList<>(giftCertificates), 50);
             savedGiftCertificates.addAll(createdGiftCertificates);
             result.append(createdGiftCertificates.size()).append(" gift certificates, ");
+            logger.info(createdGiftCertificates.size()+" gift certificates");
         }
 
         if (orderCount > 0) {
@@ -78,6 +81,7 @@ public class DemoDataGenerator {
             Set<UserOrder> orders = generateOrders(savedUsers, savedGiftCertificates, orderCount);
 
             result.append(orders.size()).append(" orders");
+            logger.info(orders.size()+" orders");
         }
         return result.toString();
     }
