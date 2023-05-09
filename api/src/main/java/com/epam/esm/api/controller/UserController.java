@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -95,10 +97,20 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/orders")
-    public ResponseEntity<?> getOrdersByUserId(@PathVariable @Min(0) Long userId) {
-        List<UserOrder> orders = orderService.getOrdersByUserId(userId);
-        if (orders.size() > 0) {
-            return ResponseEntity.ok(userOrderAssembler.toCollectionModel(orders));
-        } else return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getOrdersByUserId(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable @Min(0) Long userId) {
+        String email = jwt.getClaim("https://gift-certificates-system-api/email");
+        Optional<User> optionalUser = userService.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (user.getId().equals(userId)) {
+                List<UserOrder> orders = orderService.getOrdersByUserId(userId);
+                if (orders.size() > 0) {
+                    return ResponseEntity.ok(userOrderAssembler.toCollectionModel(orders));
+                } else return ResponseEntity.notFound().build();
+            }
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }

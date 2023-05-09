@@ -2,7 +2,6 @@ package com.epam.esm.core.service.impl;
 
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.repository.UserRepository;
-import com.epam.esm.core.service.TagService;
 import com.epam.esm.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import static com.epam.esm.core.util.CoreConstants.*;
 import static com.epam.esm.core.util.SortUtilities.createSort;
 
 /**
- * Implementation of the {@link TagService} interface that provides the business logic for working with tags.
+ * Implementation of the {@link UserService} interface that provides the business logic for working with users.
  */
 @Service
 public class UserServiceImpl implements UserService {
@@ -41,13 +40,37 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id);
     }
 
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public User createUser(User user) {
+        user.setAdmin(false);
         return userRepository.save(user);
     }
+
+    @Override
+    public User createUser(String auth0UserId, String email, String firstName, String lastName) {
+        User user = new User();
+        user.setAuth0UserId(auth0UserId);
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setAdmin(false);
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public Optional<User> findByAuth0UserId(String auth0UserId) {
+        return userRepository.findByAuth0UserId(auth0UserId);
+    }
+
 
     /**
      * {@inheritDoc}

@@ -20,6 +20,8 @@ public interface UserService {
      */
     Optional<User> getUserById(Long id) throws ServiceException;
 
+    Optional<User> findByEmail(String email);
+
     /**
      * Creates a new tag.
      *
@@ -37,6 +39,9 @@ public interface UserService {
      */
     void deleteUser(Long id) throws ServiceException;
 
+    User createUser(String auth0UserId, String email, String firstName, String lastName);
+
+    Optional<User> findByAuth0UserId(String auth0UserId);
 
     List<User> getUsers(int page, int size, String[] sortParams) throws ServiceException;
 }

@@ -4,6 +4,7 @@ import com.epam.esm.core.util.CoreConstants;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -29,6 +30,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     Long id;
+
+    @Column(unique = true)
+    String auth0UserId;
+
     @NotNull(message = "Gift Certificate Name cannot be blank")
     @NotEmpty(message = "Gift Certificate Name cannot be blank")
     @Size(max = CoreConstants.MAX_USER_FIRST_NAME_LENGTH,
@@ -44,4 +49,14 @@ public class User {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     List<UserOrder> orders;
+
+    @NotNull(message = "Email cannot be blank")
+    @NotEmpty(message = "Email cannot be blank")
+    @Email(message = "Email should be valid")
+    @Size(max = 64, message = "Email must be less than 64 characters")
+    @Column(name = "email", nullable = false, unique = true)
+    String email;
+
+    @Column(name = "is_admin", nullable = false)
+    boolean isAdmin;
 }
