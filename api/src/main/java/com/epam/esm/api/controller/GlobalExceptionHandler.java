@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +71,14 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         String errorMessage = "Invalid request body: " + e.getMessage();
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage, "40002");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.BadRequest.class)
+    @ResponseBody
+    public ResponseEntity<?> handleHttpClientErrorExceptionBadRequest(HttpClientErrorException.BadRequest e) {
+        String errorMessage = e.getResponseBodyAsString();
         ErrorResponse errorResponse = new ErrorResponse(errorMessage, "40002");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
