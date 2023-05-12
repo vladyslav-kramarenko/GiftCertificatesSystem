@@ -54,7 +54,7 @@ public class TagServiceImpl implements TagService {
         if (existingTag.isEmpty()) {
             return tagRepository.save(tag);
         }
-        return existingTag.get();
+        throw new IllegalArgumentException("Tag with such name already exists");
     }
 
     /**
