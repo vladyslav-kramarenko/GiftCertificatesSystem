@@ -34,6 +34,9 @@ public class User {
     @Column(unique = true)
     String auth0UserId;
 
+    @Column(name = "password")
+    String password;
+
     @NotNull(message = "Gift Certificate Name cannot be blank")
     @NotEmpty(message = "Gift Certificate Name cannot be blank")
     @Size(max = CoreConstants.MAX_USER_FIRST_NAME_LENGTH,
