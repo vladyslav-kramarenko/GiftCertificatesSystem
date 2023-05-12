@@ -73,10 +73,15 @@ CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`gift_certificate_has_tag`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`user`
 (
-    `id`         INT         NOT NULL AUTO_INCREMENT,
-    `first_name` VARCHAR(45) NOT NULL,
-    `last_name`  VARCHAR(45) NULL,
-    PRIMARY KEY (`id`)
+    `id`           INT         NOT NULL AUTO_INCREMENT,
+    `auth0user_id` VARCHAR(45) NOT NULL,
+    `first_name`   VARCHAR(45) NOT NULL,
+    `last_name`    VARCHAR(45) NULL,
+    `email`        VARCHAR(45) NOT NULL,
+    `is_admin`     BOOLEAN     NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `name_UNIQUE` (`auth0user_id` ASC) VISIBLE
+
 );
 
 

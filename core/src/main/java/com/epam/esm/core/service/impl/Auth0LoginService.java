@@ -5,10 +5,14 @@ import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.UserInfo;
 import com.auth0.net.Response;
 import com.epam.esm.core.entity.User;
+import com.epam.esm.core.service.AuthService;
+import com.epam.esm.core.service.UserService;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,8 +22,9 @@ import java.util.Optional;
 
 import static com.epam.esm.core.util.Auth0Constants.*;
 
+@Profile("prod")
 @Service
-public class Auth0LoginService {
+public class Auth0LoginService implements AuthService {
     private static final String HTTPS = "https://";
     @Value("${auth0.app.clientId}")
     private String appClientId;
@@ -32,9 +37,11 @@ public class Auth0LoginService {
     @Value("${auth0.scope}")
     private String scope;
     private final RestTemplate restTemplate;
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    public Auth0LoginService(UserServiceImpl userService) {
+    @Autowired
+    public Auth0LoginService(
+            UserService userService) {
         this.userService = Objects.requireNonNull(userService);
         this.restTemplate = new RestTemplate();
     }
@@ -48,6 +55,28 @@ public class Auth0LoginService {
         ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
         checkUserInOurDb(response);
         return response;
+    }
+
+    public User registerUser(
+            String email, String password, String firstName, String lastName
+    ) throws JSONException {
+        String managementApiAccessToken = getManagementApiAccessToken();
+        String createUserUrl = HTTPS + auth0Domain + "/api/v2/users";
+
+        JSONObject body = createAuth0UserObject(email, password, firstName, lastName);
+        HttpEntity<String> requestEntity = createHttpEntity(body, managementApiAccessToken);
+
+        JsonNode responseJsonNode = restTemplate.postForObject(createUserUrl, requestEntity, JsonNode.class);
+        String auth0UserId = responseJsonNode.get(AUTH0_USER_ID).asText();
+
+        try {
+            return userService.createUser(auth0UserId, email, firstName, lastName);
+        } catch (Exception e) {
+            if (!auth0UserId.isEmpty()) {
+                deleteUser(auth0UserId);
+            }
+            throw new IllegalStateException("Failed to create user");
+        }
     }
 
     private JSONObject createAuth0AuthenticationObject(String email, String password) throws JSONException {
@@ -110,18 +139,6 @@ public class Auth0LoginService {
         userService.createUser(auth0UserId, emailUser, firstName, lastName);
     }
 
-    public String registerUser(
-            String email, String password, String firstName, String lastName
-    ) throws JSONException {
-        String managementApiAccessToken = getManagementApiAccessToken();
-        String createUserUrl = HTTPS + auth0Domain + "/api/v2/users";
-
-        JSONObject body = createAuth0UserObject(email, password, firstName, lastName);
-        HttpEntity<String> requestEntity = createHttpEntity(body, managementApiAccessToken);
-
-        JsonNode responseJsonNode = restTemplate.postForObject(createUserUrl, requestEntity, JsonNode.class);
-        return responseJsonNode.get(AUTH0_USER_ID).asText();
-    }
 
     private String getManagementApiAccessToken() throws JSONException {
         String url = HTTPS + auth0Domain + "/oauth/token";
@@ -149,7 +166,7 @@ public class Auth0LoginService {
         throw new IllegalStateException("Failed to obtain access token: " + response);
     }
 
-    public void deleteUser(String auth0UserId) throws JSONException {
+    private void deleteUser(String auth0UserId) throws JSONException {
         String managementApiAccessToken = getManagementApiAccessToken();
         String deleteUserUrl = HTTPS + auth0Domain + "/api/v2/users/" + auth0UserId;
         HttpHeaders headers = new HttpHeaders();
