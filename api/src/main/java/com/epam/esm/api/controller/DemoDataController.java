@@ -1,6 +1,6 @@
 package com.epam.esm.api.controller;
 
-import com.epam.esm.api.util.DemoDataGenerator;
+import com.epam.esm.core.service.impl.DemoDataGeneratorService;
 import com.epam.esm.core.exception.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import java.util.Objects;
 @RequestMapping("/generate")
 public class DemoDataController {
 
-    private final DemoDataGenerator demoDataGenerator;
+    private final DemoDataGeneratorService demoDataGenerator;
 
     @Autowired
-    public DemoDataController(DemoDataGenerator demoDataGenerator) {
+    public DemoDataController(DemoDataGeneratorService demoDataGenerator) {
         this.demoDataGenerator = Objects.requireNonNull(demoDataGenerator, "DemoDataGenerator must be initialised");
     }
 
@@ -28,9 +28,13 @@ public class DemoDataController {
             @RequestParam(name = "usersCount", defaultValue = "0") int usersCount,
             @RequestParam(name = "tagsCount", defaultValue = "0") int tagsCount,
             @RequestParam(name = "giftCertificatesCount", defaultValue = "0") int giftCertificatesCount,
-            @RequestParam(name = "ordersCount", defaultValue = "0") int ordersCount) throws ServiceException {
+            @RequestParam(name = "ordersCount", defaultValue = "0") int ordersCount,
+            @RequestParam(name = "emailsCount", defaultValue = "0") int emailsCount
+    ) throws ServiceException {
 
-        String result = demoDataGenerator.generateDemoData(usersCount, tagsCount, giftCertificatesCount, ordersCount);
+        String result = demoDataGenerator.generateDemoData(
+                usersCount, tagsCount, giftCertificatesCount, ordersCount, emailsCount
+        );
         return new ResponseEntity<>("Demo data generated successfully: " + result, HttpStatus.CREATED);
     }
 }

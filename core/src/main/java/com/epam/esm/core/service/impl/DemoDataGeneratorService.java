@@ -1,4 +1,4 @@
-package com.epam.esm.api.util;
+package com.epam.esm.core.service.impl;
 
 import com.epam.esm.core.dto.GiftCertificateOrder;
 import com.epam.esm.core.dto.OrderRequest;
@@ -16,24 +16,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Component
-public class DemoDataGenerator {
+@Service
+public class DemoDataGeneratorService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final GiftCertificateRepository giftCertificateRepository;
     private final OrderService orderService;
-    private static final Logger logger = LoggerFactory.getLogger(DemoDataGenerator.class);
+    private static final Logger logger = LoggerFactory.getLogger(DemoDataGeneratorService.class);
 
 
     @Autowired
-    public DemoDataGenerator(
+    public DemoDataGeneratorService(
             UserRepository userRepository,
             TagRepository tagRepository,
             GiftCertificateRepository giftCertificateRepository,
@@ -47,7 +47,13 @@ public class DemoDataGenerator {
 
     private final Faker faker = new Faker();
 
-    public String generateDemoData(int userCount, int tagsCount, int giftCertificateCount, int orderCount) throws ServiceException {
+    public String generateDemoData(
+            int userCount,
+            int tagsCount,
+            int giftCertificateCount,
+            int orderCount,
+            int emailsCount
+    ) throws ServiceException {
         StringBuilder result = new StringBuilder("created ");
         List<Tag> savedTags = null;
         List<GiftCertificate> savedGiftCertificates = null;
@@ -55,7 +61,7 @@ public class DemoDataGenerator {
             Set<User> users = generateUsers(userCount);
             List<User> createdUsers = userRepository.saveAll(users);
             result.append(createdUsers.size()).append(" users, ");
-            logger.info(createdUsers.size()+" users");
+            logger.info(createdUsers.size() + " users");
         }
         if (tagsCount > 0) {
             savedTags = tagRepository.findAll();
@@ -63,7 +69,7 @@ public class DemoDataGenerator {
             List<Tag> createdTags = saveEntitiesBatch(tagRepository, new ArrayList<>(tags), 50);
             savedTags.addAll(createdTags);
             result.append(createdTags.size()).append(" tags, ");
-            logger.info(createdTags.size()+" tags");
+            logger.info(createdTags.size() + " tags");
         }
         if (giftCertificateCount > 0) {
             savedGiftCertificates = giftCertificateRepository.findAll();
@@ -72,7 +78,7 @@ public class DemoDataGenerator {
             List<GiftCertificate> createdGiftCertificates = saveEntitiesBatch(giftCertificateRepository, new ArrayList<>(giftCertificates), 50);
             savedGiftCertificates.addAll(createdGiftCertificates);
             result.append(createdGiftCertificates.size()).append(" gift certificates, ");
-            logger.info(createdGiftCertificates.size()+" gift certificates");
+            logger.info(createdGiftCertificates.size() + " gift certificates");
         }
 
         if (orderCount > 0) {
@@ -81,7 +87,12 @@ public class DemoDataGenerator {
             Set<UserOrder> orders = generateOrders(savedUsers, savedGiftCertificates, orderCount);
 
             result.append(orders.size()).append(" orders");
-            logger.info(orders.size()+" orders");
+            logger.info(orders.size() + " orders");
+        }
+        if (emailsCount>0) {
+            int emailsUpdated=generateUserEmails(emailsCount);
+            result.append(emailsUpdated).append(" emails updated");
+            logger.info(emailsUpdated + " email updated");
         }
         return result.toString();
     }
@@ -245,5 +256,32 @@ public class DemoDataGenerator {
             createdOrder.ifPresent(orders::add);
         }
         return orders;
+    }
+
+    public int generateUserEmails(int n) {
+        List<User> users = userRepository.findAll();
+        Set<String> savedEmails = users.stream().map(User::getEmail).collect(Collectors.toSet());
+        int i = 0;
+        for (User user : users) {
+            if (i >= n) return i;
+            if (user.getEmail() == null || user.getEmail().isEmpty()) {
+                String email = generateEmail(savedEmails, user.getFirstName(), user.getLastName());
+                user.setEmail(email);
+                userRepository.save(user);
+                i++;
+            }
+        }
+        return i;
+    }
+
+    private String generateEmail(Set<String> savedEmails, String firstName, String lastName) {
+        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@test.com";
+        boolean isEmailAlreadyInSet;
+        isEmailAlreadyInSet = savedEmails.contains(email);
+        while (isEmailAlreadyInSet) {
+            email += faker.number().digit();
+            isEmailAlreadyInSet = savedEmails.contains(email);
+        }
+        return email;
     }
 }
