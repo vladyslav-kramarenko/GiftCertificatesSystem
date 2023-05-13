@@ -5,6 +5,7 @@ import com.epam.esm.api.assembler.NestedUserAssembler;
 import com.epam.esm.api.assembler.UserAssembler;
 import com.epam.esm.api.assembler.order.OrderAssembler;
 import com.epam.esm.api.dto.NestedUserDTO;
+import com.epam.esm.core.dto.CustomUserDetails;
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.entity.UserOrder;
 import com.epam.esm.core.exception.ServiceException;
@@ -16,8 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,6 +55,7 @@ public class UserController {
         this.nestedUserAssembler = Objects.requireNonNull(nestedUserAssembler, "NestedUserAssembler must be initialised");
     }
 
+    //    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     @GetMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> getUsers(
@@ -70,18 +73,24 @@ public class UserController {
 
     @GetMapping(value = "/{id}")
     @ResponseBody
-    public ResponseEntity<?> getUserById(@PathVariable @Min(0) Long id) throws ServiceException {
-        Optional<User> user = userService.getUserById(id);
-        if (user.isPresent()) return ResponseEntity.ok(userAssembler.toModel(user.get()));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
+    public ResponseEntity<?> getUserById(
+            @PathVariable @Min(0) Long id,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) throws ServiceException {
+        if (isUserAllowedToGenInfo(id, userDetails)) {
+            Optional<User> user = userService.getUserById(id);
+            if (user.isPresent()) return ResponseEntity.ok(userAssembler.toModel(user.get()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
+
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @PostMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> addUser(@RequestBody @NotNull User user) throws ServiceException {
         return ResponseEntity.ok(userAssembler.toModel(userService.createUser(user)));
-
     }
 
     @DeleteMapping(value = "/{id}")
@@ -98,19 +107,49 @@ public class UserController {
 
     @GetMapping("/{userId}/orders")
     public ResponseEntity<?> getOrdersByUserId(
-            @AuthenticationPrincipal Jwt jwt,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable @Min(0) Long userId) {
-        String email = jwt.getClaim("https://gift-certificates-system-api/email");
-        Optional<User> optionalUser = userService.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            if (user.getId().equals(userId)) {
-                List<UserOrder> orders = orderService.getOrdersByUserId(userId);
-                if (orders.size() > 0) {
-                    return ResponseEntity.ok(userOrderAssembler.toCollectionModel(orders));
-                } else return ResponseEntity.notFound().build();
-            }
+        if (isUserAllowedToGenInfo(userId, userDetails)) {
+            List<UserOrder> orders = orderService.getOrdersByUserId(userId);
+            if (orders.size() > 0) {
+                return ResponseEntity.ok(userOrderAssembler.toCollectionModel(orders));
+            } else return ResponseEntity.notFound().build();
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
+
+    private boolean isUserAllowedToGenInfo(Long userId, UserDetails userDetails) {
+        Long userIdFromToken = null;
+        if (userDetails == null) return false;
+        boolean isRoleAdminOrManager = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_MANAGER") || role.equals("ROLE_ADMIN"));
+        if (isRoleAdminOrManager) return true;
+        if (userDetails instanceof CustomUserDetails) {
+            userIdFromToken = ((CustomUserDetails) userDetails).getId();
+        } else {
+            Optional<User> optionalUser = userService.findByEmail(userDetails.getUsername());
+            if (optionalUser.isPresent()) {
+                userIdFromToken = optionalUser.get().getId();
+            }
+        }
+        return userId.equals(userIdFromToken);
+    }
+
+//    @Profile("Prod")
+//    @GetMapping("/{userId}/orders")
+//    public ResponseEntity<?> getOrdersByUserId_auth0(
+//            @AuthenticationPrincipal Jwt jwt,
+//            @PathVariable @Min(0) Long userId) {
+//        String email = jwt.getClaim("https://gift-certificates-system-api/email");
+//        if (isUserLooksForHisInfo(userId, email)) {
+//            List<UserOrder> orders = orderService.getOrdersByUserId(userId);
+//            if (orders.size() > 0) {
+//                return ResponseEntity.ok(userOrderAssembler.toCollectionModel(orders));
+//            } else return ResponseEntity.notFound().build();
+//        }
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//    }
+
+
 }

@@ -38,7 +38,7 @@ public class UserAssembler implements RepresentationModelAssembler<User, UserDTO
                 .map(nestedUserOrderAssembler::toModel)
                 .toList();
         userDTO.setOrders(orders);
-        userDTO.add(new CustomLink(linkTo(methodOn(UserController.class).getUserById(user.getId()))
+        userDTO.add(new CustomLink(linkTo(methodOn(UserController.class).getUserById(user.getId(),null))
                 .toUriComponentsBuilder().toUriString(), "self", "GET"));
         userDTO.add(new CustomLink(linkTo(methodOn(UserController.class).deleteUserById(user.getId()))
                 .toUriComponentsBuilder().toUriString(), "deleteUser", "DELETE"));

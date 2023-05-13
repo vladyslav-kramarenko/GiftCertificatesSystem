@@ -2,6 +2,7 @@ package com.epam.esm.core.service.impl;
 
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.repository.UserRepository;
+import com.epam.esm.core.service.RoleService;
 import com.epam.esm.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +27,12 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
+    private final RoleService roleService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleService roleService) {
         this.userRepository = Objects.requireNonNull(userRepository, "UserRepository must be initialised");
+        this.roleService = Objects.requireNonNull(roleService, "RoleService must be initialised");
     }
 
     /**
@@ -50,7 +53,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User createUser(User user) {
-        user.setAdmin(false);
+        user.setRole(roleService.getRoleByName(ROLE_USER));
         return userRepository.save(user);
     }
 
@@ -61,7 +64,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(email);
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setAdmin(false);
+        user.setRole(roleService.getRoleByName(ROLE_USER));
 
         return userRepository.save(user);
     }
