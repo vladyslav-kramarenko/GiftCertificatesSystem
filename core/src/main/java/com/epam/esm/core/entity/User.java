@@ -60,6 +60,8 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     String email;
 
-    @Column(name = "is_admin", nullable = false)
-    boolean isAdmin;
+    @NotNull(message = "Role cannot be blank")
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 }
