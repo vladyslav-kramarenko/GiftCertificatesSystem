@@ -16,14 +16,13 @@ import static com.epam.esm.api.util.LinksUtils.addUserNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-
 @Component
 public class NestedUserAssembler implements RepresentationModelAssembler<User, NestedUserDTO> {
     @SneakyThrows(ServiceException.class)
     @Override
     public NestedUserDTO toModel(User user) {
         NestedUserDTO userDTO = getNestedUserDTO(user);
-        userDTO.add(new CustomLink(linkTo(methodOn(UserController.class).getUserById(user.getId()))
+        userDTO.add(new CustomLink(linkTo(methodOn(UserController.class).getUserById(user.getId(),null))
                 .toUriComponentsBuilder().toUriString(), "self", "GET"));
         return userDTO;
     }
