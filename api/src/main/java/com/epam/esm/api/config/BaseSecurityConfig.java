@@ -12,14 +12,16 @@ public abstract class BaseSecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers(new AntPathRequestMatcher("/auth/register", HttpMethod.POST.name())).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/auth/login", HttpMethod.POST.name())).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/certificates/**", HttpMethod.GET.name())).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/tags/**", HttpMethod.GET.name())).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/generate/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/orders/**", HttpMethod.GET.name())).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/orders/**", HttpMethod.POST.name())).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/users/**", HttpMethod.GET.name())).authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/certificates/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/tags/**").permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/**")).hasRole("ADMIN");
+                .requestMatchers(HttpMethod.GET, "/certificates/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
+
+                .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/users/{id}/**", HttpMethod.GET.name())).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/users/**", HttpMethod.GET.name())).hasRole("MANAGER")
+                .requestMatchers(new AntPathRequestMatcher("/orders/**")).hasRole("MANAGER")
+
+                .requestMatchers(new AntPathRequestMatcher("/**")).hasRole("ADMIN")
+
+                .requestMatchers(new AntPathRequestMatcher("/generate/**")).permitAll();
     }
 }
