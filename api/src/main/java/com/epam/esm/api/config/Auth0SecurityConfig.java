@@ -23,7 +23,7 @@ import java.util.*;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class Auth0SecurityConfig extends BaseSecurityConfig{
+public class Auth0SecurityConfig extends BaseSecurityConfig {
     private final UserService userService;
 
     @Autowired
@@ -64,9 +64,7 @@ public class Auth0SecurityConfig extends BaseSecurityConfig{
             Optional<User> optionalUser = userService.findByEmail(email);
             if (optionalUser.isPresent()) {
                 User user = optionalUser.get();
-                if (user.isAdmin()) {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                }
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().toUpperCase()));
             }
         }
         return authorities;
