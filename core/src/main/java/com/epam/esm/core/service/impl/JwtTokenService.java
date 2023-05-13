@@ -1,8 +1,13 @@
 package com.epam.esm.core.service.impl;
 
+import com.epam.esm.core.dto.CustomUserDetails;
+import com.epam.esm.core.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,33 +15,41 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.epam.esm.core.util.CoreConstants.ONE_DAY;
+import static com.epam.esm.core.util.CoreConstants.ONE_HOUR;
+
 @Service
 public class JwtTokenService {
     private Key key;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenService.class);
 
     public JwtTokenService() {
         key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("sub", userDetails.getUsername());
+    public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
+        long expirationTimeLong = 1 * ONE_HOUR;
+        return generateToken(user, userAuthorities, expirationTimeLong);
+    }
 
-        List<String> authorities = userDetails.getAuthorities().stream()
+    public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities, long expirationTimeLong) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", user.getEmail());
+
+        List<String> authorities = userAuthorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
         claims.put("roles", authorities);
+        claims.put("user_id", user.getId());
 
-        int minute = 60 * 1000;
-        int hour = 60 * minute;
-
-        long expirationTimeLong = 1 * hour;
         Date now = new Date(System.currentTimeMillis());
         Date expirationDate = new Date(now.getTime() + expirationTimeLong);
 
@@ -51,9 +64,18 @@ public class JwtTokenService {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (JwtException ex) {
-            return false;
+        } catch (ExpiredJwtException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "JWT token has expired");
+        } catch (UnsupportedJwtException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unsupported JWT token");
+        } catch (MalformedJwtException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Malformed JWT token");
         }
+    }
+
+    public String generateRefreshToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
+        long expirationTimeLong = 7 * ONE_DAY;
+        return generateToken(user, userAuthorities, expirationTimeLong);
     }
 
     public String getTokenFromRequest(HttpServletRequest request) {
@@ -67,10 +89,16 @@ public class JwtTokenService {
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         String email = claims.getSubject();
+        Long userId = 0L;
+        try {
+            userId = claims.get("user_id", Long.class);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
         List<SimpleGrantedAuthority> authorities = ((List<?>) claims.get("roles")).stream()
                 .map(authority -> new SimpleGrantedAuthority((String) authority))
                 .collect(Collectors.toList());
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(email, "", authorities);
+        UserDetails userDetails = new CustomUserDetails(email, "", authorities, userId);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }
