@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,5 +40,10 @@ public class AuthController {
             @RequestParam(name = "lastName", required = false) String lastName
     ) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(email, password, firstName, lastName));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(userDetails);
     }
 }
