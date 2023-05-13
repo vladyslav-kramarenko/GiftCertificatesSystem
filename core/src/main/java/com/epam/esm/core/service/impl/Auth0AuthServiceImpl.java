@@ -24,7 +24,7 @@ import static com.epam.esm.core.util.Auth0Constants.*;
 
 @Profile("prod")
 @Service
-public class Auth0LoginService implements AuthService {
+public class Auth0AuthServiceImpl implements AuthService {
     private static final String HTTPS = "https://";
     @Value("${auth0.app.clientId}")
     private String appClientId;
@@ -40,7 +40,7 @@ public class Auth0LoginService implements AuthService {
     private final UserService userService;
 
     @Autowired
-    public Auth0LoginService(
+    public Auth0AuthServiceImpl(
             UserService userService) {
         this.userService = Objects.requireNonNull(userService);
         this.restTemplate = new RestTemplate();

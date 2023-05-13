@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,12 +19,13 @@ import java.util.Optional;
 
 @Profile("dev")
 @Service
-public class LocalLoginService implements AuthService {
+public class LocalAuthServiceImpl implements AuthService {
     private final PasswordEncoderService passwordEncoderService;
     private final JwtTokenService jwtTokenService;
     private final UserService userService;
+
     @Autowired
-    public LocalLoginService(
+    public LocalAuthServiceImpl(
             UserService userService,
             PasswordEncoderService passwordEncoderService,
             JwtTokenService jwtTokenService) {
@@ -33,20 +33,17 @@ public class LocalLoginService implements AuthService {
         this.jwtTokenService = Objects.requireNonNull(jwtTokenService);
         this.userService = userService;
     }
+
     public ResponseEntity<String> authenticateUser(String email, String password) {
         Optional<User> userOptional = userService.findByEmail(email);
         if (userOptional.isPresent() && passwordEncoderService.matches(password, userOptional.get().getPassword())) {
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            if (userOptional.get().isAdmin()) authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-            else authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-            String token = jwtTokenService.generateToken(createUserDetails(userOptional.get(), authorities));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + userOptional.get().getRole().getName().toUpperCase()));
+            String token = jwtTokenService.generateToken(userOptional.get(), authorities);
             return ResponseEntity.ok().body(token);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
-    }
-    private UserDetails createUserDetails(User user, List<SimpleGrantedAuthority> authorities) {
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
 
     public User registerUser(String email, String password, String firstName, String lastName) throws ServiceException {
