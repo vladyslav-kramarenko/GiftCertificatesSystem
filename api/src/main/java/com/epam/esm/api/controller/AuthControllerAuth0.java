@@ -1,6 +1,7 @@
 package com.epam.esm.api.controller;
 
 import com.epam.esm.core.service.AuthService;
+import com.epam.esm.core.service.impl.auth.auth0.Auth0AuthServiceImpl;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/auth")
-public class AuthController {
+@RequestMapping("/auth0")
+public class AuthControllerAuth0 {
     private final AuthService authService;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthControllerAuth0(Auth0AuthServiceImpl authService) {
         this.authService = Objects.requireNonNull(authService);
     }
 

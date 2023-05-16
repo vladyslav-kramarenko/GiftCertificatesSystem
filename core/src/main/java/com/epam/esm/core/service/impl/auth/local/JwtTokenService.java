@@ -1,4 +1,4 @@
-package com.epam.esm.core.service.impl;
+package com.epam.esm.core.service.impl.auth.local;
 
 import com.epam.esm.core.dto.CustomUserDetails;
 import com.epam.esm.core.entity.User;
@@ -27,39 +27,30 @@ import static com.epam.esm.core.util.CoreConstants.ONE_HOUR;
 @Service
 public class JwtTokenService {
     private Key key;
-
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenService.class);
-
     public JwtTokenService() {
         key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
-
     public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
         long expirationTimeLong = 1 * ONE_HOUR;
         return generateToken(user, userAuthorities, expirationTimeLong);
     }
-
     public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities, long expirationTimeLong) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", user.getEmail());
-
         List<String> authorities = userAuthorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-
         claims.put("roles", authorities);
         claims.put("user_id", user.getId());
-
         Date now = new Date(System.currentTimeMillis());
         Date expirationDate = new Date(now.getTime() + expirationTimeLong);
-
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(expirationDate)
                 .signWith(key)
                 .compact();
     }
-
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -72,12 +63,10 @@ public class JwtTokenService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Malformed JWT token");
         }
     }
-
     public String generateRefreshToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
         long expirationTimeLong = 7 * ONE_DAY;
         return generateToken(user, userAuthorities, expirationTimeLong);
     }
-
     public String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
@@ -85,7 +74,6 @@ public class JwtTokenService {
         }
         return null;
     }
-
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         String email = claims.getSubject();

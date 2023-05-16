@@ -1,4 +1,4 @@
-package com.epam.esm.core.service.impl;
+package com.epam.esm.core.service.impl.auth.auth0;
 
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.exception.Auth0Exception;

@@ -1,6 +1,6 @@
 package com.epam.esm.api.config;
 
-import com.epam.esm.core.service.impl.Auth0JwtTokenService;
+import com.epam.esm.core.service.impl.auth.auth0.Auth0JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

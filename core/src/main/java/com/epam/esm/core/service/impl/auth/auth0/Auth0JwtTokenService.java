@@ -1,4 +1,4 @@
-package com.epam.esm.core.service.impl;
+package com.epam.esm.core.service.impl.auth.auth0;
 
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.service.UserService;
@@ -35,6 +35,11 @@ public class Auth0JwtTokenService {
         Collection<GrantedAuthority> authorities = converter.convert(jwt);
 
         String email = jwt.getClaim("https://gift-certificates-system-api/email");
+        addRoleToAuthoritiesByEmail(authorities,email);
+        return authorities;
+    }
+
+    private void addRoleToAuthoritiesByEmail(Collection<GrantedAuthority> authorities, String email){
         if (email != null) {
             Optional<User> optionalUser = userService.findByEmail(email);
             if (optionalUser.isPresent()) {
@@ -42,6 +47,5 @@ public class Auth0JwtTokenService {
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().toUpperCase()));
             }
         }
-        return authorities;
     }
 }

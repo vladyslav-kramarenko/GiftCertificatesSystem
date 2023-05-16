@@ -1,6 +1,5 @@
-package com.epam.esm.api.util;
+package com.epam.esm.core.service.impl.auth.local;
 
-import com.epam.esm.core.service.impl.JwtTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,13 +12,10 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final JwtTokenService jwtTokenService;
-
     public JwtAuthenticationFilter(JwtTokenService jwtTokenService) {
         this.jwtTokenService = Objects.requireNonNull(jwtTokenService, "JwtTokenService must be initialised");
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {

@@ -1,9 +1,10 @@
-package com.epam.esm.core.service.impl;
+package com.epam.esm.core.service.impl.auth.local;
 
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.AuthService;
 import com.epam.esm.core.service.UserService;
+import com.epam.esm.core.service.impl.PasswordEncoderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
