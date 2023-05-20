@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,7 +21,6 @@ import java.util.Optional;
 
 import static com.epam.esm.core.util.Auth0Constants.*;
 
-@Profile("prod")
 @Service
 public class Auth0AuthServiceImpl implements AuthService {
     private static final String HTTPS = "https://";
@@ -40,41 +38,37 @@ public class Auth0AuthServiceImpl implements AuthService {
     private final UserService userService;
 
     @Autowired
-    public Auth0AuthServiceImpl(
-            UserService userService) {
+    public Auth0AuthServiceImpl(UserService userService) {
         this.userService = Objects.requireNonNull(userService);
         this.restTemplate = new RestTemplate();
     }
 
     public ResponseEntity<String> authenticateUser(String email, String password) throws JSONException, Auth0Exception {
         String url = HTTPS + auth0Domain + "/oauth/token";
-
         JSONObject body = createAuth0AuthenticationObject(email, password);
         HttpEntity<String> requestEntity = createHttpEntity(body, null);
-
         ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
-        checkUserInOurDb(response);
+        User user = checkUserInOurDb(response);
+        if (user != null) {
+            JSONObject responseBody = new JSONObject(response.getBody());
+            responseBody.put("role", user.getRole().getName());
+            responseBody.put("id", user.getId());
+            response = new ResponseEntity<>(responseBody.toString(), response.getHeaders(), response.getStatusCode());
+        }
         return response;
     }
 
-    public User registerUser(
-            String email, String password, String firstName, String lastName
-    ) throws JSONException {
+    public User registerUser(String email, String password, String firstName, String lastName) throws JSONException {
         String managementApiAccessToken = getManagementApiAccessToken();
         String createUserUrl = HTTPS + auth0Domain + "/api/v2/users";
-
         JSONObject body = createAuth0UserObject(email, password, firstName, lastName);
         HttpEntity<String> requestEntity = createHttpEntity(body, managementApiAccessToken);
-
         JsonNode responseJsonNode = restTemplate.postForObject(createUserUrl, requestEntity, JsonNode.class);
         String auth0UserId = responseJsonNode.get(AUTH0_USER_ID).asText();
-
         try {
             return userService.createUser(auth0UserId, email, firstName, lastName);
         } catch (Exception e) {
-            if (!auth0UserId.isEmpty()) {
-                deleteUser(auth0UserId);
-            }
+            if (!auth0UserId.isEmpty()) deleteUser(auth0UserId);
             throw new IllegalStateException("Failed to create user");
         }
     }
@@ -112,33 +106,31 @@ public class Auth0AuthServiceImpl implements AuthService {
         return new HttpEntity<>(body.toString(), headers);
     }
 
-
-    private void checkUserInOurDb(ResponseEntity<String> response) throws JSONException, Auth0Exception {
+    private User checkUserInOurDb(ResponseEntity<String> response) throws JSONException, Auth0Exception {
         if (response.getStatusCode() == HttpStatus.OK) {
             JSONObject jsonResponse = new JSONObject(response.getBody());
             String accessToken = jsonResponse.getString(AUTH0_ACCESS_TOKEN);
-
             AuthAPI auth = AuthAPI.newBuilder(auth0Domain, appClientId)
                     .withClientSecret(appClientSecret)
                     .build();
-
             Response<UserInfo> apiResponse = auth.userInfo(accessToken).execute();
             UserInfo info = apiResponse.getBody();
             String auth0UserId = info.getValues().get("sub").toString();
             Optional<User> user = userService.findByAuth0UserId(auth0UserId);
             if (user.isEmpty()) {
-                createUserFromUserInfo(info, auth0UserId);
+                return createUserFromUserInfo(info, auth0UserId);
             }
+            return user.get();
         }
+        return null;
     }
 
-    private void createUserFromUserInfo(UserInfo info, String auth0UserId) {
+    private User createUserFromUserInfo(UserInfo info, String auth0UserId) {
         String emailUser = info.getValues().get(AUTH0_EMAIL).toString();
         String firstName = info.getValues().get(AUTH0_GIVEN_NAME).toString();
         String lastName = info.getValues().get(AUTH0_FAMILY_NAME).toString();
-        userService.createUser(auth0UserId, emailUser, firstName, lastName);
+        return userService.createUser(auth0UserId, emailUser, firstName, lastName);
     }
-
 
     private String getManagementApiAccessToken() throws JSONException {
         String url = HTTPS + auth0Domain + "/oauth/token";
@@ -148,7 +140,6 @@ public class Auth0AuthServiceImpl implements AuthService {
         body.put(AUTH0_CLIENT_SECRET, appClientSecret);
         body.put(AUTH0_AUDIENCE, HTTPS + auth0Domain + "/api/v2/");
         HttpEntity<String> requestEntity = createHttpEntity(body, null);
-
         ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
         return getAccessToken(response);
     }
