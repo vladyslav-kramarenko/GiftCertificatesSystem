@@ -19,4 +19,7 @@ public final class CoreConstants {
     public static final String ROLE_MANAGER = "MANAGER";
     public static final String ROLE_USER = "USER";
     public static final String ROLE_ADMIN = "ADMIN";
+    public static final String GIFT_CERTIFICATE_SERVICE_TOKEN_ISSUER = "gift-certificate-service";
+    public static final String AUTH0_TOKEN_ISSUER = "https://dev-kramarenko.eu.auth0.com/";
+    public static final String AUTH0_EMAIL_CLAIM = "https://gift-certificates-system-api/email";
 }
