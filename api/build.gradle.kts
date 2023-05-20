@@ -19,9 +19,13 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web:3.0.5")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.0.5")
     implementation("org.springframework.boot:spring-boot-devtools:3.0.5")
+    implementation("org.springframework.boot:spring-boot-starter-security:3.0.5")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.0.5")
+    implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.8")
+    implementation("org.springframework.security:spring-security-oauth2-jose:6.0.2")
+    implementation("com.auth0:auth0:2.2.0")
 
     implementation("org.glassfish:jakarta.el:4.0.2")
-    implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("org.hibernate.validator:hibernate-validator-annotation-processor:8.0.0.Final")
 
