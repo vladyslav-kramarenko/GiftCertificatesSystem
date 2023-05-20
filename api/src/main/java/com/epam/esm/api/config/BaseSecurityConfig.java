@@ -10,8 +10,8 @@ public abstract class BaseSecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers(new AntPathRequestMatcher("/auth/register", HttpMethod.POST.name())).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/auth/login", HttpMethod.POST.name())).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/auth0/**")).permitAll()
                 .requestMatchers(HttpMethod.GET, "/certificates/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
 
