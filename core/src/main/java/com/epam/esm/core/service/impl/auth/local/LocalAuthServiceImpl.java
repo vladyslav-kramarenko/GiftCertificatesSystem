@@ -6,7 +6,6 @@ import com.epam.esm.core.service.AuthService;
 import com.epam.esm.core.service.UserService;
 import com.epam.esm.core.service.impl.PasswordEncoderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,18 +17,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Profile("dev")
 @Service
 public class LocalAuthServiceImpl implements AuthService {
     private final PasswordEncoderService passwordEncoderService;
-    private final JwtTokenService jwtTokenService;
+    private final LocalJwtTokenService jwtTokenService;
     private final UserService userService;
 
     @Autowired
     public LocalAuthServiceImpl(
             UserService userService,
             PasswordEncoderService passwordEncoderService,
-            JwtTokenService jwtTokenService) {
+            LocalJwtTokenService jwtTokenService) {
         this.passwordEncoderService = Objects.requireNonNull(passwordEncoderService);
         this.jwtTokenService = Objects.requireNonNull(jwtTokenService);
         this.userService = userService;
@@ -40,6 +38,7 @@ public class LocalAuthServiceImpl implements AuthService {
         if (userOptional.isPresent() && passwordEncoderService.matches(password, userOptional.get().getPassword())) {
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority("ROLE_" + userOptional.get().getRole().getName().toUpperCase()));
+//            authorities.add(new SimpleGrantedAuthority("USER_ID_" + userOptional.get().getId()));
             String token = jwtTokenService.generateToken(userOptional.get(), authorities);
             return ResponseEntity.ok().body(token);
         } else {

@@ -21,16 +21,19 @@ import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.core.util.CoreConstants.ONE_DAY;
-import static com.epam.esm.core.util.CoreConstants.ONE_HOUR;
+import static com.epam.esm.core.util.CoreConstants.*;
 
 @Service
-public class JwtTokenService {
-    private Key key;
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenService.class);
-    public JwtTokenService() {
+public class LocalJwtTokenService {
+    private static final Logger logger = LoggerFactory.getLogger(LocalJwtTokenService.class);
+    protected Key key;
+    public LocalJwtTokenService() {
         key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
+    public Key getKey() {
+        return key;
+    }
+
     public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
         long expirationTimeLong = 1 * ONE_HOUR;
         return generateToken(user, userAuthorities, expirationTimeLong);
@@ -41,12 +44,14 @@ public class JwtTokenService {
         List<String> authorities = userAuthorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
+
         claims.put("roles", authorities);
         claims.put("user_id", user.getId());
         Date now = new Date(System.currentTimeMillis());
         Date expirationDate = new Date(now.getTime() + expirationTimeLong);
         return Jwts.builder()
                 .setClaims(claims)
+                .setIssuer(GIFT_CERTIFICATE_SERVICE_TOKEN_ISSUER)
                 .setExpiration(expirationDate)
                 .signWith(key)
                 .compact();
