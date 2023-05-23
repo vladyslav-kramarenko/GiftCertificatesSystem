@@ -8,12 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -48,7 +50,20 @@ public class AuthControllerLocal {
     public ResponseEntity<?> getUserInfo(Authentication authentication) {
         Object principal = authentication.getPrincipal();
         if (principal instanceof Jwt jwt) {
-            return ResponseEntity.ok(jwt.getClaims());
+            try {
+                Map<String, Object> claims = new HashMap<>(jwt.getClaims());
+                Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+                if (authorities != null && authorities.size() > 0) {
+                    List<String> authoritiesList = authorities.stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .collect(Collectors.toList());
+                    claims.put("authorities", authoritiesList);
+                }
+                return ResponseEntity.ok(claims);
+            } catch (Exception e) {
+                System.out.println(Arrays.toString(e.getStackTrace()));
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
         } else if (principal instanceof UserDetails userDetails) {
             return ResponseEntity.ok(userDetails);
         } else {
