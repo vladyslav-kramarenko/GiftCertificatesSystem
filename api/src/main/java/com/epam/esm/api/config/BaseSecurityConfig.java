@@ -17,8 +17,8 @@ public abstract class BaseSecurityConfig {
 
                 .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                 .requestMatchers(new AntPathRequestMatcher("/users/{id}/**", HttpMethod.GET.name())).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/users/**", HttpMethod.GET.name())).hasRole("MANAGER")
-                .requestMatchers(new AntPathRequestMatcher("/orders/**")).hasRole("MANAGER")
+//                .requestMatchers(new AntPathRequestMatcher("/users/**", HttpMethod.GET.name())).hasRole("MANAGER")
+//                .requestMatchers(new AntPathRequestMatcher("/orders/**")).hasRole("MANAGER")
 
                 .requestMatchers(new AntPathRequestMatcher("/**")).hasRole("ADMIN")
 
