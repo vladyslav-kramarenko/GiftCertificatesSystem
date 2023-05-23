@@ -51,8 +51,6 @@ public class Auth0AuthServiceImpl implements AuthService {
         User user = checkUserInOurDb(response);
         if (user != null) {
             JSONObject responseBody = new JSONObject(response.getBody());
-            responseBody.put("role", user.getRole().getName());
-            responseBody.put("id", user.getId());
             response = new ResponseEntity<>(responseBody.toString(), response.getHeaders(), response.getStatusCode());
         }
         return response;
