@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,7 @@ public class OrderController {
         this.orderAssembler = Objects.requireNonNull(orderAssembler, "OrderAssembler must be initialised");
     }
 
+    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     @GetMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> getOrders(

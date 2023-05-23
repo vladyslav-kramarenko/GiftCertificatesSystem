@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +54,7 @@ public class UserController {
         this.securityService = Objects.requireNonNull(securityService, "SecurityService must be initialised");
     }
 
-    //    @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
+        @PreAuthorize("hasRole('ADMIN') || hasRole('MANAGER')")
     @GetMapping(value = "")
     @ResponseBody
     public ResponseEntity<?> getUsers(
@@ -94,7 +95,7 @@ public class UserController {
             @PathVariable @Min(0) Long id,
             Authentication authentication
     ) throws ServiceException {
-        if (securityService.isUserAllowedToGetInfo(id, authentication)) {
+        if (securityService.allowedByIdOrManagerOrAdmin(id, authentication)) {
             Optional<User> user = userService.getUserById(id);
             if (user.isPresent()) return ResponseEntity.ok(userAssembler.toModel(user.get()));
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -107,7 +108,7 @@ public class UserController {
     public ResponseEntity<?> getOrdersByUserId(
             Authentication authentication,
             @PathVariable @Min(0) Long userId) {
-        if (securityService.isUserAllowedToGetInfo(userId, authentication)) {
+        if (securityService.allowedByIdOrManagerOrAdmin(userId, authentication)) {
             List<UserOrder> orders = orderService.getOrdersByUserId(userId);
             if (orders.size() > 0) {
                 return ResponseEntity.ok(userOrderAssembler.toCollectionModel(orders));
