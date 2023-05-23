@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.epam.esm.core.util.CoreConstants.USER_ID_AUTHORITY_PREFIX;
+
 @Service
 public class LocalAuthServiceImpl implements AuthService {
     private final PasswordEncoderService passwordEncoderService;
@@ -37,8 +39,8 @@ public class LocalAuthServiceImpl implements AuthService {
         Optional<User> userOptional = userService.findByEmail(email);
         if (userOptional.isPresent() && passwordEncoderService.matches(password, userOptional.get().getPassword())) {
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + userOptional.get().getRole().getName().toUpperCase()));
-//            authorities.add(new SimpleGrantedAuthority("USER_ID_" + userOptional.get().getId()));
+            authorities.add(new SimpleGrantedAuthority(userOptional.get().getRole().getName().toUpperCase()));
+            authorities.add(new SimpleGrantedAuthority(USER_ID_AUTHORITY_PREFIX + userOptional.get().getId()));
             String token = jwtTokenService.generateToken(userOptional.get(), authorities);
             return ResponseEntity.ok().body(token);
         } else {
