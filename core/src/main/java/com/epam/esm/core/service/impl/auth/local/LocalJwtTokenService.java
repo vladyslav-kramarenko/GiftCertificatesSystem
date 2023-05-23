@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -41,12 +40,11 @@ public class LocalJwtTokenService {
     public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities, long expirationTimeLong) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", user.getEmail());
+        claims.put(GIFT_CERTIFICATE_SERVICE_USER_ID_CLAIM, user.getId());
         List<String> authorities = userAuthorities.stream()
-                .map(GrantedAuthority::getAuthority)
+                .map(SimpleGrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-
-        claims.put("roles", authorities);
-        claims.put("user_id", user.getId());
+        claims.put(GIFT_CERTIFICATE_SERVICE_ROLES_CLAIM, authorities);
         Date now = new Date(System.currentTimeMillis());
         Date expirationDate = new Date(now.getTime() + expirationTimeLong);
         return Jwts.builder()
@@ -84,11 +82,11 @@ public class LocalJwtTokenService {
         String email = claims.getSubject();
         Long userId = 0L;
         try {
-            userId = claims.get("user_id", Long.class);
+            userId = claims.get(GIFT_CERTIFICATE_SERVICE_USER_ID_CLAIM, Long.class);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        List<SimpleGrantedAuthority> authorities = ((List<?>) claims.get("roles")).stream()
+        List<SimpleGrantedAuthority> authorities = ((List<?>) claims.get(GIFT_CERTIFICATE_SERVICE_ROLES_CLAIM)).stream()
                 .map(authority -> new SimpleGrantedAuthority((String) authority))
                 .collect(Collectors.toList());
         UserDetails userDetails = new CustomUserDetails(email, "", authorities, userId);
