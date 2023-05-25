@@ -1,8 +1,10 @@
 plugins {
     id("java-library")
+    id("org.springframework.boot") version "3.1.0"
+    id("io.spring.dependency-management") version "1.1.0"
 }
 group = "com.epam.esm"
-version = "0.0.1-SNAPSHOT"
+version = "1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 configurations {
     compileOnly {
@@ -12,18 +14,20 @@ configurations {
 repositories {
     mavenCentral()
 }
+
+apply(plugin = "io.spring.dependency-management")
+
 dependencies {
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.glassfish:jakarta.el:4.0.2")
 
-    implementation("org.springframework.boot:spring-boot-configuration-processor:3.0.5")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.0.5")
-    implementation("org.springframework.boot:spring-boot-devtools:3.0.5")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.0.5")
-    implementation("org.springframework.boot:spring-boot-starter-security:3.0.5")
-
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.0.5")
+    implementation("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-devtools")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
 
     implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.8")
@@ -51,10 +55,10 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 
     testImplementation("com.h2database:h2:2.1.214")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:3.0.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testImplementation("org.mockito:mockito-core:5.2.0")
 }
+
 tasks.jar {
     archiveBaseName.set("giftCertificatesSystem-core")
     manifest {
@@ -65,4 +69,8 @@ tasks.jar {
             )
         )
     }
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    enabled = false
 }
