@@ -3,6 +3,8 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     java
     application
+    id("org.sonarqube") version "4.2.0.3129"
+    id("jacoco")
 }
 group = "com.epam.esm"
 version = "1"
@@ -57,3 +59,26 @@ tasks.jar {
 application {
     mainClass.set("com.epam.esm.api.ApiApplication")
 }
+
+sonarqube {
+    properties {
+        property("sonar.host.url", "http://localhost:9000")
+        property("sonar.login", "my_code")
+    }
+}
+
+tasks.withType<JacocoReport> {
+    reports {
+        xml.isEnabled = false
+        csv.isEnabled = false
+        html.outputLocation.set(file("${buildDir}/jacocoHtml"))
+    }
+    dependsOn("test")
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+//property("sonar.login", "sqa_4e59926ba6d8007f13bf6864fcc042ad2ba35e48")
