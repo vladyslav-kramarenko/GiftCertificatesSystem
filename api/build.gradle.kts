@@ -3,6 +3,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     java
     application
+    war
     id("org.sonarqube") version "4.2.0.3129"
     id("jacoco")
 }
@@ -67,6 +68,16 @@ sonarqube {
     }
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
+//    enabled = false
+    enabled = true
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    enabled = false
+//    enabled = true
+}
+
 tasks.withType<JacocoReport> {
     reports {
         xml.isEnabled = false
@@ -80,5 +91,3 @@ jacoco {
     toolVersion = "0.8.7"
     reportsDir = file("$buildDir/customJacocoReportDir")
 }
-
-//property("sonar.login", "sqa_4e59926ba6d8007f13bf6864fcc042ad2ba35e48")

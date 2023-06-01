@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
@@ -22,8 +24,13 @@ import java.util.Objects;
 @ComponentScan(basePackages = {"com.epam.esm.api", "com.epam.esm.core"})
 @PropertySource("classpath:application-${spring.profiles.active}.properties")
 @EnableCaching
-public class ApiApplication {
-
+public class ApiApplication
+        extends SpringBootServletInitializer
+{
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(ApiApplication.class);
+    }
     private final Environment env;
 
     @Autowired
