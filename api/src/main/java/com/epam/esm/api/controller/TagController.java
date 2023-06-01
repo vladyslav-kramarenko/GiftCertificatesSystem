@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.epam.esm.api.util.Constants.*;
 
@@ -62,7 +62,22 @@ public class TagController {
     public ResponseEntity<?> addTag(@RequestBody @Valid @NotNull Tag tag) throws ServiceException {
         return ResponseEntity.ok(tagAssembler.toSingleModel(tagService.createTag(tag)));
     }
-
+////////////////////////////////////////////////////////////////
+    @PostMapping(value = "/custom")
+    @ResponseBody
+    public ResponseEntity<?> addTagCustom(@Valid @RequestBody Tag tag, BindingResult bindingResult) throws ServiceException {
+        if (bindingResult.hasErrors()) {
+            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError error : fieldErrors) {
+                errors.put(error.getField()+" (custom)", error.getDefaultMessage());
+            }
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
+        Tag createdTag = tagService.createTag(tag);
+        return new ResponseEntity<>(createdTag, HttpStatus.CREATED);
+    }
+////////////////////////////////////////////////////////////////////////
     @GetMapping(value = "/{id}")
     @ResponseBody
     public ResponseEntity<?> getTagById(@PathVariable @Min(1) Long id) throws ServiceException {
