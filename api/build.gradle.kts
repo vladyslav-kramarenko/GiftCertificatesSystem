@@ -63,7 +63,7 @@ application {
 sonarqube {
     properties {
         property("sonar.host.url", "http://localhost:9000")
-        property("sonar.login", "my_code")
+        property("sonar.login", System.getenv("SONAR_TOKEN"))
     }
 }
 
