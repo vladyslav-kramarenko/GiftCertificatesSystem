@@ -3,6 +3,7 @@ package com.epam.esm.core.service;
 import com.epam.esm.core.dto.MostUsedTagDTO;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ public interface TagService {
      * @return the created tag.
      * @throws ServiceException if there was an error creating the tag.
      */
-    Tag createTag(Tag tag) throws ServiceException;
+    Tag createTag(@Valid Tag tag) throws ServiceException;
 
     /**
      * Deletes a tag by ID.
