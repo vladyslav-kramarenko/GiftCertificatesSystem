@@ -1,15 +1,16 @@
 plugins {
+//    application
+    java
+    war
+//    id("org.sonarqube") version "4.2.0.3129"
     id("org.springframework.boot") version "3.1.0"
     id("io.spring.dependency-management") version "1.1.0"
-    java
-    application
-    war
-    id("org.sonarqube") version "4.2.0.3129"
-    id("jacoco")
+//    id("jacoco")
 }
 group = "com.epam.esm"
 version = "1"
 java.sourceCompatibility = JavaVersion.VERSION_17
+
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
@@ -20,74 +21,80 @@ repositories {
 }
 dependencies {
     implementation(project(":core"))
-    implementation("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springframework.boot:spring-boot-starter-hateoas")
-    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-devtools")
+    implementation("org.springframework.boot:spring-boot-starter-hateoas")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+
     implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.8")
     implementation("org.springframework.security:spring-security-oauth2-jose:6.0.2")
+    implementation("org.springframework.security:spring-security-oauth2-resource-server:6.0.2")
+
     implementation("com.auth0:auth0:2.2.0")
     implementation("org.glassfish:jakarta.el:4.0.2")
 
-    val hibernateValidatorVersion = "8.0.0.Final"
-    implementation("org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}")
-    implementation("org.hibernate.validator:hibernate-validator-annotation-processor:${hibernateValidatorVersion}")
+    implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+    implementation("org.hibernate.validator:hibernate-validator-annotation-processor:8.0.0.Final")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
-    compileOnly("org.projectlombok:lombok:1.18.26")
-    annotationProcessor("org.projectlombok:lombok:1.18.26")
+
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("com.mysql:mysql-connector-j:8.0.32")
+    implementation("com.mysql:mysql-connector-j:8.0.33")
 
     testImplementation("com.h2database:h2:2.1.214")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
 }
-tasks.named<Copy>("processResources") {
-    filesMatching("META-INF/context.xml") {
-        expand(mapOf("api_config" to "com.epam.esm.api.config"))
-    }
-}
-tasks.jar {
-    manifest {
-        attributes["Main-Class"] = "com.epam.esm.api.ApiApplication"
-    }
-}
-application {
-    mainClass.set("com.epam.esm.api.ApiApplication")
-}
+//tasks.named<Copy>("processResources") {
+//    filesMatching("META-INF/context.xml") {
+//        expand(mapOf("api_config" to "com.epam.esm.api.config"))
+//    }
+//}
+//tasks.jar {
+//    manifest {
+//        attributes["Main-Class"] = "com.epam.esm.api.ApiApplication"
+//    }
+//}
+//application {
+//    mainClass.set("com.epam.esm.api.ApiApplication")
+//}
 
-sonarqube {
-    properties {
-        property("sonar.host.url", "http://localhost:9000")
-        property("sonar.login", System.getenv("SONAR_TOKEN"))
-    }
-}
+//sonarqube {
+//    properties {
+//        property("sonar.host.url", "http://localhost:9000")
+//        property("sonar.login", System.getenv("SONAR_TOKEN"))
+//    }
+//}
 
-tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
+//tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
 //    enabled = false
-    enabled = true
-}
-
-tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    enabled = false
 //    enabled = true
-}
+//}
 
-tasks.withType<JacocoReport> {
-    reports {
-        xml.isEnabled = false
-        csv.isEnabled = false
-        html.outputLocation.set(file("${buildDir}/jacocoHtml"))
-    }
-    dependsOn("test")
-}
+//tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+//    enabled = false
+//    enabled = true
+//}
 
-jacoco {
-    toolVersion = "0.8.7"
-    reportsDir = file("$buildDir/customJacocoReportDir")
-}
+//tasks.withType<JacocoReport> {
+//    reports {
+////        xml.isEnabled = false
+////        csv.isEnabled = false
+//        html.outputLocation.set(file("${buildDir}/jacocoHtml"))
+//    }
+//    dependsOn("test")
+//}
+
+//jacoco {
+//    toolVersion = "0.8.7"
+//    reportsDir = file("$buildDir/customJacocoReportDir")
+//}

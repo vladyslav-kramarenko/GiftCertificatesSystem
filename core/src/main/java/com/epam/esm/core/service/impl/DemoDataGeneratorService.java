@@ -9,12 +9,9 @@ import com.epam.esm.core.repository.TagRepository;
 import com.epam.esm.core.repository.UserRepository;
 import com.epam.esm.core.service.OrderService;
 import com.github.javafaker.Faker;
-import org.hibernate.PersistentObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -112,8 +109,7 @@ public class DemoDataGeneratorService {
                     try {
                         repository.save(entity);
                         savedEntities.add(entity);
-                    } catch (InvalidDataAccessApiUsageException | PersistentObjectException |
-                             DataIntegrityViolationException ex) {
+                    } catch (Exception ex) {
                         logger.error("Error saving entity: {}{}", entity, ex.getMessage());
                     }
                 }
