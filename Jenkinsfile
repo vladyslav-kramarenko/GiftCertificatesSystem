@@ -9,6 +9,11 @@ pipeline {
         SONAR_TOKEN = credentials('sonarqube-token')
     }
     stages {
+        stage('Print Message') {
+                steps {
+                    echo 'test message'
+                }
+            }
         stage('Checkout') {
             steps {
                 // Checkout code from Git repository
