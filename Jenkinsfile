@@ -1,9 +1,8 @@
 pipeline {
     agent any
-    tools {
-        // Assuming you have defined a gradle installation with the name 'gradle'
-        gradle 'gradle'
-    }
+//     tools {
+//         gradle 'gradle'
+//     }
     environment {
         // Define environment variable from Jenkins credentials
         SONAR_TOKEN = credentials('sonarqube-token')
