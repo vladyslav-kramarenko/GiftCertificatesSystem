@@ -1,12 +1,13 @@
 pipeline {
     agent any
 
-    parameters {
-            string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')
-            file(credentialsId: 'application-dev.properties', variable: 'properties')
-        }
+     triggers {
+            pollSCM('* * * * *') //polling for changes, here once a minute
+            }
 
     environment {
+        SONAR_TOKEN = credentials('sonarqube-token')
+        PROPERTIES = file('application-dev.properties')
         SONAR_PROPERTIES = '''
             sonar.projectKey=gift_certificates_system
             sonar.projectName=Gift Certificates System
@@ -19,6 +20,7 @@ pipeline {
     stages {
         stage('Checkout') {
                     steps {
+
                         checkout([$class: 'GitSCM',
                             branches: [[name: '*/main']],
                             doGenerateSubmoduleConfigurations: false,
@@ -32,7 +34,7 @@ pipeline {
         stage('Prepare') {
                     steps {
                         echo "Copying credential file to application-dev.properties"
-                        bat "copy /Y ${properties} .\\api\\src\\main\\resources\\application-dev.properties"
+                        bat "copy /Y ${PROPERTIES} .\\api\\src\\main\\resources\\application-dev.properties"
                     }
                 }
 
