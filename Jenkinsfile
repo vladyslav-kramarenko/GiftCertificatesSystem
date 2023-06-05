@@ -42,7 +42,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('api') {
-                    bat './gradlew :api:clean :api:build'
+                    bat 'gradlew :api:clean :api:build'
                 }
             }
         }
