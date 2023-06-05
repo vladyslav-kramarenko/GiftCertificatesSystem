@@ -7,7 +7,6 @@ pipeline {
 
     environment {
         SONAR_TOKEN = credentials('sonarqube-token')
-        PROPERTIES = file('application-dev.properties')
         SONAR_PROPERTIES = '''
             sonar.projectKey=gift_certificates_system
             sonar.projectName=Gift Certificates System
@@ -34,7 +33,9 @@ pipeline {
         stage('Prepare') {
                     steps {
                         echo "Copying credential file to application-dev.properties"
-                        bat "copy /Y ${PROPERTIES} .\\api\\src\\main\\resources\\application-dev.properties"
+                        withCredentials([file(credentialsId: 'application-dev.properties-id', variable: 'PROPERTIES')]) {
+                                    bat "copy /Y ${PROPERTIES} .\\api\\src\\main\\resources\\application-dev.properties"
+                                }
                     }
                 }
 
