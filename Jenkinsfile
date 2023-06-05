@@ -38,14 +38,9 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat './gradlew :api:clean :api:build'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                deploy adapters: [tomcat9(credentialsId: 'tomcat-manager-script',
-                  url: 'http://localhost:8080', war: '**/api-1.war', contextPath: 'api-1')]
+                dir('api') {
+                    bat './gradlew :api:clean :api:build'
+                }
             }
         }
     }
