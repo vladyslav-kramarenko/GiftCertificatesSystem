@@ -1,11 +1,8 @@
 pipeline {
     agent any
-    tools {
-        gradle 'gradle'
-    }
 
     parameters {
-            password(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')
+            string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')
             file(credentialsId: 'application-dev.properties', variable: 'properties')
         }
 
