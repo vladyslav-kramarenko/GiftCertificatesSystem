@@ -33,7 +33,7 @@ pipeline {
         stage('Prepare') {
                     steps {
                         echo "Copying credential file to application-dev.properties"
-                        withCredentials([file(credentialsId: 'application-dev.properties-id', variable: 'PROPERTIES')]) {
+                        withCredentials([file(credentialsId: 'GiftCertificatesSystemDevProperties', variable: 'PROPERTIES')]) {
                                     bat "copy /Y ${PROPERTIES} .\\api\\src\\main\\resources\\application-dev.properties"
                                 }
                     }
