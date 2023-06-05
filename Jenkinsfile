@@ -1,40 +1,50 @@
 pipeline {
     agent any
-//     tools {
-//         gradle 'gradle'
-//     }
-    environment {
-        // Define environment variable from Jenkins credentials
-        SONAR_TOKEN = credentials('sonarqube-token')
+    tools {
+        gradle 'gradle'
     }
-    stages {
-        stage('Print Message') {
-                steps {
-                    echo 'test message'
-                }
-            }
-        stage('Checkout') {
-            steps {
-                // Checkout code from Git repository
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']],
-                  userRemoteConfigs: [[url: 'https://github.com/vladyslav-kramarenko/GiftCertificatesSystem']]])
-            }
+
+    parameters {
+            password(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')
+            file(credentialsId: 'application-dev.properties', variable: 'properties')
         }
-        stage('Copy File') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: 'gift-certificate.properties', variable: 'PROP_FILE')]) {
-                        bat 'xcopy %PROP_FILE% api\\src\\main\\resources\\application-dev.properties'
+
+    environment {
+        SONAR_PROPERTIES = '''
+            sonar.projectKey=gift_certificates_system
+            sonar.projectName=Gift Certificates System
+            sonar.projectVersion=1.0
+            sonar.sources=api/src,core/src
+            sonar.login=${SONAR_TOKEN}
+        '''
+    }
+
+    stages {
+        stage('Checkout') {
+                    steps {
+                        checkout([$class: 'GitSCM',
+                            branches: [[name: '*/main']],
+                            doGenerateSubmoduleConfigurations: false,
+                            extensions: [],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[url: 'https://github.com/vladyslav-kramarenko/GiftCertificatesSystem']]
+                        ])
+                    }
+        }
+
+        stage('Prepare') {
+                    steps {
+                        echo "Copying credential file to application-dev.properties"
+                        bat "copy /Y ${properties} .\\api\\src\\main\\resources\\application-dev.properties"
                     }
                 }
-            }
-        }
+
         stage('Build') {
             steps {
-                // Build the project with Gradle
                 bat './gradlew :api:clean :api:build'
             }
         }
+
         stage('Deploy') {
             steps {
                 deploy adapters: [tomcat9(credentialsId: 'tomcat-manager-script',
