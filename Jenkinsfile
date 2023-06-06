@@ -37,15 +37,15 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('LocalSonar') {
                         bat '''
-                        I:\\Sonarqube\\sonar-scanner-4.8.0.2856-windows\\bin\\sonar-scanner.bat
-                        -Dsonar.projectKey=gift_certificates_system
-                        -Dsonar.projectName="Gift Certificates System"
-                        -Dsonar.projectVersion=1.0
-                        -Dsonar.sources=api/src,core/src
-                        -Dsonar.login=%SONAR_TOKEN%
-                        -Dsonar.java.binaries=api/build/classes/java/main,core/build/classes/java/main
-                        -Dsonar.tests=core/build/classes/java/main
-                        -Dsonar.junit.reportsPath=core/build/reports/tests/test
+                        I:\\Sonarqube\\sonar-scanner-4.8.0.2856-windows\\bin\\sonar-scanner.bat ^
+                        -Dsonar.projectKey=gift_certificates_system ^
+                        -Dsonar.projectName="Gift Certificates System" ^
+                        -Dsonar.projectVersion=1.0 ^
+                        -Dsonar.sources=api/src,core/src ^
+                        -Dsonar.login=%SONAR_TOKEN% ^
+                        -Dsonar.java.binaries=api/build/classes/java/main,core/build/classes/java/main ^
+                        -Dsonar.tests=core/build/classes/java/main ^
+                        -Dsonar.junit.reportsPath=core/build/reports/tests/test ^
                         -Dsonar.jacoco.reportPaths=build/jacoco/test.exec
                         '''
                     }
