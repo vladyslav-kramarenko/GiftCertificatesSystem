@@ -44,9 +44,9 @@ pipeline {
                         -Dsonar.sources=api/src/main,core/src/main ^
                         -Dsonar.login=%SONAR_TOKEN% ^
                         -Dsonar.java.binaries=api/build/classes/java/main,core/build/classes/java/main ^
-                        -Dsonar.tests=core/src/test/java ^
-                        -Dsonar.junit.reportsPath=core/build/reports/tests/test ^
-                        -Dsonar.coverage.jacoco.xmlReportPaths=core/build/reports/jacoco/test/jacocoTestReport.xml
+                        -Dsonar.tests=core/src/test/java,api/src/test/java ^
+                        -Dsonar.junit.reportsPath=core/build/reports/tests/test,api/build/reports/tests/test ^
+                        -Dsonar.coverage.jacoco.xmlReportPaths=core/build/reports/jacoco/test/jacocoTestReport.xml,api/build/reports/jacoco/test/jacocoTestReport.xml
                         '''
                     }
                 }
