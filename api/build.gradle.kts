@@ -53,20 +53,19 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
 }
 
-
-tasks{
-    test{
+tasks {
+    test {
         useJUnitPlatform()
     }
     jacocoTestReport {
         reports {
-            xml.isEnabled = true
-            html.isEnabled = true
+            xml.required.set(true)
+            html.required.set(true)
         }
     }
 }
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.10"
 }
 

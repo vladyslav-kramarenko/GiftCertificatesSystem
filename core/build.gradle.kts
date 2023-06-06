@@ -71,17 +71,17 @@ tasks {
             )
         }
     }
-    test{
+    test {
         useJUnitPlatform()
     }
     jacocoTestReport {
         reports {
-            xml.isEnabled = true
-            html.isEnabled = true
+            xml.required.set(true)
+            html.required.set(true)
         }
     }
 }
 
 jacoco {
-    toolVersion = "0.8.8"
+    toolVersion = "0.8.10"
 }
