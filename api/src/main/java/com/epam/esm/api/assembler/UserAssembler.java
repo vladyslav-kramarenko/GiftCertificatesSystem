@@ -16,9 +16,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 
+import static com.epam.esm.api.util.Constants.*;
 import static com.epam.esm.api.util.LinksUtils.addUserNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.web.servlet.support.WebContentGenerator.METHOD_POST;
 
 @Component
 public class UserAssembler implements RepresentationModelAssembler<User, UserDTO> {
@@ -39,9 +41,9 @@ public class UserAssembler implements RepresentationModelAssembler<User, UserDTO
                 .toList();
         userDTO.setOrders(orders);
         userDTO.add(new CustomLink(linkTo(methodOn(UserController.class).getUserById(user.getId(),null))
-                .toUriComponentsBuilder().toUriString(), "self", "GET"));
+                .toUriComponentsBuilder().toUriString(), SELF, METHOD_GET));
         userDTO.add(new CustomLink(linkTo(methodOn(UserController.class).deleteUserById(user.getId()))
-                .toUriComponentsBuilder().toUriString(), "deleteUser", "DELETE"));
+                .toUriComponentsBuilder().toUriString(), "deleteUser", METHOD_DELETE));
         userDTO.add(getCreateUserLink());
         return userDTO;
     }
@@ -56,6 +58,6 @@ public class UserAssembler implements RepresentationModelAssembler<User, UserDTO
     }
     private CustomLink getCreateUserLink() throws ServiceException {
         return new CustomLink(linkTo(methodOn(UserController.class).addUser(null))
-                .toUriComponentsBuilder().toUriString(), "CreateUser", "POST");
+                .toUriComponentsBuilder().toUriString(), "CreateUser", METHOD_POST);
     }
 }

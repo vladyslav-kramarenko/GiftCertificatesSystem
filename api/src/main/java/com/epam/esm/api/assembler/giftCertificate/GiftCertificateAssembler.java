@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.epam.esm.api.util.Constants.METHOD_DELETE;
+import static com.epam.esm.api.util.Constants.METHOD_PUT;
 import static com.epam.esm.api.util.LinksUtils.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -50,9 +52,9 @@ class GiftCertificateAssembler extends GiftCertificateAssemblerBase<SingleGiftCe
     public SingleGiftCertificateDTO toSingleModel(GiftCertificate giftCertificate) throws ServiceException {
         SingleGiftCertificateDTO dto = mapGiftCertificateAndAddLinks(giftCertificate, tagAssembler::toModel);
         dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).updateGiftCertificate(giftCertificate.getId(), giftCertificate))
-                .toUriComponentsBuilder().toUriString(), "updateGiftCertificate", "PUT"));
+                .toUriComponentsBuilder().toUriString(), "updateGiftCertificate", METHOD_PUT));
         dto.add(new CustomLink(linkTo(methodOn(GiftCertificateController.class).deleteGiftCertificate(giftCertificate.getId()))
-                .toUriComponentsBuilder().toUriString(), "deleteGiftCertificate", "DELETE"));
+                .toUriComponentsBuilder().toUriString(), "deleteGiftCertificate", METHOD_DELETE));
         dto.add(getCreateGiftCertificateLink());
         return dto;
     }

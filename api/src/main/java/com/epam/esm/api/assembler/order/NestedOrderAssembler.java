@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.epam.esm.api.assembler.order.OrderMapper.mapGiftCertificateToDto;
+import static com.epam.esm.api.util.Constants.METHOD_GET;
+import static com.epam.esm.api.util.Constants.SELF;
 import static com.epam.esm.api.util.LinksUtils.addOrderNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -45,7 +47,7 @@ public class NestedOrderAssembler implements RepresentationModelAssembler<UserOr
         orderDTO.setGiftCertificates(giftCertificateDTOs);
 
         orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).getOrderById(order.getId()))
-                .toUriComponentsBuilder().toUriString(), "self", "GET"));
+                .toUriComponentsBuilder().toUriString(), SELF, METHOD_GET));
         return orderDTO;
     }
 

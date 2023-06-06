@@ -13,12 +13,15 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.epam.esm.api.util.Constants.METHOD_GET;
+import static com.epam.esm.api.util.Constants.SELF;
 import static com.epam.esm.api.util.LinksUtils.addOrderNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class OrderGiftCertificateAssembler implements RepresentationModelAssembler<OrderGiftCertificate, OrderGiftCertificateDTO> {
+
 
     @Override
     public OrderGiftCertificateDTO toModel(OrderGiftCertificate orderGiftCertificate) {
@@ -31,8 +34,8 @@ public class OrderGiftCertificateAssembler implements RepresentationModelAssembl
                 linkTo(methodOn(GiftCertificateController.class)
                         .getGiftCertificateById(orderGiftCertificate.getGiftCertificate().getId())
                 ).toUriComponentsBuilder().toUriString(),
-                "self",
-                "GET"
+                SELF,
+                METHOD_GET
         ));
         return dto;
     }

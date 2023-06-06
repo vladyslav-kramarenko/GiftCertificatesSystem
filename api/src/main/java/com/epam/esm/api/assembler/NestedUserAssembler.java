@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.epam.esm.api.util.Constants.METHOD_GET;
+import static com.epam.esm.api.util.Constants.SELF;
 import static com.epam.esm.api.util.LinksUtils.addUserNavigationLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -23,7 +25,7 @@ public class NestedUserAssembler implements RepresentationModelAssembler<User, N
     public NestedUserDTO toModel(User user) {
         NestedUserDTO userDTO = getNestedUserDTO(user);
         userDTO.add(new CustomLink(linkTo(methodOn(UserController.class).getUserById(user.getId(),null))
-                .toUriComponentsBuilder().toUriString(), "self", "GET"));
+                .toUriComponentsBuilder().toUriString(), SELF, METHOD_GET));
         return userDTO;
     }
 

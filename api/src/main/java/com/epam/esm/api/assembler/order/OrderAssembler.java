@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.epam.esm.api.assembler.order.OrderMapper.mapGiftCertificateToDto;
+import static com.epam.esm.api.util.Constants.*;
 import static com.epam.esm.api.util.LinksUtils.addOrderNavigationLinks;
 import static com.epam.esm.api.util.LinksUtils.getCreateOrderLink;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -66,7 +67,7 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
         orderDTO.setOrderGiftCertificateDTOS(giftCertificateDTOs);
         orderDTO.add(getCreateOrderLink());
         orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).deleteOrderById(order.getId()))
-                .toUriComponentsBuilder().toUriString(), "deleteOrder", "DELETE"));
+                .toUriComponentsBuilder().toUriString(), "deleteOrder", METHOD_DELETE));
         return orderDTO;
     }
 
@@ -75,7 +76,7 @@ public class OrderAssembler implements RepresentationModelAssembler<UserOrder, O
         mapGiftCertificateToDto(order, orderDTO);
 
         orderDTO.add(new CustomLink(linkTo(methodOn(OrderController.class).getOrderById(order.getId()))
-                .toUriComponentsBuilder().toUriString(), "self", "GET"));
+                .toUriComponentsBuilder().toUriString(), SELF, METHOD_GET));
         return orderDTO;
     }
 

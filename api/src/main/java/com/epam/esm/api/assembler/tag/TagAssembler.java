@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.epam.esm.api.util.Constants.*;
 import static com.epam.esm.api.util.LinksUtils.getCreateTagLink;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -28,7 +29,7 @@ public class TagAssembler extends BaseTagAssembler {
     public TagDTO toSingleModel(Tag tag) throws ServiceException {
         TagDTO tagDTO = getTagDTO(tag);
         tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).deleteTagById(tag.getId()))
-                .toUriComponentsBuilder().toUriString(), "deleteTag", "DELETE"));
+                .toUriComponentsBuilder().toUriString(), "deleteTag", METHOD_DELETE));
         tagDTO.add(getCreateTagLink());
         return tagDTO;
     }
@@ -37,7 +38,7 @@ public class TagAssembler extends BaseTagAssembler {
         TagDTO tagDTO = new TagDTO();
         mapTagToDto(tag, tagDTO);
         tagDTO.add(new CustomLink(linkTo(methodOn(TagController.class).getTagById(tag.getId()))
-                .toUriComponentsBuilder().toUriString(), "self", "GET"));
+                .toUriComponentsBuilder().toUriString(), SELF, METHOD_GET));
         return tagDTO;
     }
 
@@ -49,12 +50,12 @@ public class TagAssembler extends BaseTagAssembler {
         CollectionModel<TagDTO> tagCollection = CollectionModel.of(tagDTOs);
 
         tagCollection.add(linkTo(methodOn(TagController.class).getTags(page, size, sortParams)).withSelfRel());
-        tagCollection.add(linkTo(methodOn(TagController.class).getTags(0, size, sortParams)).withRel("first"));
+        tagCollection.add(linkTo(methodOn(TagController.class).getTags(0, size, sortParams)).withRel(FIRST));
         if (page > 0) {
-            tagCollection.add(linkTo(methodOn(TagController.class).getTags(page - 1, size, sortParams)).withRel("previous"));
+            tagCollection.add(linkTo(methodOn(TagController.class).getTags(page - 1, size, sortParams)).withRel(PREVIOUS));
         }
         if (!tags.isEmpty()) {
-            tagCollection.add(linkTo(methodOn(TagController.class).getTags(page + 1, size, sortParams)).withRel("next"));
+            tagCollection.add(linkTo(methodOn(TagController.class).getTags(page + 1, size, sortParams)).withRel(NEXT));
         }
         tagCollection.add(getCreateTagLink());
         return tagCollection;
