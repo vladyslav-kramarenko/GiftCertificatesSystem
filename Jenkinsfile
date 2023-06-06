@@ -45,7 +45,7 @@ pipeline {
                         -Dsonar.login=%SONAR_TOKEN% ^
                         -Dsonar.java.binaries=api/build/classes/java/main,core/build/classes/java/main ^
                         -Dsonar.tests=core/src/test/java ^
-                        -Dsonar.junit.reportsPath=core/build/reports/tests/test ^
+                        -Dsonar.junit.reportsPath=core/build/reports/jacoco/test ^
                         -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
                         '''
                     }
