@@ -34,7 +34,7 @@ public class LocalJwtTokenService {
     }
 
     public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
-        long expirationTimeLong = 1 * ONE_HOUR;
+        long expirationTimeLong = 1L * ONE_HOUR;
         return generateToken(user, userAuthorities, expirationTimeLong);
     }
     public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities, long expirationTimeLong) {
@@ -67,7 +67,7 @@ public class LocalJwtTokenService {
         }
     }
     public String generateRefreshToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
-        long expirationTimeLong = 7 * ONE_DAY;
+        long expirationTimeLong = 7L * ONE_DAY;
         return generateToken(user, userAuthorities, expirationTimeLong);
     }
     public String getTokenFromRequest(HttpServletRequest request) {
