@@ -37,6 +37,17 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('LocalSonar') {
+                        bat 'I:\\Sonarqube\\sonar-scanner-4.8.0.2856-windows\\bin\\sonar-scanner.bat -X -Dsonar.projectKey=gift_certificates_system -Dsonar.projectName="Gift Certificates System" -Dsonar.projectVersion=1.0 -Dsonar.sources=api/src,core/src -Dsonar.login=%SONAR_TOKEN% -Dsonar.java.binaries=api/build/classes/java/main,core/build/classes/java/main'
+                    }
+                }
+            }
+        }
+
+
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('LocalSonar') {
                         bat "I:\\Sonarqube\\sonar-scanner-4.8.0.2856-windows\\bin\\sonar-scanner.bat -X -Dsonar.projectKey=gift_certificates_system -Dsonar.projectName=\"Gift Certificates System\" -Dsonar.projectVersion=1.0 -Dsonar.sources=api/src,core/src -Dsonar.token=%SONAR_TOKEN% -Dsonar.binaries=api/build/classes/java/main,core/build/classes/java/main"
                     }
                 }
