@@ -18,26 +18,25 @@ pipeline {
 
     stages {
         stage('Checkout') {
-                    steps {
-
-                        checkout([$class: 'GitSCM',
-                            branches: [[name: '*/main']],
-                            doGenerateSubmoduleConfigurations: false,
-                            extensions: [],
-                            submoduleCfg: [],
-                            userRemoteConfigs: [[url: 'https://github.com/vladyslav-kramarenko/GiftCertificatesSystem']]
-                        ])
-                    }
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[url: 'https://github.com/vladyslav-kramarenko/GiftCertificatesSystem']]
+                ])
+            }
         }
 
         stage('Prepare') {
-                    steps {
-                        echo "Copying credential file to application-dev.properties"
-                        withCredentials([file(credentialsId: 'GiftCertificatesSystemDevProperties', variable: 'PROPERTIES')]) {
-                                    bat "copy /Y ${PROPERTIES} .\\api\\src\\main\\resources\\application-dev.properties"
-                                }
+            steps {
+                echo "Copying credential file to application-dev.properties"
+                    withCredentials([file(credentialsId: 'GiftCertificatesSystemDevProperties', variable: 'PROPERTIES')]) {
+                        bat "copy /Y ${PROPERTIES} .\\api\\src\\main\\resources\\application-dev.properties"
                     }
-                }
+            }
+        }
 
         stage('Build') {
             steps {
@@ -51,7 +50,6 @@ pipeline {
                     bat '''
                     curl --upload-file .\\api\\build\\libs\\api-1.war "http://%TOMCAT_USER%:%TOMCAT_PASSWORD%@localhost:8080/manager/text/deploy?path=/api&update=true"
                     '''
-                    }
                 }
             }
         }
