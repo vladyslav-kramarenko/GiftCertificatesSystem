@@ -71,6 +71,9 @@ tasks {
             )
         }
     }
+    test{
+        useJUnitPlatform()
+    }
     jacocoTestReport {
         reports {
             xml.isEnabled = true
