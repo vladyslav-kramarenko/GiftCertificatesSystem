@@ -57,7 +57,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'tomcat-manager-script', passwordVariable: 'TOMCAT_PASSWORD', usernameVariable: 'TOMCAT_USER')]) {
                     bat '''
-                    curl --upload-file .\\api\\build\\libs\\api-1.war
+                    curl --upload-file .\\api\\build\\libs\\api-1.war ^
                     "http://%TOMCAT_USER%:%TOMCAT_PASSWORD%@localhost:8080/manager/text/deploy?path=/api&update=true"
                     '''
                 }
