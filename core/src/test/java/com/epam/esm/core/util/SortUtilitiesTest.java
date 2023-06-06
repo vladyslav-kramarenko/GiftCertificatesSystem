@@ -1,5 +1,4 @@
-package com.epam.esm.core.service.util;
-import com.epam.esm.core.util.SortUtilities;
+package com.epam.esm.core.util;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

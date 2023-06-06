@@ -1,7 +1,6 @@
-package com.epam.esm.core.service.util;
+package com.epam.esm.core.util;
 
 import com.epam.esm.core.entity.GiftCertificate;
-import com.epam.esm.core.util.GiftCertificateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

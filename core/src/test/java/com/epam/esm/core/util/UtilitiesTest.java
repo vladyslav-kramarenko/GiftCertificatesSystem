@@ -1,6 +1,5 @@
-package com.epam.esm.core.service.util;
+package com.epam.esm.core.util;
 import com.epam.esm.core.entity.GiftCertificate;
-import com.epam.esm.core.util.Utilities;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 
