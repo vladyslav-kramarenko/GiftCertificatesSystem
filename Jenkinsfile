@@ -5,10 +5,6 @@ pipeline {
             pollSCM('* * * * *') //polling for changes, here once a minute
             }
 
-    environment {
-
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -31,18 +27,6 @@ pipeline {
                 }
             }
         }
-
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('LocalSonar') {
-                    bat 'I:\\Sonarqube\\sonar-scanner-4.8.0.2856-windows\\bin\\sonar-scanner.bat -Dsonar.projectKey=gift_certificates_system -Dsonar.projectName="Gift Certificates System" -Dsonar.projectVersion=1.0 -Dsonar.sources=api/src,core/src -Dsonar.login=%SONAR_TOKEN%'
-                }
-            }
-        }
-
-
-
 
         stage('Prepare') {
             steps {
