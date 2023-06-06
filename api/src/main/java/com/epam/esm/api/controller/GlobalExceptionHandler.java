@@ -19,8 +19,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.epam.esm.api.util.Constants.*;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
     public ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException e) {
@@ -28,7 +32,7 @@ public class GlobalExceptionHandler {
                 .map(constraintViolation -> constraintViolation.getPropertyPath() + ": " + constraintViolation.getMessage())
                 .collect(Collectors.joining("; "));
 
-        ErrorResponse errorResponse = new ErrorResponse(errorMessage, "40001");
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage, ERROR_CODE_40001);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
@@ -48,7 +52,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 "Data integrity violation: " + Objects.requireNonNull(ex.getRootCause()).getMessage(),
-                "40001"
+                ERROR_CODE_40001
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -56,14 +60,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
     public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
-        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), "40001");
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), ERROR_CODE_40001);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(ServiceException.class)
     @ResponseBody
     public ResponseEntity<?> handleServiceException(ServiceException e) {
-        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), "50001");
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), ERROR_CODE_50001);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
@@ -71,7 +75,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         String errorMessage = "Invalid request body: " + e.getMessage();
-        ErrorResponse errorResponse = new ErrorResponse(errorMessage, "40002");
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage, ERROR_CODE_40002);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
@@ -79,7 +83,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResponseEntity<?> handleHttpClientErrorExceptionBadRequest(HttpClientErrorException.BadRequest e) {
         String errorMessage = e.getResponseBodyAsString();
-        ErrorResponse errorResponse = new ErrorResponse(errorMessage, "40002");
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage, ERROR_CODE_40002);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }

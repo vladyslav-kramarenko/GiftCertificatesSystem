@@ -67,7 +67,7 @@ public class UserController {
             return ResponseEntity.ok(userCollection);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested resource not found", "40401"));
+                .body(new ErrorResponse("Requested resource not found", ERROR_CODE_40401));
     }
 
 
@@ -99,7 +99,7 @@ public class UserController {
             Optional<User> user = userService.getUserById(id);
             if (user.isPresent()) return ResponseEntity.ok(userAssembler.toModel(user.get()));
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
+                    .body(new ErrorResponse("Requested resource not found (id = " + id + ")", ERROR_CODE_40401));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }

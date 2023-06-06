@@ -61,7 +61,7 @@ public class GiftCertificateController {
     public ResponseEntity<?> getGiftCertificateById(@PathVariable @Min(0) Long id) throws ServiceException {
         Optional<GiftCertificate> certificate = giftCertificateService.getGiftCertificateById(id);
         if (certificate.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", "40401"));
+                .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", ERROR_CODE_40401));
         return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(certificate.get()));
     }
 
@@ -97,7 +97,7 @@ public class GiftCertificateController {
         if (updatedCertificate.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse(
-                            "Requested certificate not found (id = " + id + ")", "40401")
+                            "Requested certificate not found (id = " + id + ")", ERROR_CODE_40401)
                     );
         }
         return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(updatedCertificate.get()));

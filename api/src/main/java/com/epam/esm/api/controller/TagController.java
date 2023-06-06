@@ -54,7 +54,7 @@ public class TagController {
             return ResponseEntity.ok(tagCollection);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested resource not found", "40401"));
+                .body(new ErrorResponse("Requested resource not found", ERROR_CODE_40401));
     }
 
     @PostMapping(value = "")
@@ -84,7 +84,7 @@ public class TagController {
         Optional<Tag> tag = tagService.getTagById(id);
         if (tag.isPresent()) return ResponseEntity.ok(tagAssembler.toSingleModel(tag.get()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested resource not found (id = " + id + ")", "40401"));
+                .body(new ErrorResponse("Requested resource not found (id = " + id + ")", ERROR_CODE_40401));
     }
 
     @DeleteMapping(value = "/{id}")
@@ -108,7 +108,7 @@ public class TagController {
         Optional<Tag> tag = tagService.getMostWidelyUsedTagWithHighestCostByUserId(userId, page, size);
         if (tag.isPresent()) return ResponseEntity.ok(tagAssembler.toSingleModel(tag.get()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested resource not found (user ID = " + userId + ")", "40401"));
+                .body(new ErrorResponse("Requested resource not found (user ID = " + userId + ")", ERROR_CODE_40401));
 
     }
 
