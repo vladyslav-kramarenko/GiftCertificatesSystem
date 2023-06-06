@@ -29,6 +29,14 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('Sonar') {
+                            bat "sonar-scanner.bat ${SONAR_PROPERTIES}"
+                        }
+                    }
+                }
+
         stage('Prepare') {
             steps {
                 echo "Copying credential file to application-dev.properties"
