@@ -1,11 +1,9 @@
 plugins {
-//    application
     java
     war
-//    id("org.sonarqube") version "4.2.0.3129"
+    jacoco
     id("org.springframework.boot") version "3.1.0"
     id("io.spring.dependency-management") version "1.1.0"
-//    id("jacoco")
 }
 group = "com.epam.esm"
 version = "1"
@@ -54,47 +52,21 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
 }
-//tasks.named<Copy>("processResources") {
-//    filesMatching("META-INF/context.xml") {
-//        expand(mapOf("api_config" to "com.epam.esm.api.config"))
-//    }
-//}
-//tasks.jar {
-//    manifest {
-//        attributes["Main-Class"] = "com.epam.esm.api.ApiApplication"
-//    }
-//}
-//application {
-//    mainClass.set("com.epam.esm.api.ApiApplication")
-//}
 
-//sonarqube {
-//    properties {
-//        property("sonar.host.url", "http://localhost:9000")
-//        property("sonar.login", System.getenv("SONAR_TOKEN"))
-//    }
-//}
 
-//tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
-//    enabled = false
-//    enabled = true
-//}
+tasks{
+    test{
+        useJUnitPlatform()
+    }
+    jacocoTestReport {
+        reports {
+            xml.isEnabled = true
+            html.isEnabled = true
+        }
+    }
+}
 
-//tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-//    enabled = false
-//    enabled = true
-//}
+jacoco {
+    toolVersion = "0.8.11"
+}
 
-//tasks.withType<JacocoReport> {
-//    reports {
-////        xml.isEnabled = false
-////        csv.isEnabled = false
-//        html.outputLocation.set(file("${buildDir}/jacocoHtml"))
-//    }
-//    dependsOn("test")
-//}
-
-//jacoco {
-//    toolVersion = "0.8.7"
-//    reportsDir = file("$buildDir/customJacocoReportDir")
-//}
