@@ -1,5 +1,6 @@
 plugins {
     id("java-library")
+    jacoco
 }
 group = "com.epam.esm"
 version = "1"
@@ -69,6 +70,7 @@ tasks.jar {
         )
     }
 }
-tasks.test {
-    useJUnitPlatform()
+
+jacoco {
+    toolVersion = "0.8.8"
 }
