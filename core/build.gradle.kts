@@ -19,7 +19,6 @@ dependencies {
     implementation("org.glassfish:jakarta.el:4.0.2")
 
     implementation("org.springframework.data:spring-data-jpa:3.1.0")
-//    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     implementation("org.datanucleus:jakarta.persistence:3.0.0")
 
@@ -53,7 +52,10 @@ dependencies {
     testImplementation("com.h2database:h2:2.1.214")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.3.1")
     testImplementation("org.mockito:mockito-core:5.2.0")
+    testImplementation("org.springframework:spring-test:6.0.9")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.1.0")
 }
 
 tasks.jar {
@@ -66,4 +68,7 @@ tasks.jar {
             )
         )
     }
+}
+tasks.test {
+    useJUnitPlatform()
 }

@@ -1,6 +1,5 @@
 package com.epam.esm.core.service;
 
-import com.epam.esm.core.CoreTestApplication;
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.repository.UserRepository;
 import com.epam.esm.core.service.impl.UserServiceImpl;
@@ -10,11 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,13 +24,14 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-@ContextConfiguration(classes = CoreTestApplication.class)
 public class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RoleService roleService;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -46,6 +44,8 @@ public class UserServiceImplTest {
         user.setId(1L);
         user.setFirstName("John");
         user.setLastName("Doe");
+        user.setEmail("Doe@zxc.asd");
+        user.setPassword("pass");
     }
 
     @Test

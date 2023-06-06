@@ -1,9 +1,7 @@
 package com.epam.esm.core.service;
 
-import com.epam.esm.core.CoreTestApplication;
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.Tag;
-import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
 import com.epam.esm.core.service.impl.TagServiceImpl;
@@ -13,13 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -31,11 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-
-@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-@ContextConfiguration(classes = CoreTestApplication.class)
 class TagServiceImplTest {
     @Mock
     private TagRepository tagRepository;
@@ -51,16 +44,16 @@ class TagServiceImplTest {
     public void setUp() {
         testTag = new Tag();
         testTag.setId(1L);
-        testTag.setName("Test Tag");
+        testTag.setName("Some Test Tag");
 
         testTag2 = new Tag();
         testTag2.setId(2L);
-        testTag2.setName("Test Tag 2");
+        testTag2.setName("Some Test Tag 2");
 
 
         testGiftCertificate = new GiftCertificate();
         testGiftCertificate.setId(1L);
-        testGiftCertificate.setName("Test Gift Certificate");
+        testGiftCertificate.setName("Test Gift Certificate 1432");
         testGiftCertificate.setDescription("Test Description");
         testGiftCertificate.setPrice(BigDecimal.valueOf(100));
         testGiftCertificate.setDuration(30);
@@ -68,7 +61,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    public void testGetTagById() throws ServiceException {
+    public void testGetTagById() {
         when(tagRepository.findById(anyLong())).thenReturn(Optional.of(testTag));
         Optional<Tag> result = tagService.getTagById(1L);
         assertTrue(result.isPresent());
@@ -79,7 +72,7 @@ class TagServiceImplTest {
     public void testGetTags() {
         int page = 0;
         int size = 10;
-        String[] sortParams = {"name","asc"};
+        String[] sortParams = {"name", "asc"};
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
         when(tagRepository.findAll(pageable)).thenReturn(new PageImpl<>(Collections.singletonList(testTag), pageable, 1));
 
@@ -112,12 +105,10 @@ class TagServiceImplTest {
     @Test
     public void testCreateTagWhenTagExists() {
         when(tagRepository.getByName(testTag.getName())).thenReturn(Optional.of(testTag));
-        Tag result = tagService.createTag(testTag);
-        assertEquals(testTag, result);
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> tagService.createTag(testTag));
+        assertEquals("Tag with such name already exists", exception.getMessage());
         verify(tagRepository, times(0)).save(any(Tag.class));
     }
-
-
 
     @Test
     public void testDeleteOnlyOneTag() {

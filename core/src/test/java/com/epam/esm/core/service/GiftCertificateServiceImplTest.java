@@ -1,6 +1,5 @@
 package com.epam.esm.core.service;
 
-import com.epam.esm.core.CoreTestApplication;
 import com.epam.esm.core.entity.GiftCertificate;
 import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
@@ -13,9 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -26,10 +23,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-@ContextConfiguration(classes = CoreTestApplication.class)
 public class GiftCertificateServiceImplTest {
 
     @Mock
