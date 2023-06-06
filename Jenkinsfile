@@ -36,7 +36,18 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('LocalSonar') {
-                        bat 'I:\\Sonarqube\\sonar-scanner-4.8.0.2856-windows\\bin\\sonar-scanner.bat -Dsonar.projectKey=gift_certificates_system -Dsonar.projectName="Gift Certificates System" -Dsonar.projectVersion=1.0 -Dsonar.sources=api/src,core/src -Dsonar.login=%SONAR_TOKEN% -Dsonar.java.binaries=api/build/classes/java/main,core/build/classes/java/main'
+                        bat '''
+                        I:\\Sonarqube\\sonar-scanner-4.8.0.2856-windows\\bin\\sonar-scanner.bat
+                        -Dsonar.projectKey=gift_certificates_system
+                        -Dsonar.projectName="Gift Certificates System"
+                        -Dsonar.projectVersion=1.0
+                        -Dsonar.sources=api/src,core/src
+                        -Dsonar.login=%SONAR_TOKEN%
+                        -Dsonar.java.binaries=api/build/classes/java/main,core/build/classes/java/main
+                        -Dsonar.tests=core/build/classes/java/main
+                        -Dsonar.junit.reportsPath=core/build/reports/tests/test
+                        -Dsonar.jacoco.reportPaths=build/jacoco/test.exec
+                        '''
                     }
                 }
             }
@@ -46,7 +57,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'tomcat-manager-script', passwordVariable: 'TOMCAT_PASSWORD', usernameVariable: 'TOMCAT_USER')]) {
                     bat '''
-                    curl --upload-file .\\api\\build\\libs\\api-1.war "http://%TOMCAT_USER%:%TOMCAT_PASSWORD%@localhost:8080/manager/text/deploy?path=/api&update=true"
+                    curl --upload-file .\\api\\build\\libs\\api-1.war
+                    "http://%TOMCAT_USER%:%TOMCAT_PASSWORD%@localhost:8080/manager/text/deploy?path=/api&update=true"
                     '''
                 }
             }
