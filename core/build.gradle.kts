@@ -59,15 +59,23 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.1.0")
 }
 
-tasks.jar {
-    archiveBaseName.set("giftCertificatesSystem-core")
-    manifest {
-        attributes(
-            mapOf(
-                "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version
+tasks {
+    jar {
+        archiveBaseName.set("giftCertificatesSystem-core")
+        manifest {
+            attributes(
+                mapOf(
+                    "Implementation-Title" to project.name,
+                    "Implementation-Version" to project.version
+                )
             )
-        )
+        }
+    }
+    jacocoTestReport {
+        reports {
+            xml.isEnabled = true
+            html.isEnabled = true
+        }
     }
 }
 
