@@ -41,7 +41,7 @@ pipeline {
                         -Dsonar.projectKey=gift_certificates_system ^
                         -Dsonar.projectName="Gift Certificates System" ^
                         -Dsonar.projectVersion=1.0 ^
-                        -Dsonar.sources=api/src,core/src ^
+                        -Dsonar.sources=api/src/main,core/src/main ^
                         -Dsonar.login=%SONAR_TOKEN% ^
                         -Dsonar.java.binaries=api/build/classes/java/main,core/build/classes/java/main ^
                         -Dsonar.tests=core/src/test/java^
