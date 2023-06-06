@@ -23,13 +23,6 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-                    steps {
-                        withSonarQubeEnv('LocalSonar') {
-                            bat "sonar-scanner.bat ${SONAR_PROPERTIES}"
-                        }
-                    }
-                }
-        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('LocalSonar') {
                     bat 'I:\\Sonarqube\\sonar-scanner-4.8.0.2856-windows\\bin\\sonar-scanner.bat -Dsonar.projectKey=gift_certificates_system -Dsonar.projectName="Gift Certificates System" -Dsonar.projectVersion=1.0 -Dsonar.sources=api/src,core/src -Dsonar.login=%SONAR_TOKEN%'
