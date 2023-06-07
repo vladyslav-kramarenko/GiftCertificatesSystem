@@ -1,4 +1,4 @@
-package com.epam.esm.api.assembler.giftCertificate;
+package com.epam.esm.api.assembler.gift_certificate;
 
 import com.epam.esm.api.controller.GiftCertificateController;
 import com.epam.esm.api.dto.giftCertificate.OrderGiftCertificateDTO;
