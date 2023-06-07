@@ -28,7 +28,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'gradlew core:clean core:build core:jacocoTestReport :api:clean :api:build'
+                bat 'gradlew core:clean core:build core:jacocoTestReport :api:clean :api:build api:jacocoTestReport'
             }
         }
 
