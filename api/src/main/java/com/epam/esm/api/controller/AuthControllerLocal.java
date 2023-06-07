@@ -53,7 +53,7 @@ public class AuthControllerLocal {
             try {
                 Map<String, Object> claims = new HashMap<>(jwt.getClaims());
                 Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-                if (authorities != null && authorities.size() > 0) {
+                if (!authorities.isEmpty()) {
                     List<String> authoritiesList = authorities.stream()
                             .map(GrantedAuthority::getAuthority)
                             .collect(Collectors.toList());
