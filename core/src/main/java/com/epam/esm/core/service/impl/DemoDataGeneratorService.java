@@ -86,15 +86,15 @@ public class DemoDataGeneratorService {
             result.append(orders.size()).append(" orders");
             logger.info(orders.size() + " orders");
         }
-        if (emailsCount>0) {
-            int emailsUpdated=generateUserEmails(emailsCount);
+        if (emailsCount > 0) {
+            int emailsUpdated = generateUserEmails(emailsCount);
             result.append(emailsUpdated).append(" emails updated");
             logger.info(emailsUpdated + " email updated");
         }
         return result.toString();
     }
 
-    private <T> List<T> saveEntitiesBatch(JpaRepository<T, ?> repository, List<T> entities, int batchSize) {
+    public <T> List<T> saveEntitiesBatch(JpaRepository<T, ?> repository, List<T> entities, int batchSize) {
         List<T> savedEntities = new ArrayList<>();
         int start = 0;
         while (start < entities.size()) {
@@ -119,7 +119,7 @@ public class DemoDataGeneratorService {
         return savedEntities;
     }
 
-    private Set<User> generateUsers(int userCount) {
+    public Set<User> generateUsers(int userCount) {
         Set<User> users = new HashSet<>();
         for (int i = 0; i < userCount; i++) {
             User user = new User();
@@ -130,11 +130,12 @@ public class DemoDataGeneratorService {
         return users;
     }
 
-    private Set<Tag> generateTags(int tagsCount, List<Tag> tagsInDb) {
+    public Set<Tag> generateTags(int tagsCount, List<Tag> tagsInDb) {
         Set<Tag> tags = new HashSet<>();
         Set<String> names = tagsInDb.stream().map(Tag::getName).collect(Collectors.toSet());
         for (int i = 0; i < tagsCount; i++) {
             String name = generateTagName(names);
+            if (name.isEmpty()) name = generateTagName(names);
             if (!name.isEmpty()) {
                 Tag tag = new Tag();
                 tag.setName(name);
@@ -144,7 +145,7 @@ public class DemoDataGeneratorService {
         return tags;
     }
 
-    private Set<GiftCertificate> generateGiftCertificate(List<Tag> tags, int giftCertificateCount, List<GiftCertificate> certificatesInDb) {
+    public Set<GiftCertificate> generateGiftCertificate(List<Tag> tags, int giftCertificateCount, List<GiftCertificate> certificatesInDb) {
         Set<GiftCertificate> giftCertificates = new HashSet<>();
         Set<String> names = certificatesInDb.stream().map(GiftCertificate::getName).collect(Collectors.toSet());
         for (int i = 0; i < giftCertificateCount; i++) {
@@ -181,7 +182,7 @@ public class DemoDataGeneratorService {
         return giftCertificateTags;
     }
 
-    private String generateCertificateName(Set<String> names) {
+    public String generateCertificateName(Set<String> names) {
         List<Function<Faker, String>> nameGenerators = Arrays.asList(
                 f -> f.commerce().productName(),
                 f -> f.commerce().productName() + " - " + f.commerce().color(),
@@ -228,7 +229,7 @@ public class DemoDataGeneratorService {
         return generateName(nameGenerators, names);
     }
 
-    private Set<UserOrder> generateOrders(
+    public Set<UserOrder> generateOrders(
             List<User> users, List<GiftCertificate> giftCertificates, int orderCount
     ) throws ServiceException {
         Set<UserOrder> orders = new HashSet<>();
