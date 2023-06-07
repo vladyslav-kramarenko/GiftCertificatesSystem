@@ -3,16 +3,10 @@
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <turboFilter class="com.epam.esm.api.util.CustomSQLFilter"/>
-
-    <logger name="org.springframework" level="DEBUG"/>
-    <!--    <logger name="org.springframework" level="INFO"/>-->
-    <!--        <logger name="org.hibernate" level="DEBUG"/>-->
+    <logger name="org.springframework" level="INFO"/>
     <logger name="org.hibernate" level="INFO"/>
     <logger name="org.springframework.transaction" level="INFO"/>
-    <!--        <logger name="org.springframework.transaction" level="DEBUG"/>-->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <!--        <file>api.log</file>-->
-        <!--        <file>I:/Apache/Tomcat 10.1/webapps/api-1-plain/logs/api.log</file>-->
         <file>${catalina.base}/logs/gift-certificates-system-api.log</file>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
