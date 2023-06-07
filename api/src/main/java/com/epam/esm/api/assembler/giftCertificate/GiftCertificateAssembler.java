@@ -1,4 +1,4 @@
-package com.epam.esm.api.assembler.gift_certificate;
+package com.epam.esm.api.assembler.giftCertificate;
 
 import com.epam.esm.api.assembler.tag.NestedTagAssembler;
 import com.epam.esm.api.assembler.tag.TagAssembler;
