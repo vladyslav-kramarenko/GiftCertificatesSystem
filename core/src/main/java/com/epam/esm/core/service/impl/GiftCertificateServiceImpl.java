@@ -10,12 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
+import static com.epam.esm.core.repository.specs.GiftCertificateSpecification.*;
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS;
 import static com.epam.esm.core.util.CoreConstants.ALLOWED_SORT_DIRECTIONS;
 import static com.epam.esm.core.util.GiftCertificateUtils.*;
@@ -64,17 +69,58 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public List<GiftCertificate> getGiftCertificates(String searchQuery, String[] tags, int page, int size, String[] sortParams) {
+        logger.info("page size = " + size);
+        logger.info("page # = " + page);
+        logger.info("pageLimit = " + page * size);
         Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
         String tagsFilter = tags != null ? String.join(",", tags) : "";
         String sortConditions = concatSort(sort.orElse(null), "id asc");
         if (searchQuery == null) searchQuery = "";
-        return new ArrayList<>(giftCertificateRepository.findAll(
+        logger.info("searchQuery = " + searchQuery);
+        logger.info("sortConditions = " + sortConditions);
+        logger.info("tagsFilter = " + tagsFilter);
+        List<GiftCertificate> result = new ArrayList<>(giftCertificateRepository.findAll(
                 searchQuery,
                 sortConditions,
                 page * size,
                 size,
                 tagsFilter
         ));
+        logger.info("List<GiftCertificate>.size = " + result.size());
+        return result;
+    }
+
+    @Override
+    public List<GiftCertificate> searchGiftCertificates(String searchTerm, int page, int size, Integer minPrice, Integer maxPrice, String[] sortParams) {
+
+
+        Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
+        logger.info("searchTerm = " + searchTerm);
+
+        Specification<GiftCertificate> specification = Specification
+                .where(hasNameLike(searchTerm))
+                .or(hasDescriptionLike(searchTerm))
+                .or(hasTagLike(searchTerm));
+
+        if (minPrice != null && minPrice > 0) {
+            logger.info("minPrice = " + minPrice);
+            specification = specification.and(hasPriceGreaterThanOrEqual(BigDecimal.valueOf(minPrice)));
+        }
+
+        if (maxPrice != null && maxPrice > 0) {
+            logger.info("maxPrice = " + maxPrice);
+            specification = specification.and(hasPriceLessThanOrEqual(BigDecimal.valueOf(maxPrice)));
+        }
+
+        Pageable sortedByPriceDesc = PageRequest.of(page, size, sort.orElse(Sort.by(Sort.Direction.ASC, "id")));
+
+        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(specification, sortedByPriceDesc);
+        for(GiftCertificate cert:giftCertificates){
+            logger.info(cert.getName());
+            logger.info(cert.getDescription());
+            logger.info(cert.getTags().toString());
+        }
+        return giftCertificates;
     }
 
     /**

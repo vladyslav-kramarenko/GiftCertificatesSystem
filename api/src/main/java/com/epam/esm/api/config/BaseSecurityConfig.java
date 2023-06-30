@@ -13,12 +13,11 @@ public abstract class BaseSecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/auth0/**")).permitAll()
                 .requestMatchers(HttpMethod.GET, "/certificates/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/certificates/search/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                 .requestMatchers(new AntPathRequestMatcher("/users/{id}/**", HttpMethod.GET.name())).authenticated()
-//                .requestMatchers(new AntPathRequestMatcher("/users/**", HttpMethod.GET.name())).hasRole("MANAGER")
-//                .requestMatchers(new AntPathRequestMatcher("/orders/**")).hasRole("MANAGER")
 
                 .requestMatchers(new AntPathRequestMatcher("/**")).hasRole("ADMIN")
 

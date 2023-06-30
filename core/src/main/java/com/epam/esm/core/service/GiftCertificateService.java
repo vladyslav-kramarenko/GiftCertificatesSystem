@@ -62,4 +62,6 @@ public interface GiftCertificateService {
      */
     List<GiftCertificate> getGiftCertificates(
             String searchQuery, String[] tags, int page, int size, String[] sortParams) throws ServiceException;
+
+    List<GiftCertificate> searchGiftCertificates(String searchQuery, int page, int size, Integer minPrice, Integer maxPrice, String[] sortParams);
 }

@@ -9,6 +9,8 @@ import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.entity.GiftCertificate;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,7 @@ public class GiftCertificateController {
      */
     private final GiftCertificateService giftCertificateService;
     private final GiftCertificateAssembler giftCertificateAssembler;
+    private static final Logger logger = LoggerFactory.getLogger(GiftCertificateController.class);
 
     /**
      * Constructs a new instance of {@code GiftCertificateController} with the given gift certificate service.
@@ -148,6 +151,35 @@ public class GiftCertificateController {
                 searchQuery, tags, page, size, sortParams);
         if (certificates.size() > 0) return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(
                 certificates, searchQuery, tags, page, size, sortParams));
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchGiftCertificates(
+            @RequestParam(name = "searchTerm", required = false)
+            String searchTerm,
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
+            @Min(value = 0, message = "Page number can't be negative")
+            int page,
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_PAGE_SIZE)
+            @Min(value = 0, message = "Page size can't be negative")
+            int size,
+            @RequestParam(name = "sort", required = false, defaultValue = DEFAULT_SORT)
+            String[] sortParams,
+            @RequestParam(name = "minPrice", required = false)
+            @Min(value = 0, message = "Page size can't be negative")
+            int minPrice,
+            @RequestParam(name = "maxPrice", required = false)
+            @Min(value = 0, message = "Page size can't be negative")
+            int maxPrice
+    ) throws ServiceException {
+        logger.info("sort_input = " + sortParams);
+        List<GiftCertificate> certificates = giftCertificateService.searchGiftCertificates(
+                searchTerm, page, size, minPrice, maxPrice, sortParams);
+        if (certificates.size() > 0) {
+            return ResponseEntity.ok(giftCertificateAssembler.toCollectionModel(
+                    certificates, searchTerm, page, size, sortParams, minPrice, maxPrice));
+        }
+        return ResponseEntity.noContent().build();
     }
 }

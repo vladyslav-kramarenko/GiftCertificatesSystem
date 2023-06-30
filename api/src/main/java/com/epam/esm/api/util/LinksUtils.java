@@ -69,6 +69,35 @@ public class LinksUtils {
         collection.add(getCreateGiftCertificateLink());
     }
 
+    public static void addOrderNavigationLinks(
+            CollectionModel<?> collection, List<?> list, String search, int page, int size, String[] sortParams,int minPrice,int maxPrice
+    ) throws ServiceException {
+
+        collection.add(
+                linkTo(
+                        methodOn(GiftCertificateController.class)
+                                .searchGiftCertificates(search, page, size, sortParams,minPrice,maxPrice)
+                ).withSelfRel());
+        collection.add(
+                linkTo(
+                        methodOn(GiftCertificateController.class)
+                                .searchGiftCertificates(search, 0, size, sortParams,minPrice,maxPrice)
+                ).withRel(FIRST));
+        if (page > 0) {
+            collection.add(
+                    linkTo(methodOn(GiftCertificateController.class)
+                            .searchGiftCertificates(search,page - 1, size, sortParams,minPrice,maxPrice)
+                    ).withRel(PREVIOUS));
+        }
+        if (!list.isEmpty()) {
+            collection.add(
+                    linkTo(methodOn(GiftCertificateController.class)
+                            .searchGiftCertificates(search, page + 1, size, sortParams,minPrice,maxPrice)
+                    ).withRel(NEXT));
+        }
+        collection.add(getCreateGiftCertificateLink());
+    }
+
     public static CustomLink getCreateGiftCertificateLink() throws ServiceException {
         return new CustomLink(linkTo(methodOn(GiftCertificateController.class).createGiftCertificate(null))
                 .toUriComponentsBuilder().toUriString(), "create gift certificate", METHOD_POST);

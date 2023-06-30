@@ -75,4 +75,24 @@ class GiftCertificateAssembler extends GiftCertificateAssemblerBase<SingleGiftCe
         addOrderNavigationLinks(collection, orders, search, tags, page, size, sortParams);
         return collection;
     }
+
+    public CollectionModel<SingleGiftCertificateDTO> toCollectionModel(
+            List<GiftCertificate> orders,
+            String search,
+            int page,
+            int size,
+            String[] sortParams,
+            int minPrice,
+            int maxPrice
+    ) throws ServiceException {
+        List<SingleGiftCertificateDTO> giftCertificateDTOs = orders.stream()
+                .map(this::toModel)
+                .toList();
+
+        CollectionModel<SingleGiftCertificateDTO> collection = CollectionModel.of(giftCertificateDTOs);
+        addOrderNavigationLinks(collection, orders, search, page, size, sortParams, minPrice, maxPrice);
+
+
+        return collection;
+    }
 }

@@ -1,7 +1,9 @@
 package com.epam.esm.core.repository;
 
 import com.epam.esm.core.entity.GiftCertificate;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,4 +33,6 @@ public interface GiftCertificateRepository extends JpaRepository<GiftCertificate
 
     @Query("SELECT gc FROM GiftCertificate gc JOIN FETCH gc.tags WHERE gc.id = :id")
     Optional<GiftCertificate> findByIdWithTags(@Param("id") Long id);
+
+    List<GiftCertificate> findAll(Specification<GiftCertificate> specification, Pageable sortedByPriceDesc);
 }
