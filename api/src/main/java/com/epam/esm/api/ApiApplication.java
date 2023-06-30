@@ -11,6 +11,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 import java.util.Objects;
@@ -22,7 +24,7 @@ import java.util.Objects;
 @ComponentScan(basePackages = {"com.epam.esm.api", "com.epam.esm.core"})
 @PropertySource("classpath:application-${spring.profiles.active}.properties")
 @EnableCaching
-public class ApiApplication{
+public class ApiApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
@@ -70,5 +72,15 @@ public class ApiApplication{
         dataSource.setConnectionTimeout(Long.parseLong(Objects.requireNonNull(env.getProperty("spring.datasource.hikari.connectionTimeout"))));
 
         return dataSource;
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("http://localhost:8080", "http://localhost:4200");
+            }
+        };
     }
 }
