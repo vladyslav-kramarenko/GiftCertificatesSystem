@@ -30,6 +30,7 @@ import java.util.List;
                                 @FieldResult(name = "duration", column = "duration"),
                                 @FieldResult(name = "createDate", column = "create_date"),
                                 @FieldResult(name = "lastUpdateDate", column = "last_update_date"),
+                                @FieldResult(name = "img", column = "img"),
                         }
                 ),
                 @EntityResult(
@@ -76,6 +77,8 @@ public class GiftCertificate extends Auditable {
     @NotNull(message = "Gift Certificate Duration cannot be blank", groups = OnCreate.class)
     @Min(value = 0, message = "Gift Certificate Duration can't be negative")
     private Integer duration;
+
+    private String img;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "gift_certificate_has_tag",
