@@ -10,6 +10,8 @@ import com.epam.esm.core.service.OrderService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,7 @@ import static com.epam.esm.api.util.Constants.*;
 @RequestMapping("/orders")
 @Validated
 public class OrderController {
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
     private final OrderService orderService;
     private final OrderAssembler orderAssembler;
 
@@ -74,6 +77,7 @@ public class OrderController {
 
     @PostMapping("")
     public ResponseEntity<?> createOrder(@RequestBody @Valid @NotNull OrderRequest orderRequest) throws ServiceException {
+        logger.info("OrderRequest: "+orderRequest);
         UserOrder newOrder = orderService.createOrder(orderRequest);
         return new ResponseEntity<>(orderAssembler.toSingleModel(newOrder), HttpStatus.CREATED);
     }
