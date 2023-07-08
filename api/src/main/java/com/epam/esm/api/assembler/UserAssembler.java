@@ -36,6 +36,7 @@ public class UserAssembler implements RepresentationModelAssembler<User, UserDTO
         userDTO.setId(user.getId());
         userDTO.setFirstName(user.getFirstName());
         userDTO.setLastName(user.getLastName());
+        userDTO.setEmail(user.getEmail());
         List<NestedOrderDTO> orders = user.getOrders().stream()
                 .map(nestedUserOrderAssembler::toModel)
                 .toList();
