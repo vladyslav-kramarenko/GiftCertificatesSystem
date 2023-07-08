@@ -53,7 +53,7 @@ public class TagController {
             CollectionModel<TagDTO> tagCollection = tagAssembler.toCollectionModel(tags, page, size, sortParams);
             return ResponseEntity.ok(tagCollection);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(new ErrorResponse("Requested resource not found", ERROR_CODE_40401));
     }
 
@@ -62,7 +62,7 @@ public class TagController {
     public ResponseEntity<?> addTag(@RequestBody @Valid @NotNull Tag tag) throws ServiceException {
         return ResponseEntity.ok(tagAssembler.toSingleModel(tagService.createTag(tag)));
     }
-////////////////////////////////////////////////////////////////
+
     @PostMapping(value = "/custom")
     @ResponseBody
     public ResponseEntity<?> addTagCustom(@Valid @RequestBody Tag tag, BindingResult bindingResult) throws ServiceException {
@@ -70,20 +70,20 @@ public class TagController {
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
             Map<String, String> errors = new HashMap<>();
             for (FieldError error : fieldErrors) {
-                errors.put(error.getField()+" (custom)", error.getDefaultMessage());
+                errors.put(error.getField() + " (custom)", error.getDefaultMessage());
             }
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
         Tag createdTag = tagService.createTag(tag);
         return new ResponseEntity<>(createdTag, HttpStatus.CREATED);
     }
-////////////////////////////////////////////////////////////////////////
+
     @GetMapping(value = "/{id}")
     @ResponseBody
     public ResponseEntity<?> getTagById(@PathVariable @Min(1) Long id) throws ServiceException {
         Optional<Tag> tag = tagService.getTagById(id);
         if (tag.isPresent()) return ResponseEntity.ok(tagAssembler.toSingleModel(tag.get()));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(new ErrorResponse("Requested resource not found (id = " + id + ")", ERROR_CODE_40401));
     }
 
@@ -107,7 +107,7 @@ public class TagController {
             int size) throws ServiceException {
         Optional<Tag> tag = tagService.getMostWidelyUsedTagWithHighestCostByUserId(userId, page, size);
         if (tag.isPresent()) return ResponseEntity.ok(tagAssembler.toSingleModel(tag.get()));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(new ErrorResponse("Requested resource not found (user ID = " + userId + ")", ERROR_CODE_40401));
 
     }
@@ -128,5 +128,22 @@ public class TagController {
             return ResponseEntity.ok(tags);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<?> getPopularTags(
+            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE)
+            @Min(value = 0, message = "Page number can't be negative")
+            int page,
+            @RequestParam(name = "size", required = false, defaultValue = "10")
+            @Min(value = 0, message = "Page size can't be negative")
+            int size) throws ServiceException {
+        List<Tag> tags = tagService.getMostWidelyUsedTags(page, size);
+        if (tags.size() > 0) {
+            CollectionModel<TagDTO> tagCollection = tagAssembler.toCollectionModel(tags, page, size, new String[]{""});
+            return ResponseEntity.ok(tagCollection);
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(new ErrorResponse("Requested resource not found", ERROR_CODE_40401));
     }
 }
