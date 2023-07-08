@@ -5,6 +5,8 @@ import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.AuthService;
 import com.epam.esm.core.service.UserService;
 import com.epam.esm.core.service.impl.PasswordEncoderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ public class LocalAuthServiceImpl implements AuthService {
     private final PasswordEncoderService passwordEncoderService;
     private final LocalJwtTokenService jwtTokenService;
     private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(LocalAuthServiceImpl.class);
 
     @Autowired
     public LocalAuthServiceImpl(
