@@ -28,5 +28,8 @@ public class GiftCertificateUtils {
         if (giftCertificateWithNewData.getPrice() != null) {
             giftCertificateToUpdate.setPrice(giftCertificateWithNewData.getPrice());
         }
+        if (giftCertificateWithNewData.getImg() != null) {
+            giftCertificateToUpdate.setImg(giftCertificateWithNewData.getImg());
+        }
     }
 }
