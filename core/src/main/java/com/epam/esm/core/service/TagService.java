@@ -6,6 +6,7 @@ import com.epam.esm.core.exception.ServiceException;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -45,4 +46,7 @@ public interface TagService {
     Optional<Tag> getMostWidelyUsedTagWithHighestCostByUserId(Long userId, int page, int size);
 
     List<MostUsedTagDTO> getMostWidelyUsedTagWithHighestCostByUserIdExtended(Long userId, int page, int size);
+
+    Map<Tag,Long> getMostWidelyUsedTagsWithCount(int page, int size);
+    List<Tag> getMostWidelyUsedTags(int page, int size);
 }

@@ -99,6 +99,20 @@ public class TagServiceImpl implements TagService {
         );
     }
 
+    @Override
+    public Map<Tag, Long> getMostWidelyUsedTagsWithCount(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return convertToTagMap(
+                tagRepository.findMostWidelyUsedTags(pageable)
+        );
+    }
+
+    @Override
+    public List<Tag> getMostWidelyUsedTags(int page, int size) {
+        return getMostWidelyUsedTagsWithCount(page, size).keySet().stream().toList();
+    }
+
+
     private List<MostUsedTagDTO> convertToMostUsedTagDTOList(List<Object[]> objectList) {
         List<MostUsedTagDTO> dtoList = new ArrayList<>();
         for (Object[] object : objectList) {
@@ -112,5 +126,18 @@ public class TagServiceImpl implements TagService {
             dtoList.add(dto);
         }
         return dtoList;
+    }
+
+    private Map<Tag, Long> convertToTagMap(List<Object[]> objectList) {
+        Map<Tag, Long> tagMap = new HashMap();
+        for (Object[] object : objectList) {
+            Long tagId = ((Integer) object[0]).longValue();
+            String tagName = (String) object[1];
+            Long count = ((Long) object[2]);
+
+            Tag tag = new Tag(tagId, tagName);
+            tagMap.put(tag, count);
+        }
+        return tagMap;
     }
 }

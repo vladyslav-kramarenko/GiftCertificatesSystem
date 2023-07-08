@@ -45,4 +45,18 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     )
     List<Object[]> findMostWidelyUsedTagWithHighestCostByUserIdExtended(
             @Param("userId") Long userId, Pageable pageable);
+
+    @Query(value = """
+            SELECT t.id, t.name, COUNT(t.id)
+            FROM tag t 
+            JOIN gift_certificate_has_tag gct ON t.id = gct.tag_id
+            JOIN gift_certificate gc ON gct.gift_certificate_id = gc.id
+            JOIN order_has_gift_certificate ogc ON ogc.gift_certificate_id = gc.id
+            GROUP BY t.id 
+            ORDER BY 
+                COUNT(t.id) DESC""",
+            nativeQuery = true
+    )
+    List<Object[]> findMostWidelyUsedTags(
+            Pageable pageable);
 }
