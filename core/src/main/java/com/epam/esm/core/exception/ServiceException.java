@@ -1,10 +1,12 @@
 package com.epam.esm.core.exception;
 
-import java.sql.SQLException;
-
-public class ServiceException extends SQLException {
+public class ServiceException extends Exception {
     public ServiceException(String msg) {
         super(msg);
+    }
+
+    public ServiceException(String msg, Exception e) {
+        super(msg, e);
     }
 }
 

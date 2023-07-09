@@ -18,12 +18,14 @@ public abstract class BaseSecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/certificates/search/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/tags/popular").permitAll()
+                .requestMatchers(HttpMethod.GET, "/image/**").permitAll()
 
                 .requestMatchers(HttpMethod.POST, "/orders").authenticated()
                 .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                 .requestMatchers(HttpMethod.GET, "/validate-token").authenticated()
                 .requestMatchers(new AntPathRequestMatcher("/users/{id}/**", HttpMethod.GET.name())).authenticated()
 
+                .requestMatchers(HttpMethod.POST, "/image/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/certificates/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/certificates/**").hasRole("ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/**")).hasRole("ADMIN")

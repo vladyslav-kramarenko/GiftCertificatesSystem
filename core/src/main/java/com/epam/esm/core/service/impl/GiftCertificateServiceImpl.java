@@ -6,6 +6,7 @@ import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
 import com.epam.esm.core.service.GiftCertificateService;
+import com.epam.esm.core.service.ImgService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +39,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final GiftCertificateRepository giftCertificateRepository;
     private final TagRepository tagRepository;
 
+    private final ImgService imgService;
+
     @Autowired
-    public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateRepository, TagRepository tagRepository) {
+    public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateRepository, TagRepository tagRepository, ImgService imgService) {
         this.giftCertificateRepository = Objects.requireNonNull(giftCertificateRepository, "GiftCertificateRepository must be initialised");
         this.tagRepository = Objects.requireNonNull(tagRepository, "TagRepository must be initialised");
+        this.imgService = Objects.requireNonNull(imgService, "ImgService must be initialised");
     }
 
     /**
@@ -115,7 +119,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         Pageable sortedByPriceDesc = PageRequest.of(page, size, sort.orElse(Sort.by(Sort.Direction.ASC, "id")));
 
         List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(specification, sortedByPriceDesc);
-        for(GiftCertificate cert:giftCertificates){
+        for(GiftCertificate cert : giftCertificates) {
             logger.info(cert.getName());
             logger.info(cert.getDescription());
             logger.info(cert.getTags().toString());
@@ -176,8 +180,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             if (optionalOldGiftCertificate.isEmpty()) return Optional.empty();
             GiftCertificate oldGiftCertificate = optionalOldGiftCertificate.get();
 
+            String oldImagePath=oldGiftCertificate.getImg();
+
             updateCertificate(oldGiftCertificate, giftCertificate);
             giftCertificateRepository.save(oldGiftCertificate);
+
+            if(!giftCertificate.getImg().equals(oldImagePath)){
+                imgService.deleteImage(oldImagePath);
+            }
 
             if (giftCertificate.getTags() != null) {
                 giftCertificateRepository.deleteAllTagsForCertificateById(oldGiftCertificate.getId());
