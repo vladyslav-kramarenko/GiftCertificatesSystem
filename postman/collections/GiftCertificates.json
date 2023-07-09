@@ -1,0 +1,1268 @@
+{
+	"info": {
+		"_postman_id": "2ef03193-0c95-4444-adca-0420854cff62",
+		"name": "GiftCertificates",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "21265866-2ef03193-0c95-4444-adca-0420854cff62"
+	},
+	"item": [
+		{
+			"name": "Certificates",
+			"item": [
+				{
+					"name": "ALL Certificates",
+					"id": "7381842d-94ed-4c4d-90e3-da22471f7752",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/certificates?size=50&sort=id,desc,name,desc&tags=beetle,toys",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"certificates"
+							],
+							"query": [
+								{
+									"key": "tags",
+									"value": "Leather,indigo",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2000",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "50"
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": "id,desc,name,desc"
+								},
+								{
+									"key": "tags",
+									"value": "beetle,toys",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"id": "cc8e6515-cfb0-4fb5-9650-4b9c0cfd9968",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/certificates/search?searchTerm=&pageNo=0&pageSize=10&sort=price,asc&minPrice=0&maxPrice=0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"certificates",
+								"search"
+							],
+							"query": [
+								{
+									"key": "searchTerm",
+									"value": ""
+								},
+								{
+									"key": "pageNo",
+									"value": "0"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								},
+								{
+									"key": "sort",
+									"value": "price,asc"
+								},
+								{
+									"key": "minPrice",
+									"value": "0"
+								},
+								{
+									"key": "maxPrice",
+									"value": "0"
+								},
+								{
+									"key": "tags",
+									"value": "Leather,indigo",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2000",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Certificate by ID",
+					"id": "108ee560-60d0-4b10-82e8-41c1f1550312",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/certificates/20",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"certificates",
+								"20"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Certificate",
+					"id": "4ac79bb8-bdf0-42e9-b512-e8866f0c9160",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"name\": \"Test Wine Tasting Tour\",\r\n    \"description\": \"Explore local wineries and savor a variety of delicious wines\",\r\n    \"price\": 3399.99,\r\n    \"duration\": 33180,\r\n    \"tags\": [\r\n        {\r\n            \"name\": \"Sports\"\r\n        },\r\n        {\r\n            \"name\": \"Music Lover\"\r\n        },\r\n        {\r\n            \"name\": \"Gamer\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/certificates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"certificates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Certificate by ID",
+					"id": "294140ea-ee6c-4f25-bb7f-bab14f06ab30",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"change Aerodynamic Aluminum Pants\",\r\n    \"description\": \"change Et ex explicabo quia voluptatem ut nam iusto omnis fuga tempore quisquam ipsam omnis qui.\",\r\n    \"price\": 111413.74,\r\n    \"duration\": 1141,\r\n    \"tags\": [\r\n        {\r\n            \"name\": \"Paper\"\r\n        },\r\n        {\r\n            \"name\": \"Rock\"\r\n        },\r\n        {\r\n            \"name\": \"Scissors\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/certificates/251",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"certificates",
+								"251"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Certificate by ID",
+					"id": "9bae36d7-5fdf-4f5b-974c-65576bd8900b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/certificates/27",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"certificates",
+								"27"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "2b9481ae-596f-4925-97f0-19547b461153"
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "ALL Tags",
+					"id": "8e5de9c6-6238-4d76-8962-28aeb42f0381",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tags?sort=id,desc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tags"
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "id,desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Popular",
+					"id": "b45088e6-f0ed-4b9f-ba72-81228fcf8ed2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tags/popular?size=2&page=0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tags",
+								"popular"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Tag by id",
+					"id": "473eb856-4ab0-474d-ad54-33c6be265f19",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tags/11",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tags",
+								"11"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Tag by id",
+					"id": "ab5a1901-5752-4762-ae84-0e6d21a80b9c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tags/11",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tags",
+								"11"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "most used tags",
+					"id": "7c762699-1a6f-4a99-87e3-c27266c39476",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tags/most-used?userId=645&page=0&size=5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tags",
+								"most-used"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "645"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "most used tags ext",
+					"id": "a7e8e0df-dda5-487e-b58a-e76637919fdf",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/tags/most-used-ext?userId=645&page=0&size=5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tags",
+								"most-used-ext"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "645"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "sort",
+									"value": "id,desc",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TagCustom",
+					"id": "04db4c05-d8c7-4821-a685-0230f4b2e3e4",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test Adventure 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/tags",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Tag",
+					"id": "58fcf5fe-6b5a-4a95-94b2-e5d014a10ef0",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ilk2NlE5WFB0dFQ4RzhTR0hlODdIUyJ9.eyJpc3MiOiJodHRwczovL2Rldi1rcmFtYXJlbmtvLmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2NDU5YjA4YWYwZTFhMWI4MDgyZDY3M2QiLCJhdWQiOlsiaHR0cHM6Ly9naWZ0LWNlcnRpZmljYXRlcy1zeXN0ZW0tYXBpLmNvbSIsImh0dHBzOi8vZGV2LWtyYW1hcmVua28uZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTY4MzU5OTUyNiwiZXhwIjoxNjgzNjg1OTI2LCJhenAiOiJUOXdCM2dsSG10QTB2dDVNZTZxM05pSHBXQkZhTHZzbSIsInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUgcmVhZDp0YWdzIHJlYWQ6Y2VydGlmaWNhdGVzIHJlYWQ6b3JkZXJzIiwiZ3R5IjoicGFzc3dvcmQifQ.RbTzJmZYvEAz99Wl-c8uUDwSEjiGza8q6z-ez76cpSTIDVbIspUjhy1Ks4RwHDSxEwrgbzJyxjfUDicubLUHrfROb4UAnDL_huRPW57z3zDRtIEWv5A4vEhdveeBAZcL_VOZHAZv2leCA8ekzK9LOGbF-7wZ6qgvEZ2n1Ix5VmqLLDh1VaV4mg46SPfpNHqFuLDh_GnFZDzjEHEJsfj_qQP9VPo9cC3t4b91JJTAuzvT27ffncletJ-glyt10intpJp_qNf4PFMZn6AinDNPoANx2SOcoLBb47unfS4h3Vo2mKusRFEjjnVQqliXwGSDUMbEGC3heNvFeKk138Ds9w",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test Adventure 234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/tags",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tags"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "b77a7154-67e7-462f-8103-daf551ac247a"
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "All Users",
+					"id": "8a91c4e2-ee2c-43dd-af05-1e80d573477e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users?sort=id,desc&page=0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "id,desc"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": null,
+									"type": "text",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User by id",
+					"id": "416479a7-03d3-4940-86dd-bcf35c84cded",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserOrders",
+					"id": "3d325096-c029-4308-b5f5-dd2d3d895c70",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/users/1/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"1",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "70e6016a-5995-4d52-85b2-1f3620a93de9"
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "All Orders",
+					"id": "a54050ed-7ddf-4f54-9e9d-ba85599e23c8",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/orders?sort=id,desc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"orders"
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "id,desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Order by id",
+					"id": "92ee0ce4-de54-4862-804c-7cd1d51331e7",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/orders/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"orders",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Order",
+					"id": "c9f8319c-4354-40d7-8fc9-4d12efc4a673",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ilk2NlE5WFB0dFQ4RzhTR0hlODdIUyJ9.eyJodHRwczovL2dpZnQtY2VydGlmaWNhdGVzLXN5c3RlbS1hcGkvZW1haWwiOiJqb2huZml2ZS5kb2VAZXhhbXBsZS5jb20iLCJpc3MiOiJodHRwczovL2Rldi1rcmFtYXJlbmtvLmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2NDU5ZTVlNDFiYTZhNGIwNDMxNTQzZGQiLCJhdWQiOlsiaHR0cHM6Ly9naWZ0LWNlcnRpZmljYXRlcy1zeXN0ZW0tYXBpLmNvbSIsImh0dHBzOi8vZGV2LWtyYW1hcmVua28uZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTY4MzYxMzE3MCwiZXhwIjoxNjgzNjk5NTcwLCJhenAiOiJUOXdCM2dsSG10QTB2dDVNZTZxM05pSHBXQkZhTHZzbSIsInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUgcmVhZDp0YWdzIHJlYWQ6Y2VydGlmaWNhdGVzIHJlYWQ6b3JkZXJzIiwiZ3R5IjoicGFzc3dvcmQifQ.LzrN-Tz85kseJmuEP2NjRrCDIjEglk1kaRbmMCeo--gjeebZ9VS4eJVuKA77hJRA-Qycv5Xf5dOUItVIv9uQSc68MSkJdcSDY1gWRCETLJrAYgFwV1FcOJfH6Jh1H50ODC4dg1Tw3ysAEzj22u0emMAB2MRjJY8MVIKnC99TkXoC1LnfszIZWb5PsAN6rLtLcz7OPmkBLMCfZumjmluANj8Pocl9JmGrl5G0pNopsQDRBfEIvQnp0jOj3eCv0mMFvq7Vahj_n21KSzaYpw5j8i0xhUooowuERBqJJy1QCRum0GuJN0iKxLHiYGMBrbSnK5jXaeLbJHh6sjgvkYijgw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userId\": 131,\r\n  \"giftCertificates\": [\r\n    {\r\n      \"giftCertificateId\": 56,\r\n      \"quantity\": 3\r\n    },\r\n    {\r\n      \"giftCertificateId\": 2,\r\n      \"quantity\": 1\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "b019477c-e6ce-4c14-b84e-f79449780e40"
+		},
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "Local",
+					"item": [
+						{
+							"name": "Register",
+							"id": "ac0140e5-d073-4f01-b6c1-e663b538c49f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "email",
+											"value": "johnEight.doe@test.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "your-password-123-!!!",
+											"type": "text"
+										},
+										{
+											"key": "firstName",
+											"value": "johnnine",
+											"type": "text"
+										},
+										{
+											"key": "lastName",
+											"value": "doe",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8080/auth/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"id": "058545a0-0241-41d2-9587-e38100772b5e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "email",
+											"value": "johnFive.doe@example.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "your-password-123-!!!",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8080/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth",
+										"login"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": null,
+											"type": "text",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"id": "1351654c-38eb-499e-93e2-10e57d634dc0",
+									"name": "Login",
+									"originalRequest": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "email",
+													"value": "johnFive.doe@example.com",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "your-password-123-!!!",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://localhost:8080/auth/login",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"auth",
+												"login"
+											],
+											"query": [
+												{
+													"key": "email",
+													"value": null,
+													"type": "text",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "257"
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 06 Jul 2023 01:41:37 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huRml2ZS5kb2VAZXhhbXBsZS5jb20iLCJ1c2VyX2lkIjo1MTE3LCJyb2xlcyI6WyJBRE1JTiIsIlVTRVJfSURfNTExNyJdLCJpc3MiOiJodHRwczovL2dpZnQtY2VydGlmaWNhdGUtc2VydmljZS5jb20iLCJleHAiOjE2ODg2MTEyOTd9.1kzSLJNPSAK3QK17fOfNxGA5_umRnHvRiDbZFdiir30"
+								}
+							]
+						}
+					],
+					"id": "04405365-2ec2-49f3-9c83-404915037670"
+				},
+				{
+					"name": "Auth0",
+					"item": [
+						{
+							"name": "Register Auth0",
+							"id": "f86aaa9d-02c1-48d3-b137-066318e64fb7",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "email",
+											"value": "johnEleven.doe@test.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "your-password-123-!!!",
+											"type": "text"
+										},
+										{
+											"key": "firstName",
+											"value": "johnnEleven",
+											"type": "text"
+										},
+										{
+											"key": "lastName",
+											"value": "doe",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8080/auth0/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth0",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login Auto0",
+							"id": "5339691b-caf2-46a9-bb87-a49191fb5be0",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "email",
+											"value": "john17.doe@test.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "your-password-123-!!!",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "audience",
+											"value": "https://gift-certificates-system-api.com",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "scope",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "client_id",
+											"value": "VAUXprqM3uF1AJTHcp4WTBqjCf9BkjpP",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "client_secret",
+											"value": "kKCWYxUddmMZoTYqnTGhVYwg_NIeM56foD_1CWHVx54aPVoWMDukccOJLkVMAo6m",
+											"type": "text",
+											"disabled": true
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8080/auth0/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth0",
+										"login"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "johnEleven11.doe@test.com",
+											"disabled": true
+										},
+										{
+											"key": "password",
+											"value": "your-password-123-!!!",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RefreshAuth0Token",
+							"id": "5f82cb4e-f498-43a8-a91d-e22723555c31",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"client_id\":\"VAUXprqM3uF1AJTHcp4WTBqjCf9BkjpP\",\"client_secret\":\"kKCWYxUddmMZoTYqnTGhVYwg_NIeM56foD_1CWHVx54aPVoWMDukccOJLkVMAo6m\",\r\n    \"audience\":\"https://gift-certificates-system-api.com\",\r\n    \"grant_type\":\"the_refresh_token\"\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://dev-kramarenko.eu.auth0.com/oauth/token",
+									"protocol": "https",
+									"host": [
+										"dev-kramarenko",
+										"eu",
+										"auth0",
+										"com"
+									],
+									"path": [
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ObtainAuth0Token",
+							"id": "85cba60b-5023-493e-80b0-99fb445fd119",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"client_id\":\"VAUXprqM3uF1AJTHcp4WTBqjCf9BkjpP\",\"client_secret\":\"kKCWYxUddmMZoTYqnTGhVYwg_NIeM56foD_1CWHVx54aPVoWMDukccOJLkVMAo6m\",\r\n    \"audience\":\"https://gift-certificates-system-api.com\",\r\n    \"grant_type\":\"client_credentials\",\r\n    \"username\":\"john.doe@example.com\"\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://dev-kramarenko.eu.auth0.com/oauth/token",
+									"protocol": "https",
+									"host": [
+										"dev-kramarenko",
+										"eu",
+										"auth0",
+										"com"
+									],
+									"path": [
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "aac9a3d7-dfae-4a83-be37-866b3f2c18a3"
+				},
+				{
+					"name": "Me",
+					"id": "53c2980e-eb31-4b32-9e50-b0fa3ecffd86",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/auth/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "babdfb34-8fc2-413f-85e6-b2a58012b7fd"
+		},
+		{
+			"name": "Generate data",
+			"id": "b37f164e-7ca4-4ed8-abc9-ed1d8ee98e42",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/generate?usersCount=1000&tagsCount=1000&giftCertificatesCount=1000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"generate"
+					],
+					"query": [
+						{
+							"key": "usersCount",
+							"value": "1000"
+						},
+						{
+							"key": "tagsCount",
+							"value": "1000"
+						},
+						{
+							"key": "giftCertificatesCount",
+							"value": "1000"
+						},
+						{
+							"key": "ordersCount",
+							"value": "1000",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ilk2NlE5WFB0dFQ4RzhTR0hlODdIUyJ9.eyJpc3MiOiJodHRwczovL2Rldi1rcmFtYXJlbmtvLmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2NDU5OWNmMDY0N2FjZGNjMWJjYzAyYTgiLCJhdWQiOlsiaHR0cHM6Ly9naWZ0LWNlcnRpZmljYXRlcy1zeXN0ZW0tYXBpLmNvbSIsImh0dHBzOi8vZGV2LWtyYW1hcmVua28uZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTY4MzU5NTAzOCwiZXhwIjoxNjgzNjgxNDM4LCJhenAiOiJUOXdCM2dsSG10QTB2dDVNZTZxM05pSHBXQkZhTHZzbSIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgcmVhZDp0YWdzIHJlYWQ6Y2VydGlmaWNhdGVzIHJlYWQ6b3JkZXJzIiwiZ3R5IjoicGFzc3dvcmQifQ.cuLODvQPgMI2bK8b0Q0xlIF42g7-fz6U__i10hKFu7xRxrz4ZRJLM_JKGcLi_a2oC5yaWnKIWkMDHm71rETEWz9dRrDVANvjba2YHb1wJ0M2wJFlqErhlU07ubM2m6fXCCImfpVwTyLV_1Vx8x9GsmUSS_DFVAs595eV2XAAkaXeiKBg_Fp6fhv2hDUEj12rp3LU8WXsFGfoN1l1AGTGc9poNqipjhLuWm2Yp-QkLVC2LkgXh_oJnlLWLS6icLOa-8C3QwZcBAiKyveYHMYeMRDrbAcHPLmz8fL21dBlk95KJKSVp9Y2O17lCTWWC-HYfEca0laGepd0WD27evWpQQ",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "3f6fb30d-4d42-4198-ba07-829f493167c2",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "3bcd1c83-3e26-4447-92bc-af82e0458eb2",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
