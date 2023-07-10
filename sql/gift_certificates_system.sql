@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`gift_certificate`
     `id`               INT            NOT NULL AUTO_INCREMENT,
     `name`             VARCHAR(64)    NOT NULL,
     `description`      VARCHAR(255)   NULL,
+    `img`              VARCHAR(255)   NULL,
     `price`            DECIMAL(10, 2) NULL,
     `duration`         INT            NULL,
     `create_date`      DATETIME       NULL DEFAULT CURRENT_TIMESTAMP,
