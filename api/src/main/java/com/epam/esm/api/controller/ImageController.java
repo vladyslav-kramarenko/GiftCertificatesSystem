@@ -3,7 +3,7 @@ package com.epam.esm.api.controller;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.service.ImgService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -32,14 +32,12 @@ public class ImageController {
     }
 
     @GetMapping("/{path}")
-    public ResponseEntity<Resource> getImage(@PathVariable("path") @Min(0) String path, HttpServletRequest request) throws ServiceException {
-        logger.info("request:");
-        logger.info(String.valueOf(request));
+    public ResponseEntity<Resource> getImage(@PathVariable("path") @NotNull String path, HttpServletRequest request) throws ServiceException {
+        logger.debug("request:");
+        logger.debug(String.valueOf(request));
         Resource file = imgService.loadImageAsResource(path);
 
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-
-
     }
 }
