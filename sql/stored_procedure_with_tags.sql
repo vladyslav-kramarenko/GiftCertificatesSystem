@@ -23,12 +23,12 @@ BEGIN
             gc.duration,
             gc.create_date,
             gc.last_update_date,
-			t.id AS tag_id,
+            gc.image,
+            t.id AS tag_id,
             t.name AS tag_name
         FROM gift_certificate gc
         LEFT JOIN gift_certificate_has_tag gct ON gc.id = gct.gift_certificate_id
         LEFT JOIN tag t ON gct.tag_id = t.id
-        WHERE (
             gc.name LIKE CONCAT("%", ?, "%") OR
             gc.description LIKE CONCAT("%", ?, "%")
         )
