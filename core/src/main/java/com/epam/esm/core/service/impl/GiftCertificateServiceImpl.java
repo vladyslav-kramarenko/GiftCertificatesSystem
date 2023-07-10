@@ -5,6 +5,7 @@ import com.epam.esm.core.entity.Tag;
 import com.epam.esm.core.exception.ServiceException;
 import com.epam.esm.core.repository.GiftCertificateRepository;
 import com.epam.esm.core.repository.TagRepository;
+import com.epam.esm.core.repository.specs.DistinctSpecification;
 import com.epam.esm.core.service.GiftCertificateService;
 import com.epam.esm.core.service.ImgService;
 import org.slf4j.Logger;
@@ -73,16 +74,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public List<GiftCertificate> getGiftCertificates(String searchQuery, String[] tags, int page, int size, String[] sortParams) {
-        logger.info("page size = " + size);
-        logger.info("page # = " + page);
-        logger.info("pageLimit = " + page * size);
+        logger.debug("page size = " + size);
+        logger.debug("page # = " + page);
+        logger.debug("pageLimit = " + page * size);
         Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
         String tagsFilter = tags != null ? String.join(",", tags) : "";
         String sortConditions = concatSort(sort.orElse(null), "id asc");
         if (searchQuery == null) searchQuery = "";
-        logger.info("searchQuery = " + searchQuery);
-        logger.info("sortConditions = " + sortConditions);
-        logger.info("tagsFilter = " + tagsFilter);
+        logger.debug("searchQuery = " + searchQuery);
+        logger.debug("sortConditions = " + sortConditions);
+        logger.debug("tagsFilter = " + tagsFilter);
         List<GiftCertificate> result = new ArrayList<>(giftCertificateRepository.findAll(
                 searchQuery,
                 sortConditions,
@@ -90,39 +91,45 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 size,
                 tagsFilter
         ));
-        logger.info("List<GiftCertificate>.size = " + result.size());
+        logger.debug("List<GiftCertificate>.size = " + result.size());
         return result;
     }
 
     @Override
     public List<GiftCertificate> searchGiftCertificates(String searchTerm, int page, int size, Integer minPrice, Integer maxPrice, String[] sortParams) {
 
-
         Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
-        logger.info("searchTerm = " + searchTerm);
-
+        logger.debug("searchTerm = " + searchTerm + "; page = " + page + "; size = " + size);
+        if (searchTerm == null) searchTerm = "";
         Specification<GiftCertificate> specification = Specification
                 .where(hasNameLike(searchTerm))
                 .or(hasDescriptionLike(searchTerm))
                 .or(hasTagLike(searchTerm));
 
         if (minPrice != null && minPrice > 0) {
-            logger.info("minPrice = " + minPrice);
+            logger.debug("minPrice = " + minPrice);
             specification = specification.and(hasPriceGreaterThanOrEqual(BigDecimal.valueOf(minPrice)));
         }
 
         if (maxPrice != null && maxPrice > 0) {
-            logger.info("maxPrice = " + maxPrice);
+            logger.debug("maxPrice = " + maxPrice);
             specification = specification.and(hasPriceLessThanOrEqual(BigDecimal.valueOf(maxPrice)));
         }
 
-        Pageable sortedByPriceDesc = PageRequest.of(page, size, sort.orElse(Sort.by(Sort.Direction.ASC, "id")));
+        Sort defaultSort = Sort.by(Sort.Direction.ASC, "id");
 
-        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(specification, sortedByPriceDesc);
-        for(GiftCertificate cert : giftCertificates) {
-            logger.info(cert.getName());
-            logger.info(cert.getDescription());
-            logger.info(cert.getTags().toString());
+        Pageable pageable = PageRequest.of(page, size, sort.orElse(defaultSort));
+        logger.debug(pageable.toString());
+
+        specification = new DistinctSpecification<>(specification);
+
+        List<GiftCertificate> giftCertificates = giftCertificateRepository.findAll(specification, pageable);
+        logger.debug("send certificates from server:");
+        for (GiftCertificate cert : giftCertificates) {
+            logger.debug(cert.getId().toString());
+            logger.debug(cert.getName());
+            logger.debug(cert.getDescription());
+            logger.debug(cert.getTags().toString());
         }
         return giftCertificates;
     }
@@ -180,12 +187,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             if (optionalOldGiftCertificate.isEmpty()) return Optional.empty();
             GiftCertificate oldGiftCertificate = optionalOldGiftCertificate.get();
 
-            String oldImagePath=oldGiftCertificate.getImg();
+            String oldImagePath = oldGiftCertificate.getImg();
 
             updateCertificate(oldGiftCertificate, giftCertificate);
             giftCertificateRepository.save(oldGiftCertificate);
 
-            if(!giftCertificate.getImg().equals(oldImagePath)){
+            if (giftCertificate.getImg() != null && !giftCertificate.getImg().equals(oldImagePath)) {
                 imgService.deleteImage(oldImagePath);
             }
 
