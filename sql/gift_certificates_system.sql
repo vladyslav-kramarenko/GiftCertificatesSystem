@@ -68,6 +68,16 @@ CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`gift_certificate_has_tag`
             ON UPDATE CASCADE
 );
 
+-- -----------------------------------------------------
+-- Table `gift_certificates_system`.`role`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`role`
+(
+    `id`   INT         NOT NULL,
+    `name` VARCHAR(45) NULL,
+    PRIMARY KEY (`id`)
+);
+
 
 -- -----------------------------------------------------
 -- Table `gift_certificates_system`.`user`
@@ -75,14 +85,19 @@ CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`gift_certificate_has_tag`
 CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`user`
 (
     `id`           INT         NOT NULL AUTO_INCREMENT,
-    `auth0user_id` VARCHAR(45) NOT NULL,
     `first_name`   VARCHAR(45) NOT NULL,
     `last_name`    VARCHAR(45) NULL,
-    `email`        VARCHAR(45) NOT NULL,
-    `is_admin`     BOOLEAN     NOT NULL DEFAULT 0,
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `name_UNIQUE` (`auth0user_id` ASC) VISIBLE
-
+    `role_id`      INT         NOT NULL DEFAULT 1,
+    `email`        VARCHAR(45) NULL,
+    `auth0user_id` VARCHAR(45) NULL,
+    `password`     VARCHAR(64) NULL,
+    PRIMARY KEY (`id`, `role_id`),
+    INDEX `fk_user_role1_idx` (`role_id` ASC) VISIBLE,
+    CONSTRAINT `fk_user_role1`
+        FOREIGN KEY (`role_id`)
+            REFERENCES `gift_certificates_system`.`role` (`id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
 );
 
 
