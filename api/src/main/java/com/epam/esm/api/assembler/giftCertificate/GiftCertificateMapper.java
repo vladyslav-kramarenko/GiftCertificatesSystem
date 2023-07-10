@@ -12,6 +12,7 @@ public class GiftCertificateMapper {
         dto.setDuration(giftCertificate.getDuration());
         dto.setCreateDate(giftCertificate.getCreateDate());
         dto.setLastUpdateDate(giftCertificate.getLastUpdateDate());
+        dto.setImg(giftCertificate.getImg());
         return dto;
     }
 }
