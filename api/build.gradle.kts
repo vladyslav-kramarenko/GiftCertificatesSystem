@@ -24,6 +24,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
+
+    implementation("org.springframework.boot:spring-boot-starter-cache:3.1.1")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
@@ -41,6 +44,8 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
     implementation("org.hibernate.validator:hibernate-validator-annotation-processor:8.0.0.Final")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
+
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.6")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

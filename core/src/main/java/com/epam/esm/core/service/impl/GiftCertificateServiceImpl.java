@@ -11,6 +11,7 @@ import com.epam.esm.core.service.ImgService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -96,7 +97,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    @Cacheable(value = "certificates", key = "{#searchTerm, #page, #size, #minPrice, #maxPrice, #sortParams != null ? T(java.util.Arrays).toString(#sortParams) : null}")
     public List<GiftCertificate> searchGiftCertificates(String searchTerm, int page, int size, Integer minPrice, Integer maxPrice, String[] sortParams) {
+        logger.debug("searchTerm.toString() = " + searchTerm + "; page = " + page + "; size = " + size + "; minPrice = " + "; maxPrice = " + maxPrice + "; Arrays.toString(sortParams) = " + Arrays.toString(sortParams));
+        logger.debug("Executing searchGiftCertificates - this message should only display when the method is called, not when the result is served from cache");
 
         Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
         logger.debug("searchTerm = " + searchTerm + "; page = " + page + "; size = " + size);
