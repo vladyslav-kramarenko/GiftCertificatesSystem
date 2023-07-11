@@ -11,6 +11,7 @@ import com.epam.esm.core.service.ImgService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
@@ -103,7 +104,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         logger.debug("Executing searchGiftCertificates - this message should only display when the method is called, not when the result is served from cache");
 
         Optional<Sort> sort = createSort(sortParams, ALLOWED_GIFT_CERTIFICATE_SORT_FIELDS, ALLOWED_SORT_DIRECTIONS);
-        logger.debug("searchTerm = " + searchTerm + "; page = " + page + "; size = " + size);
+        logger.debug("sort: " + sort.toString());
+
         if (searchTerm == null) searchTerm = "";
         Specification<GiftCertificate> specification = Specification
                 .where(hasNameLike(searchTerm))
@@ -123,7 +125,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         Sort defaultSort = Sort.by(Sort.Direction.ASC, "id");
 
         Pageable pageable = PageRequest.of(page, size, sort.orElse(defaultSort));
-        logger.debug(pageable.toString());
+        logger.debug("pageable: " + pageable);
 
         specification = new DistinctSpecification<>(specification);
 
@@ -146,6 +148,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      */
     @Override
     @Transactional(rollbackFor = ServiceException.class)
+    @CacheEvict(value = "certificates", allEntries = true)
     public GiftCertificate createGiftCertificate(GiftCertificate giftCertificate) throws ServiceException {
         giftCertificate.setTags(updateTagsFromBd(giftCertificate.getTags()));
         giftCertificateRepository.save(giftCertificate);
@@ -185,6 +188,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      */
     @Override
     @Transactional(rollbackFor = ServiceException.class)
+    @CacheEvict(value = "certificates", allEntries = true)
     public Optional<GiftCertificate> updateGiftCertificate(Long id, GiftCertificate giftCertificate) throws ServiceException {
         try {
             Optional<GiftCertificate> optionalOldGiftCertificate = giftCertificateRepository.findById(id);
@@ -222,6 +226,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      * @throws IllegalArgumentException if the specified Gift Certificate is used in an order
      */
     @Override
+    @CacheEvict(value = "certificates", allEntries = true)
     public void deleteGiftCertificate(Long id) {
         try {
             giftCertificateRepository.deleteById(id);
