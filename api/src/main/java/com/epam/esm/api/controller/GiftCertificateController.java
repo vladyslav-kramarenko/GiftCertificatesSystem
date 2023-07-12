@@ -96,6 +96,7 @@ public class GiftCertificateController {
             @Validated(OnUpdate.class)
             @NotNull
             GiftCertificate certificate) throws ServiceException {
+        logger.debug("img = "+certificate.getImg());
         Optional<GiftCertificate> updatedCertificate = giftCertificateService.updateGiftCertificate(id, certificate);
         if (updatedCertificate.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -173,7 +174,7 @@ public class GiftCertificateController {
             @Min(value = 0, message = "Page size can't be negative")
             int maxPrice
     ) throws ServiceException {
-        logger.info("sort_input = " + sortParams);
+        logger.debug("sort_input = " + sortParams);
         List<GiftCertificate> certificates = giftCertificateService.searchGiftCertificates(
                 searchTerm, page, size, minPrice, maxPrice, sortParams);
         if (certificates.size() > 0) {
