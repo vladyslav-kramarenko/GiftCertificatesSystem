@@ -6,13 +6,13 @@
     <logger name="org.hibernate" level="INFO"/>
     <logger name="org.springframework.transaction" level="INFO"/>
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>${catalina.base}/logs/gift-certificates-system-api.log</file>
+        <file>logs/gift-certificates-system-api.log</file>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
 </configuration>
