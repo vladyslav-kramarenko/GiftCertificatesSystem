@@ -1,5 +1,7 @@
 package com.epam.esm.api.controller;
 
+import com.epam.esm.core.entity.AuthenticationResponse;
+import com.epam.esm.core.repository.RefreshTokenRepository;
 import com.epam.esm.core.service.AuthService;
 import com.epam.esm.core.service.impl.auth.local.LocalAuthServiceImpl;
 import jakarta.validation.constraints.Email;
@@ -28,7 +30,7 @@ public class AuthControllerLocal {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<?> login(
             @RequestParam @NotNull @Email String email,
             @RequestParam @NotNull String password
     ) throws Exception {
@@ -44,6 +46,11 @@ public class AuthControllerLocal {
             @RequestParam(name = "lastName", required = false) String lastName
     ) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(email, password, firstName, lastName));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) throws Exception {
+        return ResponseEntity.ok(authService.validateRefreshToken(refreshToken));
     }
 
     @GetMapping("/me")

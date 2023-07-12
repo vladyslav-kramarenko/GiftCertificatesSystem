@@ -23,7 +23,7 @@ public class AuthControllerAuth0 {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<?> login(
             @RequestParam @NotNull @Email String email,
             @RequestParam @NotNull String password
     ) throws Exception {

@@ -21,6 +21,7 @@ public interface UserService {
     Optional<User> getUserById(Long id) throws ServiceException;
 
     Optional<User> findByEmail(String email);
+    Optional<User> findById(Long id);
 
     /**
      * Creates a new tag.

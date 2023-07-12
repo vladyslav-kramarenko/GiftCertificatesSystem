@@ -43,7 +43,7 @@ public class Auth0AuthServiceImpl implements AuthService {
         this.restTemplate = new RestTemplate();
     }
 
-    public ResponseEntity<String> authenticateUser(String email, String password) throws JSONException, Auth0Exception {
+    public ResponseEntity<?> authenticateUser(String email, String password) throws JSONException, Auth0Exception {
         String url = HTTPS + auth0Domain + "/oauth/token";
         JSONObject body = createAuth0AuthenticationObject(email, password);
         HttpEntity<String> requestEntity = createHttpEntity(body, null);
@@ -54,6 +54,11 @@ public class Auth0AuthServiceImpl implements AuthService {
             response = new ResponseEntity<>(responseBody.toString(), response.getHeaders(), response.getStatusCode());
         }
         return response;
+    }
+
+    @Override
+    public ResponseEntity<?> validateRefreshToken(String token) throws Exception {
+        return null;
     }
 
     public User registerUser(String email, String password, String firstName, String lastName) throws JSONException {

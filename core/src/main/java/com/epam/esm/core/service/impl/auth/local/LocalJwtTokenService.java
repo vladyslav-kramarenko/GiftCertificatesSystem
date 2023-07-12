@@ -26,27 +26,35 @@ import static com.epam.esm.core.util.CoreConstants.*;
 public class LocalJwtTokenService {
     private static final Logger logger = LoggerFactory.getLogger(LocalJwtTokenService.class);
     protected Key key;
+
     public LocalJwtTokenService() {
         key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
+
     public Key getKey() {
         return key;
     }
 
-    public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
+    public String generateAccessToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
         long expirationTimeLong = 1L * ONE_HOUR;
         return generateToken(user, userAuthorities, expirationTimeLong);
     }
+
     public String generateToken(User user, List<SimpleGrantedAuthority> userAuthorities, long expirationTimeLong) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", user.getEmail());
         claims.put(GIFT_CERTIFICATE_SERVICE_USER_ID_CLAIM, user.getId());
-        List<String> authorities = userAuthorities.stream()
-                .map(SimpleGrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-        claims.put(GIFT_CERTIFICATE_SERVICE_ROLES_CLAIM, authorities);
+
+        if (userAuthorities != null && userAuthorities.size() > 0) {
+            List<String> authorities = userAuthorities.stream()
+                    .map(SimpleGrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+            claims.put(GIFT_CERTIFICATE_SERVICE_ROLES_CLAIM, authorities);
+        }
+
         Date now = new Date(System.currentTimeMillis());
         Date expirationDate = new Date(now.getTime() + expirationTimeLong);
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuer(GIFT_CERTIFICATE_SERVICE_TOKEN_ISSUER)
@@ -54,6 +62,7 @@ public class LocalJwtTokenService {
                 .signWith(key)
                 .compact();
     }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -66,10 +75,11 @@ public class LocalJwtTokenService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Malformed JWT token");
         }
     }
-    public String generateRefreshToken(User user, List<SimpleGrantedAuthority> userAuthorities) {
-        long expirationTimeLong = 7L * ONE_DAY;
-        return generateToken(user, userAuthorities, expirationTimeLong);
+
+    public String generateRefreshToken() {
+        return UUID.randomUUID().toString();
     }
+
     public String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
@@ -77,6 +87,7 @@ public class LocalJwtTokenService {
         }
         return null;
     }
+
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         String email = claims.getSubject();

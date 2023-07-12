@@ -144,6 +144,15 @@ CREATE TABLE IF NOT EXISTS `gift_certificates_system`.`order_has_gift_certificat
             ON UPDATE NO ACTION
 );
 
+CREATE TABLE refresh_tokens
+(
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT          NOT NULL,
+    token       VARCHAR(255) NOT NULL,
+    expiry_date DATETIME     NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user (id)
+);
+
 USE `gift_certificates_system`;
 
 DELIMITER $$
