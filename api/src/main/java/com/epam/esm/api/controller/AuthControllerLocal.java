@@ -1,11 +1,11 @@
 package com.epam.esm.api.controller;
 
-import com.epam.esm.core.entity.AuthenticationResponse;
-import com.epam.esm.core.repository.RefreshTokenRepository;
 import com.epam.esm.core.service.AuthService;
 import com.epam.esm.core.service.impl.auth.local.LocalAuthServiceImpl;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/auth")
 public class AuthControllerLocal {
+    private static final Logger logger = LoggerFactory.getLogger(AuthControllerLocal.class);
     private final AuthService authService;
 
     @Autowired
@@ -34,7 +35,16 @@ public class AuthControllerLocal {
             @RequestParam @NotNull @Email String email,
             @RequestParam @NotNull String password
     ) throws Exception {
-        return authService.authenticateUser(email, password);
+        return ResponseEntity.ok(authService.authenticateUser(email, password));
+    }
+
+    @PostMapping("/logout")
+    @Transactional
+    public ResponseEntity<?> logout(
+            @RequestParam(name = "refreshToken") String refreshToken
+    ) {
+        authService.deleteRefreshToken(refreshToken);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/register")
@@ -49,7 +59,10 @@ public class AuthControllerLocal {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) throws Exception {
+    public ResponseEntity<?> refreshToken(
+            @RequestParam(name = "refreshToken") String refreshToken
+    ) throws Exception {
+        logger.debug("receive refresh token: " + refreshToken);
         return ResponseEntity.ok(authService.validateRefreshToken(refreshToken));
     }
 

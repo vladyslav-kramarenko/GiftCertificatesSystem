@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -42,7 +42,7 @@ public class LocalAuthServiceImpl implements AuthService {
         this.userService = Objects.requireNonNull(userService);
     }
 
-    public ResponseEntity<?> authenticateUser(String email, String password) {
+    public AuthenticationResponse authenticateUser(String email, String password) {
         Optional<User> userOptional = userService.findByEmail(email);
         if (userOptional.isPresent() && passwordEncoderService.matches(password, userOptional.get().getPassword())) {
             return generateResponseTokens(userOptional.get());
@@ -51,13 +51,15 @@ public class LocalAuthServiceImpl implements AuthService {
         }
     }
 
-    private ResponseEntity<?> generateResponseTokens(User user) {
+    private AuthenticationResponse generateResponseTokens(User user) {
         String accessToken = jwtTokenService.generateAccessToken(user, generateAuthoritiesList(user));
         String refreshToken = jwtTokenService.generateRefreshToken();
 
         saveRefreshToken(refreshToken, user.getId());
 
-        return ResponseEntity.ok(new AuthenticationResponse(accessToken, refreshToken));
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse(accessToken);
+        authenticationResponse.setRefreshToken(refreshToken);
+        return authenticationResponse;
     }
 
     private List<SimpleGrantedAuthority> generateAuthoritiesList(User user) {
@@ -75,17 +77,25 @@ public class LocalAuthServiceImpl implements AuthService {
         refreshTokenRepository.save(newRefreshToken);
     }
 
+    @Transactional
+    public void deleteRefreshToken(String token) {
+        refreshTokenRepository.deleteByToken(token);
+    }
+
     @Override
-    public ResponseEntity<?> validateRefreshToken(String token) {
+    @Transactional
+    public AuthenticationResponse validateRefreshToken(String token) throws ServiceException {
         Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByToken(token);
 
         if (refreshTokenOptional.isPresent()) {
             Long userId = refreshTokenOptional.get().getUserId();
-            refreshTokenRepository.delete(refreshTokenOptional.get());
+
+            deleteRefreshToken(token);
             Optional<User> userOptional = userService.findById(userId);
             return generateResponseTokens(userOptional.get());
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+        logger.error("refresh token is not founded in the database");
+        throw new ServiceException("Invalid refresh token.");
     }
 
     public User registerUser(String email, String password, String firstName, String lastName) throws ServiceException {

@@ -4,14 +4,19 @@ import com.auth0.client.auth.AuthAPI;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.UserInfo;
 import com.auth0.net.Response;
+import com.epam.esm.core.entity.AuthenticationResponse;
 import com.epam.esm.core.entity.User;
 import com.epam.esm.core.service.AuthService;
 import com.epam.esm.core.service.UserService;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -36,6 +41,7 @@ public class Auth0AuthServiceImpl implements AuthService {
     private String scope;
     private final RestTemplate restTemplate;
     private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(Auth0AuthServiceImpl.class);
 
     @Autowired
     public Auth0AuthServiceImpl(UserService userService) {
@@ -43,7 +49,7 @@ public class Auth0AuthServiceImpl implements AuthService {
         this.restTemplate = new RestTemplate();
     }
 
-    public ResponseEntity<?> authenticateUser(String email, String password) throws JSONException, Auth0Exception {
+    public AuthenticationResponse authenticateUser(String email, String password) throws JSONException, Auth0Exception, ChangeSetPersister.NotFoundException {
         String url = HTTPS + auth0Domain + "/oauth/token";
         JSONObject body = createAuth0AuthenticationObject(email, password);
         HttpEntity<String> requestEntity = createHttpEntity(body, null);
@@ -51,14 +57,22 @@ public class Auth0AuthServiceImpl implements AuthService {
         User user = checkUserInOurDb(response);
         if (user != null) {
             JSONObject responseBody = new JSONObject(response.getBody());
-            response = new ResponseEntity<>(responseBody.toString(), response.getHeaders(), response.getStatusCode());
+            logger.info(String.valueOf(responseBody));
+            String accessToken = responseBody.getString("access_token");
+            String refreshToken = responseBody.has("refresh_token") ? responseBody.getString("refresh_token") : null;
+            String idToken = responseBody.has("id_token") ? responseBody.getString("id_token") : null;
+
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(accessToken);
+            authenticationResponse.setRefreshToken(refreshToken);
+            authenticationResponse.setId_token(idToken);
+            return authenticationResponse;
         }
-        return response;
+        throw new ChangeSetPersister.NotFoundException();
     }
 
     @Override
-    public ResponseEntity<?> validateRefreshToken(String token) throws Exception {
-        return null;
+    public AuthenticationResponse validateRefreshToken(String token){
+        throw new NotImplementedException("RefreshToken validation for auth0 is not implemented yet");
     }
 
     public User registerUser(String email, String password, String firstName, String lastName) throws JSONException {
@@ -74,6 +88,11 @@ public class Auth0AuthServiceImpl implements AuthService {
             if (!auth0UserId.isEmpty()) deleteUser(auth0UserId);
             throw new IllegalStateException("Failed to create user");
         }
+    }
+
+    @Override
+    public void deleteRefreshToken(String refreshToken) {
+
     }
 
     private JSONObject createAuth0AuthenticationObject(String email, String password) throws JSONException {
