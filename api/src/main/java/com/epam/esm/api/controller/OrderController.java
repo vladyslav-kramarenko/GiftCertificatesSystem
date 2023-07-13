@@ -57,7 +57,7 @@ public class OrderController {
             return ResponseEntity.ok(orderCollection);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested resource not found", ERROR_CODE_40401));
+                .body(new ErrorResponse("Requested resource not found", ERROR_NOT_FOUND));
     }
 
     @GetMapping(value = "/{id}")
@@ -66,7 +66,7 @@ public class OrderController {
         Optional<UserOrder> order = orderService.getOrderById(id);
         if (order.isPresent()) return ResponseEntity.ok(orderAssembler.toSingleModel(order.get()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested resource not found (id = " + id + ")", ERROR_CODE_40401));
+                .body(new ErrorResponse("Requested resource not found (id = " + id + ")", ERROR_NOT_FOUND));
     }
 
     @DeleteMapping(value = "/{id}")

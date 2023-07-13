@@ -4,6 +4,8 @@ import com.epam.esm.core.service.AuthService;
 import com.epam.esm.core.service.impl.auth.local.LocalAuthServiceImpl;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/auth")
 public class AuthControllerLocal {
+    private static final Logger logger = LoggerFactory.getLogger(AuthControllerLocal.class);
     private final AuthService authService;
 
     @Autowired
@@ -28,11 +31,20 @@ public class AuthControllerLocal {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<?> login(
             @RequestParam @NotNull @Email String email,
             @RequestParam @NotNull String password
     ) throws Exception {
-        return authService.authenticateUser(email, password);
+        return ResponseEntity.ok(authService.authenticateUser(email, password));
+    }
+
+    @PostMapping("/logout")
+    @Transactional
+    public ResponseEntity<?> logout(
+            @RequestParam(name = "refreshToken") String refreshToken
+    ) {
+        authService.deleteRefreshToken(refreshToken);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/register")
@@ -44,6 +56,14 @@ public class AuthControllerLocal {
             @RequestParam(name = "lastName", required = false) String lastName
     ) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(email, password, firstName, lastName));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(
+            @RequestParam(name = "refreshToken") String refreshToken
+    ) throws Exception {
+        logger.debug("receive refresh token: " + refreshToken);
+        return ResponseEntity.ok(authService.validateRefreshToken(refreshToken));
     }
 
     @GetMapping("/me")

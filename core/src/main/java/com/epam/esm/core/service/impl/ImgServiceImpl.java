@@ -40,9 +40,9 @@ public class ImgServiceImpl implements ImgService {
     @Override
     public Resource loadImageAsResource(String imagePath) throws ServiceException {
         try {
-            logger.info("imagePath = "+imagePath);
+            logger.debug("imagePath = "+imagePath);
             Path filePath = this.fileStorageLocation.resolve(imagePath).normalize();
-            logger.info("filePath = "+filePath);
+            logger.debug("filePath = "+filePath);
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists()) {
                 return resource;
@@ -60,13 +60,13 @@ public class ImgServiceImpl implements ImgService {
     public String saveImage(MultipartFile image) throws ServiceException {
         try {
             String originalFilename = Objects.requireNonNull(image.getOriginalFilename());
-            logger.info("originalFilename = "+originalFilename);
+            logger.debug("originalFilename = "+originalFilename);
 
             String newFilename = UUID.randomUUID() + "." + StringUtils.getFilenameExtension(originalFilename);
-            logger.info("newFilename = "+newFilename);
+            logger.debug("newFilename = "+newFilename);
 
             Path targetLocation = this.fileStorageLocation.resolve(newFilename);
-            logger.info("targetLocation = "+targetLocation);
+            logger.debug("targetLocation = "+targetLocation);
 
             Files.copy(image.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
@@ -82,9 +82,9 @@ public class ImgServiceImpl implements ImgService {
             if (imagePath == null || imagePath.isEmpty()) {
                logger.error("File name is empty");
             } else {
-                logger.info("imagePath = "+imagePath);
+                logger.debug("imagePath = "+imagePath);
                 Path targetPath = this.fileStorageLocation.resolve(imagePath).normalize();
-                logger.info("targetPath = "+targetPath);
+                logger.debug("targetPath = "+targetPath);
                 Files.delete(targetPath);
             }
         } catch (NoSuchFileException x) {

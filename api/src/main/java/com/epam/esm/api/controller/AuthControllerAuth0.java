@@ -23,11 +23,11 @@ public class AuthControllerAuth0 {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<?> login(
             @RequestParam @NotNull @Email String email,
             @RequestParam @NotNull String password
     ) throws Exception {
-        return authService.authenticateUser(email, password);
+        return ResponseEntity.ok(authService.authenticateUser(email, password));
     }
 
     @PostMapping("/register")

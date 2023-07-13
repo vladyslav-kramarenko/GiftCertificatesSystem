@@ -64,7 +64,7 @@ public class GiftCertificateController {
     public ResponseEntity<?> getGiftCertificateById(@PathVariable @Min(0) Long id) throws ServiceException {
         Optional<GiftCertificate> certificate = giftCertificateService.getGiftCertificateById(id);
         if (certificate.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", ERROR_CODE_40401));
+                .body(new ErrorResponse("Requested certificate not found (id = " + id + ")", ERROR_NOT_FOUND));
         return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(certificate.get()));
     }
 
@@ -96,11 +96,12 @@ public class GiftCertificateController {
             @Validated(OnUpdate.class)
             @NotNull
             GiftCertificate certificate) throws ServiceException {
+        logger.debug("img = "+certificate.getImg());
         Optional<GiftCertificate> updatedCertificate = giftCertificateService.updateGiftCertificate(id, certificate);
         if (updatedCertificate.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse(
-                            "Requested certificate not found (id = " + id + ")", ERROR_CODE_40401)
+                            "Requested certificate not found (id = " + id + ")", ERROR_NOT_FOUND)
                     );
         }
         return ResponseEntity.ok(giftCertificateAssembler.toSingleModel(updatedCertificate.get()));
@@ -173,7 +174,6 @@ public class GiftCertificateController {
             @Min(value = 0, message = "Page size can't be negative")
             int maxPrice
     ) throws ServiceException {
-        logger.info("sort_input = " + sortParams);
         List<GiftCertificate> certificates = giftCertificateService.searchGiftCertificates(
                 searchTerm, page, size, minPrice, maxPrice, sortParams);
         if (certificates.size() > 0) {
