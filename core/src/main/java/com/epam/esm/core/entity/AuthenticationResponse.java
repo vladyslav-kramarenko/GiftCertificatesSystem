@@ -8,9 +8,9 @@ import lombok.Setter;
 public class AuthenticationResponse {
     private String accessToken;
     private String refreshToken;
+    private String id_token;
 
-    public AuthenticationResponse(String accessToken, String refreshToken) {
+    public AuthenticationResponse(String accessToken) {
         this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
     }
 }
