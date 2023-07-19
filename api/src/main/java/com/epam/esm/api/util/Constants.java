@@ -5,6 +5,7 @@ public class Constants {
     public static final String DEFAULT_PAGE_SIZE = "10";
     public static final String DEFAULT_SORT = "name,asc";
     public static final String ERROR_NOT_FOUND = "40401";
+    public static final String ERROR_NO_CONTENT = "201";
     public static final String ERROR_CONSTRAINT_VIOLATION = "40001";
     public static final String ERROR_METHOD_ARGUMENT_NOT_VALID = "40002";
     public static final String ERROR_DATA_INTEGRITY_VIOLATION = "40003";
