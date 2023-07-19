@@ -64,7 +64,7 @@ public class Auth0AuthServiceImpl implements AuthService {
 
             AuthenticationResponse authenticationResponse = new AuthenticationResponse(accessToken);
             authenticationResponse.setRefreshToken(refreshToken);
-            authenticationResponse.setId_token(idToken);
+            authenticationResponse.setIdToken(idToken);
             return authenticationResponse;
         }
         throw new ChangeSetPersister.NotFoundException();

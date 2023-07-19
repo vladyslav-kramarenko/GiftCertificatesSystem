@@ -8,7 +8,7 @@ import lombok.Setter;
 public class AuthenticationResponse {
     private String accessToken;
     private String refreshToken;
-    private String id_token;
+    private String idToken;
 
     public AuthenticationResponse(String accessToken) {
         this.accessToken = accessToken;
