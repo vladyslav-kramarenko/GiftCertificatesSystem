@@ -41,7 +41,7 @@ This project includes a Jenkinsfile that automates the CI/CD pipeline as specifi
 
 ### Technology Stack
 
-- JDK version: 11, utilizing Streams and java.time.
+- JDK version: 17, utilizing Streams.
 - Spring Framework for web application development.
 - PostgreSQL/MySQL database for data storage.
 - JUnit and Mockito for testing.
